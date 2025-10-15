@@ -1,0 +1,29 @@
+{
+  "name": "shrink-theme-duplicate",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "concurrently \"shopify theme dev\" \"npx @tailwindcss/cli -i ./assets/tailwind.input.css -o ./assets/tailwind.output.css --watch\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/reachBorinhun/Shrine-theme-dupi.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/reachBorinhun/Shrine-theme-dupi/issues"
+  },
+  "homepage": "https://github.com/reachBorinhun/Shrine-theme-dupi#readme",
+  "dependencies": {
+    "@tailwindcss/cli": "^4.1.14",
+    "tailwindcss": "^4.1.14"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
