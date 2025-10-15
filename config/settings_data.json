@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "current": {
     "animations_type": "zAe8jHnG9RMnB/DOM303KYQjtev06bUFWdDzuqGBerxd0CmZ8XaxlqPdW4Ccnuew+pWWtR3CAdBpicj/1tRpRGnA4eGv7ZApQ42n43akNyA5Zw3cHWYhY4gXeGoQlEumq0B3BHYWVbLEzNt345SiNLhp9SrMQYcXC0XHZ4jxvBe1+fNXoQ9BZ5kiIOxECszTmrQULG39inQtFgotAngjoZz6HUVL2QSjBNRKGh1El5FvRudk8lX0HHmE6FVa52tmeFiloZvBfm8L7z9nometP4aePMSk+3scLkiKaL/+3xxP+8ED3s78mDTg+EcAENT7uBu6dCt1jgAfmo5iHlmu6ngFvtGoC5118CN+hmgauwIVsYeuC4Gh9ejHfuSnB4oPhqZ1iqKuiXXlj2/inxEUQQ==",
@@ -192,6 +201,7 @@
     "cart_upsell_2_desc": "",
     "cart_upsell_2_btn_label": "+ Add",
     "section_animation_type": "none",
+    "_shrine_token_injected": "2025-10-01T15:04:13.705Z",
     "sections": {
       "main-password-header": {
         "type": "main-password-header",
@@ -553,8 +563,7 @@
         }
       }
     },
-    "content_for_index": [],
-    "_shrine_token_injected": "2025-10-01T15:04:13.705Z"
+    "content_for_index": []
   },
   "presets": {
     "Default": {

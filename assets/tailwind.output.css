@@ -241,9 +241,6 @@
   .flex-grow {
     flex-grow: 1;
   }
-  .border-collapse {
-    border-collapse: collapse;
-  }
   .transform {
     transform: var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,);
   }
@@ -268,17 +265,11 @@
     border-style: var(--tw-border-style);
     border-width: 1px;
   }
-  .bg-red-600 {
-    background-color: var(--color-red-600);
-  }
   .pt-0 {
     padding-top: calc(var(--spacing) * 0);
   }
   .pb-0 {
     padding-bottom: calc(var(--spacing) * 0);
-  }
-  .text-green-500 {
-    color: var(--color-green-500);
   }
   .capitalize {
     text-transform: capitalize;
