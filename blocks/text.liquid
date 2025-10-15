@@ -1,0 +1,142 @@
+{% liquid
+  assign has_desktop_align = true
+  if section.settings.desktop_content_alignment == 'left' or section.settings.desktop_content_alignment == 'center' or section.settings.desktop_content_alignment == 'right'
+    assign has_desktop_align = false
+  endif
+
+  assign has_mobile_align = true
+  if section.settings.mobile_content_alignment == 'left' or section.settings.mobile_content_alignment == 'center' or section.settings.mobile_content_alignment == 'right'
+    assign has_mobile_align = false
+  endif
+%}
+<style>
+  {% if block.settings.enable_custom_color %}
+    .rich-text-block-{{ block.id }} {
+      --color-foreground: {{ block.settings.custom_text_color.red }}, {{ block.settings.custom_text_color.green }}, {{ block.settings.custom_text_color.blue }};
+      color: rgb(var(--color-foreground));
+    }
+  {% endif %}
+  .rich-text-block-{{ block.id }} p {
+    font-size: {{ block.settings.text_size | divided_by: 10.0 }}rem;
+  }
+</style>
+<div
+  class="rich-text-block rich-text-block-{{ block.id }} rte{% if has_desktop_align %} {{ block.settings.alignment }}{% endif %}{% if has_mobile_align %} {{ block.settings.mobile_alignment }}{% endif %}"
+  style="
+    margin-top: {{ block.settings.margin_top | divided_by: 10.0 }}rem;
+    margin-bottom: {{ block.settings.margin_bottom | divided_by: 10.0 }}rem;
+  "
+>
+  {{ block.settings.text }}
+</div>
+
+{% schema %}
+{
+  "name": "Text",
+  "tag": null,
+  "settings": [
+    {
+      "type": "richtext",
+      "id": "text",
+      "default": "<p>Use the flexible grid system to create any layout. Each block can be placed in any of the columns.</p>",
+      "label": "Text"
+    },
+    {
+      "type": "select",
+      "id": "alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "left",
+      "label": "Desktop alignment",
+      "visible_if": "{{ section.settings.desktop_content_alignment != 'left' and section.settings.desktop_content_alignment != 'center' and section.settings.desktop_content_alignment != 'right' }}"
+    },
+    {
+      "type": "select",
+      "id": "mobile_alignment",
+      "options": [
+        {
+          "value": "mobile-left",
+          "label": "Left"
+        },
+        {
+          "value": "mobile-center",
+          "label": "Center"
+        },
+        {
+          "value": "mobile-right",
+          "label": "Right"
+        }
+      ],
+      "default": "mobile-center",
+      "label": "Mobile alignment",
+      "visible_if": "{{ section.settings.mobile_content_alignment != 'left' and section.settings.mobile_content_alignment != 'center' and section.settings.mobile_content_alignment != 'right' }}"
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "min": 10,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 14,
+      "label": "Text size"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_custom_color",
+      "default": false,
+      "label": "Enable custom text color"
+    },
+    {
+      "type": "color",
+      "id": "custom_text_color",
+      "label": "Custom text color",
+      "default": "#FF0000",
+      "visible_if": "{{ block.settings.enable_custom_color }}"
+    },
+    {
+      "type": "header",
+      "content": "Margins"
+    },
+    {
+      "type": "range",
+      "id": "margin_top",
+      "label": "Top",
+      "min": 0,
+      "max": 45,
+      "step": 3,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "margin_bottom",
+      "label": "Bottom",
+      "min": 0,
+      "max": 45,
+      "step": 3,
+      "unit": "px",
+      "default": 15,
+      "visible_if": "{{ section.settings.image_1_visibility != 'mobile-hidden' and section.settings.image_1_visibility != 'always-display' }}"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Text",
+      "category": "Text"
+    }
+  ]
+}
+{% endschema %}

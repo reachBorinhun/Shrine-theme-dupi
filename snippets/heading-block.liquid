@@ -1,0 +1,231 @@
+{% liquid
+  assign title = block.settings.title
+  assign highlight_style_1 = block.settings.title_highlight_1
+  assign highlight_style_2 = block.settings.title_highlight_2
+
+  assign has_desktop_align = true
+  if section.settings.desktop_content_alignment == 'left' or section.settings.desktop_content_alignment == 'center' or section.settings.desktop_content_alignment == 'right'
+    assign has_desktop_align = false
+  endif
+
+  assign has_mobile_align = true
+  if section.settings.mobile_content_alignment == 'left' or section.settings.mobile_content_alignment == 'center' or section.settings.mobile_content_alignment == 'right'
+    assign has_mobile_align = false
+  endif
+%}
+
+{% if block.settings.heading_size == 'custom' %}
+  <style>
+    .heading-{{ block.id }} {
+      font-size: {{ block.settings.custom_desktop_size | divided_by: 1.3 | times: settings.heading_scale  | divided_by: 1000.0  }}rem;
+    }
+    @media screen and (max-width: 749px) {
+      .heading-{{ block.id }} {
+        font-size: {{ block.settings.custom_mobile_size | divided_by: 1.3 | times: settings.heading_scale  | divided_by: 1000.0 }}rem;
+      }
+    }
+  </style>
+{% endif %}
+<h2
+  class="
+    heading heading-{{ block.id }}{{class }}
+    {{ block.settings.heading_size }}{% if has_desktop_align %} {{ block.settings.alignment }}{% endif %}{% if has_mobile_align %} {{ block.settings.mobile_alignment }}{% endif %}
+    {% if block.settings.title_highlight_1 == 'gradient-color' %}
+      title-with-highlight-1--color-gradient
+    {% endif %}
+    {% if block.settings.title_highlight_1 == 'solid-color' or block.settings.title_highlight_1 == 'bg-color' %}
+      title-with-highlight-1--color
+    {% endif %}
+    {% if block.settings.title_highlight_1 == 'bg-color' %}
+      title-with-highlight-1--color
+      title-with-highlight-1--border
+      title-with-highlight-1--bg-color
+    {% endif %}
+    {% if block.settings.title_highlight_1 == 'underline-solid' or block.settings.title_highlight_1 == 'underline-gradient' %}
+      title-with-highlight-1--underline
+    {% endif %}
+    {% if block.settings.title_highlight_1 == 'line-1' or block.settings.title_highlight_1 == 'line-2' or block.settings.title_highlight_1 == 'line-3'%}
+      title-with-highlight-1--handwritten-underline
+    {% endif %}
+    {% if block.settings.title_highlight_2 == 'none' %}
+      title-with-highlight-2--italic
+    {% endif %}
+    {% if block.settings.title_highlight_2 == 'gradient-color' %}
+      title-with-highlight-2--color-gradient
+    {% endif %}
+    {% if block.settings.title_highlight_2 == 'solid-color' or block.settings.title_highlight_2 == 'bg-color' %}
+      title-with-highlight-2--color
+    {% endif %}
+    {% if block.settings.title_highlight_2 == 'bg-color' %}
+      title-with-highlight-2--color
+      title-with-highlight-2--border
+      title-with-highlight-2--bg-color
+    {% endif %}
+    {% if block.settings.title_highlight_2 == 'underline-solid' or block.settings.title_highlight_2 == 'underline-gradient' %}
+      title-with-highlight-2--underline
+    {% endif %}
+    {% if block.settings.title_highlight_2 == 'line-1' or block.settings.title_highlight_2 == 'line-2' or block.settings.title_highlight_2 == 'line-3'%}
+      title-with-highlight-2--handwritten-underline
+    {% endif %}
+  "
+  style="
+    margin-top: {{ block.settings.margin_top | divided_by: 10.0 }}rem;
+    margin-bottom: {{ block.settings.margin_bottom | divided_by: 10.0 }}rem;
+    {% if block.settings.enable_custom_color %}
+      color: {{ block.settings.custom_color }};
+    {% endif %}
+    {% if block.settings.title_highlight_1 == 'solid-color' or block.settings.title_highlight_1 == 'bg-color' %}
+      --hightlight-1--color:{{ block.settings.title_highlight_1_color }};
+    {% endif %}
+    {% if block.settings.title_highlight_1 == 'gradient-color' %}
+      --hightlight-1--color:{{ block.settings.title_highlight_1_gradient }};
+    {% endif %}
+    {% if block.settings.title_highlight_1 == 'bg-color' %}
+      --hightlight-1--bg-color:{{ block.settings.title_highlight_1_bg-color }};
+
+      --hightlight-1--padding-inline: {{ block.settings.highlighted-1_padding-inline }}em;
+      --hightlight-1--padding-block: {{ block.settings.highlighted-1_padding-block }}em;
+
+      --hightlight-1--border-style: {{ block.settings.highlighted-1_border }};
+      --hightlight-1--color-border: {{ block.settings.highlighted-1_border_color }};
+      --hightlight-1--border-width: {{ block.settings.highlighted-1_border_width }}px;
+      --hightlight-1--border-radius: {{ block.settings.highlighted-1_border_radius }}px;
+      --hightlight-1--border-color: var(--hightlight-1--color-border);
+    {% endif %}
+    {% if block.settings.title_highlight_1 == 'underline-solid' or block.settings.title_highlight_1 == 'underline-gradient' %}
+      --hightlight-1--underline-color:{{ block.settings.title_highlight_1_underline-color }};
+      --highlight-1--underline-color-position:{{ block.settings.title_highlight_1_underline-color-position | times: 4 }}%;
+    {% endif %}
+    {% if block.settings.title_highlight_1 == 'underline-gradient' %}
+      --hightlight-1--underline-color:{{ block.settings.title_highlight_1_underline-color--gradient }};
+    {% endif %}
+    --hightlight-1--underline-thickness:{{ block.settings.title_highlight_1_underline-thickness }}px;
+    {% if block.settings.title_highlight_1 == 'line-1' or block.settings.title_highlight_1 == 'line-2' or block.settings.title_highlight_1 == 'line-3'%}
+      --highlight-1--handwritten-underline-color: {{ block.settings.title_highlight_1_handwritten-color }};
+      {% liquid
+        assign stroke_multiplier = 6
+        if block.settings.title_highlight_1 == 'line-2'
+          assign stroke_multiplier = 10
+          elsif block.settings.title_highlight_1 == 'line-3'
+          assign stroke_multiplier = 3.5
+        endif
+      %}
+      --highlight-1--handwritten-underline-stroke-width: {{ block.settings.title_highlight_1_handwritten-stroke-width | times: stroke_multiplier }};
+      --highlight-1--handwritten-underline-stroke-position: {{ block.settings.title_highlight_1_handwritten-position }}%;
+    {% endif %}
+
+    {% if block.settings.title_highlight_2 == 'solid-color' or block.settings.title_highlight_2 == 'bg-color' %}
+      --hightlight-2--color:{{ block.settings.title_highlight_2_color }};
+    {% endif %}
+    {% if block.settings.title_highlight_2 == 'gradient-color' %}
+      --hightlight-2--color:{{ block.settings.title_highlight_2_gradient }};
+    {% endif %}
+    {% if block.settings.title_highlight_2 == 'bg-color' %}
+      --hightlight-2--bg-color:{{ block.settings.title_highlight_2_bg-color }};
+
+      --hightlight-2--padding-inline: {{ block.settings.highlighted-2_padding-inline }}em;
+      --hightlight-2--padding-block: {{ block.settings.highlighted-2_padding-block }}em;
+
+      --hightlight-2--border-style: {{ block.settings.highlighted-2_border }};
+      --hightlight-2--color-border: {{ block.settings.highlighted-2_border_color }};
+      --hightlight-2--border-width: {{ block.settings.highlighted-2_border_width }}px;
+      --hightlight-2--border-radius: {{ block.settings.highlighted-2_border_radius }}px;
+      --hightlight-2--border-color: var(--hightlight-2--color-border);
+    {% endif %}
+    {% if block.settings.title_highlight_2 == 'underline-solid' or block.settings.title_highlight_2 == 'underline-gradient' %}
+      --hightlight-2--underline-color:{{ block.settings.title_highlight_2_underline-color }};
+      --highlight-2--underline-color-position:{{ block.settings.title_highlight_2_underline-color-position | times: 4 }}%;
+    {% endif %}
+    {% if block.settings.title_highlight_2 == 'underline-gradient' %}
+      --hightlight-2--underline-color:{{ block.settings.title_highlight_2_underline-color--gradient }};
+    {% endif %}
+    --hightlight-2--underline-thickness:{{ block.settings.title_highlight_2_underline-thickness }}px;
+    {% if block.settings.title_highlight_2 == 'line-1' or block.settings.title_highlight_2 == 'line-2' or block.settings.title_highlight_2 == 'line-3'%}
+      --highlight-2--handwritten-underline-color: {{ block.settings.title_highlight_2_handwritten-color }};
+      {% liquid
+        assign stroke_multiplier = 6
+        if block.settings.title_highlight_2 == 'line-2'
+          assign stroke_multiplier = 10
+          elsif block.settings.title_highlight_2 == 'line-3'
+          assign stroke_multiplier = 3.5
+        endif
+      %}
+      --highlight-2--handwritten-underline-stroke-width: {{ block.settings.title_highlight_2_handwritten-stroke-width | times: stroke_multiplier }};
+      --highlight-2--handwritten-underline-stroke-position: {{ block.settings.title_highlight_2_handwritten-position }}%;
+    {% endif %}
+  "
+  role="region"
+  aria-label="{{ block.settings.title | escape }}"
+  {{ block.shopify_attributes }}
+>
+  {% assign parts = title | split: '<strong>' %}
+  {% assign first_part = parts[0] | split: '<em>' %}
+  {{ first_part[0] }}
+  {% for e_part in first_part offset: 1 %}
+    {% assign inner_em = e_part | split: '</em>' %}
+    <em class="{{ highlight_style_2 }}">
+      {{ inner_em[0] }}
+      {% case highlight_style_2 %}
+        {% when 'line-1' %}
+          {% render 'icon-underline-1' %}
+        {% when 'line-2' %}
+          {% render 'icon-underline-2' %}
+        {% when 'line-3' %}
+          {% render 'icon-underline-3' %}
+      {% endcase %}
+    </em>
+    {{ inner_em[1] }}
+  {% endfor %}
+
+  {% for part in parts offset: 1 %}
+    {% assign inner_parts = part | split: '</strong>' %}
+    <strong class="{{ highlight_style_1 }}">
+      {% assign strong_content = inner_parts[0] %}
+      {% assign strong_em_parts = strong_content | split: '<em>' %}
+      {{ strong_em_parts[0] }}
+
+      {% for e_part in strong_em_parts offset: 1 %}
+        {% assign inner_em = e_part | split: '</em>' %}
+        <em class="{{ highlight_style_2 }}">
+          {{ inner_em[0] }}
+          {% case highlight_style_2 %}
+            {% when 'line-1' %}
+              {% render 'icon-underline-1' %}
+            {% when 'line-2' %}
+              {% render 'icon-underline-2' %}
+            {% when 'line-3' %}
+              {% render 'icon-underline-3' %}
+          {% endcase %}
+        </em>
+        {{ inner_em[1] }}
+      {% endfor %}
+
+      {% case highlight_style_1 %}
+        {% when 'line-1' %}
+          {% render 'icon-underline-1' %}
+        {% when 'line-2' %}
+          {% render 'icon-underline-2' %}
+        {% when 'line-3' %}
+          {% render 'icon-underline-3' %}
+      {% endcase %}
+    </strong>
+
+    {% assign after_strong = inner_parts[1] | split: '<em>' %}
+    {{ after_strong[0] }}
+    {% for e_part in after_strong offset: 1 %}
+      {% assign inner_em = e_part | split: '</em>' %}
+      <em class="{{ highlight_style_2 }}">
+        {{ inner_em[0] }}
+        {% case highlight_style_2 %}
+          {% when 'line-1' %}
+            {% render 'icon-underline-1' %}
+          {% when 'line-2' %}
+            {% render 'icon-underline-2' %}
+          {% when 'line-3' %}
+            {% render 'icon-underline-3' %}
+        {% endcase %}
+      </em>
+      {{ inner_em[1] }}
+    {% endfor %}
+  {% endfor %}
+</h2>

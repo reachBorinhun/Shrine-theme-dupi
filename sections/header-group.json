@@ -1,0 +1,178 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "name": "t:sections.header.name",
+  "type": "header",
+  "sections": {
+    "2c2ec774-3430-481f-b927-e9c035b9d24e": {
+      "type": "horizontal-ticker",
+      "blocks": {
+        "sections-18060430639399_2c2ec774-3430-481f-b927-e9c035b9d24e-1679250655d32e639c-0": {
+          "type": "text",
+          "settings": {
+            "title": "WELCOME!"
+          }
+        },
+        "sections-18060430639399_2c2ec774-3430-481f-b927-e9c035b9d24e-1679250655d32e639c-1": {
+          "type": "text",
+          "settings": {
+            "title": "SITEWIDE SALE"
+          }
+        },
+        "sections-18060430639399_2c2ec774-3430-481f-b927-e9c035b9d24e-1679250655d32e639c-2": {
+          "type": "text",
+          "settings": {
+            "title": "USE CODE X FOR X% OFF!"
+          }
+        }
+      },
+      "block_order": [
+        "sections-18060430639399_2c2ec774-3430-481f-b927-e9c035b9d24e-1679250655d32e639c-0",
+        "sections-18060430639399_2c2ec774-3430-481f-b927-e9c035b9d24e-1679250655d32e639c-1",
+        "sections-18060430639399_2c2ec774-3430-481f-b927-e9c035b9d24e-1679250655d32e639c-2"
+      ],
+      "disabled": true,
+      "settings": {
+        "display_id": false,
+        "visibility": "always-display",
+        "speed": 3,
+        "direction": "normal",
+        "stop_on_hover": false,
+        "mobile_spacing": 60,
+        "desktop_spacing": 100,
+        "color_scheme": "accent-1",
+        "custom_colors_background": "#ffffff",
+        "custom_gradient_background": "",
+        "custom_colors_text": "#2e2a39",
+        "mobile_text_size": 16,
+        "desktop_text_size": 18,
+        "italic_text": false,
+        "uppercase_text": false,
+        "bold_text": false,
+        "mobile_image_height": 26,
+        "desktop_image_height": 40,
+        "mobile_video_height": 150,
+        "desktop_video_height": 250,
+        "mobile_reviews_width": 300,
+        "desktop_reviews_width": 400,
+        "hidden_products": "",
+        "enable_specific_display": false,
+        "displayed_products": "",
+        "mobile_padding_top": 12,
+        "mobile_padding_bottom": 12,
+        "desktop_padding_top": 16,
+        "desktop_padding_bottom": 16
+      }
+    },
+    "fe1c8c67-b84c-4466-a515-70df3134c1c0": {
+      "type": "announcement-bar",
+      "blocks": {
+        "sections-21450414096679_fe1c8c67-b84c-4466-a515-70df3134c1c0-announcement-1": {
+          "type": "announcement",
+          "settings": {
+            "text": "Welcome to our store",
+            "text_alignment": "center",
+            "mobile_text_size": 16,
+            "desktop_text_size": 20,
+            "icon": "storefront",
+            "filled_icon": false,
+            "mobile_icon_size": 20,
+            "desktop_icon_size": 26,
+            "desktop_layout": "horizontal",
+            "mobile_layout": "horizontal"
+          }
+        }
+      },
+      "block_order": [
+        "sections-21450414096679_fe1c8c67-b84c-4466-a515-70df3134c1c0-announcement-1"
+      ],
+      "settings": {
+        "visibility": "always-display",
+        "columns_desktop": 1,
+        "columns_mobile": 1,
+        "desktop_spacing": 28,
+        "mobile_spacing": 16,
+        "show_separator": false,
+        "color_scheme": "accent-1",
+        "custom_colors_background": "#dd1d1d",
+        "custom_gradient_background": "",
+        "custom_colors_text": "#ffffff",
+        "slider_mobile": true,
+        "slider_desktop": false,
+        "type": "loop",
+        "autoplay": false,
+        "autoplay_speed": 3,
+        "hidden_products": "",
+        "enable_specific_display": false,
+        "displayed_products": "",
+        "padding_top": 16,
+        "padding_bottom": 16
+      }
+    },
+    "header": {
+      "type": "header",
+      "settings": {
+        "sticky_header_type": "on-scroll-up",
+        "show_line_separator": true,
+        "color_scheme": "background-1",
+        "icons_thickness": 1.5,
+        "icons_opacity": 100,
+        "text_icons_size": 16,
+        "text_icons_mobile_size": 14,
+        "text_icons_font": "body",
+        "menu_icon": "style_1",
+        "menu_icon_text": "MENU",
+        "search_icon": "style_1",
+        "search_icon_text": "SEARCH",
+        "account_icon": "style_1",
+        "account_icon_text": "ACCOUNT",
+        "cart_icon": "bag_2",
+        "cart_icon_text": "CART",
+        "logo_link": "/",
+        "logo_position": "middle-center",
+        "menu": "main-menu",
+        "menu_type_desktop": "dropdown",
+        "highlight_active_link": true,
+        "highlighted_link_color_scheme": "accent-1",
+        "desktop_menu_font_size": 14,
+        "desktop_menu_font": "body",
+        "products_mega_menu_links": "",
+        "products_mega_menu_display_collection_products": true,
+        "products_mega_menu_display_collection_images": true,
+        "products_mega_menu_display_collection_images_on_mobile": true,
+        "mobile_menu_title": "Menu",
+        "secondary_menu": "",
+        "menu_color_scheme": "background-1",
+        "mobile_logo_position": "center",
+        "enable_country_selector": false,
+        "country_images_ratio": "circle",
+        "country_selector_selected_flags_desktop": true,
+        "country_selector_selected_text_desktop": "[country_name] | [currency_code] [currency_symbol]",
+        "country_selector_selected_flags_mobile": true,
+        "country_selector_selected_text_mobile": "[country_code] | [currency_symbol]",
+        "country_selector_options_flags": true,
+        "country_selector_options_text": "[country_name] | [currency_code] [currency_symbol]",
+        "enable_language_selector": false,
+        "language_selector_selected_text_desktop": "[local_name]",
+        "language_selector_selected_text_mobile": "[code]",
+        "language_selector_options_text": "[name] ([local_name])",
+        "display_search": true,
+        "margin_bottom": 0,
+        "padding_top": 20,
+        "padding_bottom": 20
+      }
+    }
+  },
+  "order": [
+    "2c2ec774-3430-481f-b927-e9c035b9d24e",
+    "fe1c8c67-b84c-4466-a515-70df3134c1c0",
+    "header"
+  ]
+}

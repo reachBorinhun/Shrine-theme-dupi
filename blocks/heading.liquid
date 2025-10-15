@@ -1,0 +1,562 @@
+{% render 'heading-block', block: block %}
+
+{% schema %}
+{
+  "name": "Heading",
+  "tag": null,
+  "settings": [
+    {
+      "type": "inline_richtext",
+      "id": "title",
+      "default": "Talk about your brand",
+      "label": "Heading"
+    },
+    {
+      "type": "header",
+      "content": "Highlight 1",
+      "info": "Put words in BOLD to highlight them with this style."
+    },
+    {
+      "type": "select",
+      "id": "title_highlight_1",
+      "label": "Heading words highlight 1",
+      "options": [
+        {
+          "value": "solid-color",
+          "label": "Color"
+        },
+        {
+          "value": "gradient-color",
+          "label": "Gradient"
+        },
+        {
+          "value": "bg-color",
+          "label": "Background"
+        },
+        {
+          "value": "underline-solid",
+          "label": "Underline"
+        },
+        {
+          "value": "underline-gradient",
+          "label": "Gradient underline"
+        },
+        {
+          "value": "line-1",
+          "label": "Line 1"
+        },
+        {
+          "value": "line-2",
+          "label": "Line 2"
+        },
+        {
+          "value": "line-3",
+          "label": "Line 3"
+        }
+      ],
+      "default": "solid-color"
+    },
+    {
+      "type": "color_background",
+      "id": "title_highlight_1_gradient",
+      "label": "Text gradient",
+      "default": "linear-gradient(57deg, rgba(249, 119, 255, 1) 8%, rgba(54, 212, 255, 1) 47%, rgba(43, 252, 135, 1) 83%)",
+      "visible_if": "{{ block.settings.title_highlight_1 == 'gradient-color' }}"
+    },
+    {
+      "type": "color",
+      "id": "title_highlight_1_bg-color",
+      "label": "Text background color",
+      "default": "#F9EFFF",
+      "visible_if": "{{ block.settings.title_highlight_1 == 'bg-color' }}"
+    },
+    {
+      "type": "color",
+      "id": "title_highlight_1_color",
+      "label": "Text color",
+      "default": "#6D388B",
+      "visible_if": "{{ block.settings.title_highlight_1 == 'solid-color' or block.settings.title_highlight_1 == 'bg-color' }}"
+    },
+    {
+      "type": "range",
+      "id": "highlighted-1_border_radius",
+      "label": "Corner radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 8,
+      "visible_if": "{{ block.settings.title_highlight_1 == 'bg-color' }}"
+    },
+    {
+      "type": "range",
+      "id": "highlighted-1_border_width",
+      "min": 0,
+      "max": 6,
+      "step": 1,
+      "unit": "px",
+      "label": "Border thickness",
+      "default": 0,
+      "visible_if": "{{ block.settings.title_highlight_1 == 'bg-color' }}"
+    },
+    {
+      "type": "select",
+      "id": "highlighted-1_border",
+      "label": "Border style",
+      "options": [
+        {
+          "value": "solid",
+          "label": "Solid"
+        },
+        {
+          "value": "dashed",
+          "label": "Dashed"
+        }
+      ],
+      "default": "solid",
+      "visible_if": "{{ block.settings.highlighted-1_border_width > 0 and block.settings.title_highlight_1 == 'bg-color' }}"
+    },
+    {
+      "type": "color",
+      "id": "highlighted-1_border_color",
+      "label": "Border color",
+      "default": "#6D388B",
+      "visible_if": "{{ block.settings.highlighted-1_border_width > 0 and block.settings.title_highlight_1 == 'bg-color' }}"
+    },
+    {
+      "type": "range",
+      "id": "highlighted-1_padding-block",
+      "label": "Vertical padding",
+      "min": 0,
+      "max": 1,
+      "step": 0.1,
+      "default": 0.3,
+      "unit": "%",
+      "info": "Relative to font size",
+      "visible_if": "{{ block.settings.title_highlight_1 == 'bg-color' }}"
+    },
+    {
+      "type": "range",
+      "id": "highlighted-1_padding-inline",
+      "label": "Horizontal padding",
+      "min": 0,
+      "max": 1,
+      "step": 0.1,
+      "unit": "%",
+      "default": 0.3,
+      "info": "Relative to font size",
+      "visible_if": "{{ block.settings.title_highlight_1 == 'bg-color' }}"
+    },
+    {
+      "type": "range",
+      "id": "title_highlight_1_underline-thickness",
+      "label": "Underline thickness",
+      "min": 0,
+      "max": 6,
+      "step": 1,
+      "unit": "px",
+      "default": 2,
+      "visible_if": "{{ block.settings.title_highlight_1 == 'underline-solid' or block.settings.title_highlight_1 == 'underline-gradient' }}"
+    },
+    {
+      "type": "color",
+      "id": "title_highlight_1_underline-color",
+      "label": "Underline color",
+      "default": "#6D388B",
+      "visible_if": "{{ block.settings.title_highlight_1 == 'underline-solid' }}"
+    },
+    {
+      "type": "color_background",
+      "id": "title_highlight_1_underline-color--gradient",
+      "label": "Underline gradient color",
+      "default": "linear-gradient(57deg, rgba(249, 119, 255, 1) 8%, rgba(54, 212, 255, 1) 47%, rgba(43, 252, 135, 1) 83%)",
+      "visible_if": "{{ block.settings.title_highlight_1 == 'underline-gradient' }}"
+    },
+    {
+      "type": "range",
+      "id": "title_highlight_1_underline-color-position",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "label": "Vertical position",
+      "unit": "%",
+      "default": 25,
+      "visible_if": "{{ block.settings.title_highlight_1 == 'underline-solid' or block.settings.title_highlight_1 == 'underline-gradient' }}"
+    },
+    {
+      "type": "color",
+      "id": "title_highlight_1_handwritten-color",
+      "label": "Stroke color",
+      "default": "#6D388B",
+      "visible_if": "{{ block.settings.title_highlight_1 == 'line-1' or block.settings.title_highlight_1 == 'line-2' or block.settings.title_highlight_1 == 'line-3' }}"
+    },
+    {
+      "type": "range",
+      "id": "title_highlight_1_handwritten-stroke-width",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "label": "Stroke thickness",
+      "unit": "px",
+      "default": 3,
+      "visible_if": "{{ block.settings.title_highlight_1 == 'line-1' or block.settings.title_highlight_1 == 'line-2' or block.settings.title_highlight_1 == 'line-3' }}"
+    },
+    {
+      "type": "range",
+      "id": "title_highlight_1_handwritten-position",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "label": "Vertical position",
+      "unit": "%",
+      "default": 60,
+      "visible_if": "{{ block.settings.title_highlight_1 == 'line-1' or block.settings.title_highlight_1 == 'line-2' or block.settings.title_highlight_1 == 'line-3' }}"
+    },
+    {
+      "type": "header",
+      "content": "Highlight 2",
+      "info": "Put words in ITALIC to highlight them with this style (keep it 'None' if you want to use default italic style)."
+    },
+    {
+      "type": "select",
+      "id": "title_highlight_2",
+      "label": "Heading words highlight 2",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "solid-color",
+          "label": "Color"
+        },
+        {
+          "value": "gradient-color",
+          "label": "Gradient"
+        },
+        {
+          "value": "bg-color",
+          "label": "Background"
+        },
+        {
+          "value": "underline-solid",
+          "label": "Underline"
+        },
+        {
+          "value": "underline-gradient",
+          "label": "Gradient underline"
+        },
+        {
+          "value": "line-1",
+          "label": "Line 1"
+        },
+        {
+          "value": "line-2",
+          "label": "Line 2"
+        },
+        {
+          "value": "line-3",
+          "label": "Line 3"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "color_background",
+      "id": "title_highlight_2_gradient",
+      "label": "Text gradient",
+      "default": "linear-gradient(57deg, rgba(249, 119, 255, 1) 8%, rgba(54, 212, 255, 1) 47%, rgba(43, 252, 135, 1) 83%)",
+      "visible_if": "{{ block.settings.title_highlight_2 == 'gradient-color' }}"
+    },
+    {
+      "type": "color",
+      "id": "title_highlight_2_bg-color",
+      "label": "Text background color",
+      "default": "#F9EFFF",
+      "visible_if": "{{ block.settings.title_highlight_2 == 'bg-color' }}"
+    },
+    {
+      "type": "color",
+      "id": "title_highlight_2_color",
+      "label": "Text color",
+      "default": "#6D388B",
+      "visible_if": "{{ block.settings.title_highlight_2 == 'solid-color' or block.settings.title_highlight_2 == 'bg-color' }}"
+    },
+    {
+      "type": "range",
+      "id": "highlighted-2_border_radius",
+      "label": "Corner radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 8,
+      "visible_if": "{{ block.settings.title_highlight_2 == 'bg-color' }}"
+    },
+    {
+      "type": "range",
+      "id": "highlighted-2_border_width",
+      "min": 0,
+      "max": 6,
+      "step": 1,
+      "unit": "px",
+      "label": "Border thickness",
+      "default": 0,
+      "visible_if": "{{  block.settings.title_highlight_2 == 'bg-color' }}"
+    },
+    {
+      "type": "select",
+      "id": "highlighted-2_border",
+      "label": "Border style",
+      "options": [
+        {
+          "value": "solid",
+          "label": "Solid"
+        },
+        {
+          "value": "dashed",
+          "label": "Dashed"
+        }
+      ],
+      "default": "solid",
+      "visible_if": "{{ block.settings.highlighted-2_border_width > 0 and block.settings.title_highlight_2 == 'bg-color' }}"
+    },
+    {
+      "type": "color",
+      "id": "highlighted-2_border_color",
+      "label": "Border color",
+      "default": "#6D388B",
+      "visible_if": "{{ block.settings.highlighted-2_border_width > 0 and block.settings.title_highlight_2 == 'bg-color' }}"
+    },
+    {
+      "type": "range",
+      "id": "highlighted-2_padding-block",
+      "label": "Vertical padding",
+      "min": 0,
+      "max": 1,
+      "step": 0.1,
+      "default": 0.3,
+      "unit": "%",
+      "info": "Relative to font size",
+      "visible_if": "{{ block.settings.title_highlight_2 == 'bg-color' }}"
+    },
+    {
+      "type": "range",
+      "id": "highlighted-2_padding-inline",
+      "label": "Horizontal padding",
+      "min": 0,
+      "max": 1,
+      "step": 0.1,
+      "unit": "%",
+      "default": 0.3,
+      "info": "Relative to font size",
+      "visible_if": "{{ block.settings.title_highlight_2 == 'bg-color' }}"
+    },
+    {
+      "type": "range",
+      "id": "title_highlight_2_underline-thickness",
+      "label": "Underline thickness",
+      "min": 0,
+      "max": 6,
+      "step": 1,
+      "unit": "px",
+      "default": 2,
+      "visible_if": "{{ block.settings.title_highlight_2 == 'underline-solid' or block.settings.title_highlight_2 == 'underline-gradient' }}"
+    },
+    {
+      "type": "color",
+      "id": "title_highlight_2_underline-color",
+      "label": "Underline color",
+      "default": "#6D388B",
+      "visible_if": "{{ block.settings.title_highlight_2 == 'underline-solid' }}"
+    },
+    {
+      "type": "color_background",
+      "id": "title_highlight_2_underline-color--gradient",
+      "label": "Underline gradient color",
+      "default": "linear-gradient(57deg, rgba(249, 119, 255, 1) 8%, rgba(54, 212, 255, 1) 47%, rgba(43, 252, 135, 1) 83%)",
+      "visible_if": "{{ block.settings.title_highlight_2 == 'underline-gradient' }}"
+    },
+    {
+      "type": "range",
+      "id": "title_highlight_2_underline-color-position",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "label": "Vertical position",
+      "unit": "%",
+      "default": 25,
+      "visible_if": "{{ block.settings.title_highlight_2 == 'underline-solid' or block.settings.title_highlight_2 == 'underline-gradient' }}"
+    },
+    {
+      "type": "color",
+      "id": "title_highlight_2_handwritten-color",
+      "label": "Stroke color",
+      "default": "#6D388B",
+      "visible_if": "{{ block.settings.title_highlight_2 == 'line-1' or block.settings.title_highlight_2 == 'line-2' or block.settings.title_highlight_2 == 'line-3' }}"
+    },
+    {
+      "type": "range",
+      "id": "title_highlight_2_handwritten-stroke-width",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "label": "Stroke thickness",
+      "unit": "px",
+      "default": 3,
+      "visible_if": "{{ block.settings.title_highlight_2 == 'line-1' or block.settings.title_highlight_2 == 'line-2' or block.settings.title_highlight_2 == 'line-3' }}"
+    },
+    {
+      "type": "range",
+      "id": "title_highlight_2_handwritten-position",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "label": "Vertical position",
+      "unit": "%",
+      "default": 60,
+      "visible_if": "{{ block.settings.title_highlight_2 == 'line-1' or block.settings.title_highlight_2 == 'line-2' or block.settings.title_highlight_2 == 'line-3' }}"
+    },
+    {
+      "type": "header",
+      "content": "Styling"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "options": [
+        {
+          "value": "h3",
+          "label": "Extra small"
+        },
+        {
+          "value": "h2",
+          "label": "Small"
+        },
+        {
+          "value": "h1",
+          "label": "Medium"
+        },
+        {
+          "value": "h0",
+          "label": "Large"
+        },
+        {
+          "value": "custom",
+          "label": "Custom"
+        }
+      ],
+      "default": "h1",
+      "label": "Heading size"
+    },
+    {
+      "type": "range",
+      "id": "custom_desktop_size",
+      "min": 24,
+      "max": 60,
+      "step": 3,
+      "unit": "px",
+      "default": 39,
+      "label": "Custom desktop size",
+      "visible_if": "{{ block.settings.heading_size == 'custom' }}"
+    },
+    {
+      "type": "range",
+      "id": "custom_mobile_size",
+      "min": 20,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "default": 28,
+      "label": "Custom mobile size",
+      "visible_if": "{{ block.settings.heading_size == 'custom' }}"
+    },
+    {
+      "type": "select",
+      "id": "alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "left",
+      "label": "Desktop alignment",
+      "visible_if": "{{ section.settings.desktop_content_alignment != 'left' and section.settings.desktop_content_alignment != 'center' and section.settings.desktop_content_alignment != 'right' }}"
+    },
+    {
+      "type": "select",
+      "id": "mobile_alignment",
+      "options": [
+        {
+          "value": "mobile-left",
+          "label": "Left"
+        },
+        {
+          "value": "mobile-center",
+          "label": "Center"
+        },
+        {
+          "value": "mobile-right",
+          "label": "Right"
+        }
+      ],
+      "default": "mobile-left",
+      "label": "Mobile alignment",
+      "visible_if": "{{ section.settings.mobile_content_alignment != 'left' and section.settings.mobile_content_alignment != 'center' and section.settings.mobile_content_alignment != 'right' }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_custom_color",
+      "label": "Enable custom text color",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "custom_color",
+      "label": "Custom text color",
+      "default": "#FF0000",
+      "visible_if": "{{ block.settings.enable_custom_color }}"
+    },
+    {
+      "type": "header",
+      "content": "Margins"
+    },
+    {
+      "type": "range",
+      "id": "margin_top",
+      "label": "Top",
+      "min": 0,
+      "max": 45,
+      "step": 3,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "margin_bottom",
+      "label": "Bottom",
+      "min": 0,
+      "max": 45,
+      "step": 3,
+      "unit": "px",
+      "default": 15,
+      "visible_if": "{{ section.settings.image_1_visibility != 'mobile-hidden' and section.settings.image_1_visibility != 'always-display' }}"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Heading",
+      "category": "Text"
+    }
+  ]
+}
+{% endschema %}

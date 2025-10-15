@@ -1,0 +1,286 @@
+{% render 'quantity-gifts', block: block %}
+
+{% schema %}
+{
+  "name": "Gifts on quantity",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "IMPORTANT NOTES"
+    },
+    {
+      "type": "paragraph",
+      "content": "All gift products must be unique, and not used anywhere else (in bundles, upsells or other gift blocks). A gift product can't be the main product from the product page. To overcome this, you can create a duplicate of the product & assign that duplicate as a gift."
+    },
+    {
+      "type": "paragraph",
+      "content": "The gift products will be automatically added & removed from cart, based on the quantity of the main product page product."
+    },
+    {
+      "type": "paragraph",
+      "content": "To hide the gift products from the store & prevent customers from buying them alone, add \"collection-hidden\" and \"search-hidden\" tags to them."
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "unlocked_bg_color",
+      "default": "#FEF8F8",
+      "label": "Unlocked item background color"
+    },
+    {
+      "type": "color",
+      "id": "unlocked_border_color",
+      "default": "#EB7E7E",
+      "label": "Unlocked item border color"
+    },
+    {
+      "type": "select",
+      "id": "gift_box_color",
+      "options": [
+        {
+          "value": "accent-1",
+          "label": "Accent 1"
+        },
+        {
+          "value": "accent-2",
+          "label": "Accent 2"
+        },
+        {
+          "value": "background-1",
+          "label": "Background 1"
+        },
+        {
+          "value": "background-2",
+          "label": "Background 2"
+        },
+        {
+          "value": "inverse",
+          "label": "Text"
+        }
+      ],
+      "default": "accent-1",
+      "label": "Gift box color"
+    },
+    {
+      "type": "color",
+      "id": "gift_box_tie_color",
+      "default": "#FAE787",
+      "label": "Gift box tie color"
+    },
+    {
+      "type": "header",
+      "content": "Gift #1"
+    },
+    {
+      "type": "product",
+      "id": "gift_1",
+      "label": "Gift #1"
+    },
+    {
+      "type": "number",
+      "id": "gift_1_quantity",
+      "default": 1,
+      "label": "Gift #1 minimum quantity",
+      "info": "Minimum quantity required to unlock the gift.",
+      "visible_if": "{{ block.settings.gift_1 != blank }}"
+    },
+    {
+      "type": "image_picker",
+      "id": "gift_1_image",
+      "label": "Gift #1 featured image",
+      "info": "An image with transparent background is recommended.",
+      "visible_if": "{{ block.settings.gift_1 != blank }}"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "gift_1_top_text",
+      "label": "Gift #1 locked top text",
+      "default": "<strong>1 PACK</strong>",
+      "visible_if": "{{ block.settings.gift_1 != blank }}"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "gift_1_bottom_text",
+      "label": "Gift #1 locked bottom text",
+      "default": "<strong>Exclusive</strong>",
+      "visible_if": "{{ block.settings.gift_1 != blank }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "gift_1_no_animation",
+      "label": "Gift #1 disable gift unlock animation",
+      "default": false,
+      "visible_if": "{{ block.settings.gift_1 != blank }}"
+    },
+    {
+      "type": "header",
+      "content": "Gift #2"
+    },
+    {
+      "type": "product",
+      "id": "gift_2",
+      "label": "Gift #2"
+    },
+    {
+      "type": "number",
+      "id": "gift_2_quantity",
+      "default": 2,
+      "label": "Gift #2 minimum quantity",
+      "info": "Minimum quantity required to unlock the gift.",
+      "visible_if": "{{ block.settings.gift_2 != blank }}"
+    },
+    {
+      "type": "image_picker",
+      "id": "gift_2_image",
+      "label": "Gift #2 featured image",
+      "info": "An image with transparent background is recommended.",
+      "visible_if": "{{ block.settings.gift_2 != blank }}"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "gift_2_top_text",
+      "label": "Gift #2 locked top text",
+      "default": "<strong>2 PACK</strong>",
+      "visible_if": "{{ block.settings.gift_2 != blank }}"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "gift_2_bottom_text",
+      "label": "Gift #2 locked bottom text",
+      "default": "<strong>Exclusive</strong>",
+      "visible_if": "{{ block.settings.gift_2 != blank }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "gift_2_no_animation",
+      "label": "Gift #2 disable gift unlock animation",
+      "default": false,
+      "visible_if": "{{ block.settings.gift_2 != blank }}"
+    },
+    {
+      "type": "header",
+      "content": "Gift #3"
+    },
+    {
+      "type": "product",
+      "id": "gift_3",
+      "label": "Gift #3"
+    },
+    {
+      "type": "number",
+      "default": 3,
+      "id": "gift_3_quantity",
+      "label": "Gift #3 minimum quantity",
+      "info": "Minimum quantity required to unlock the gift.",
+      "visible_if": "{{ block.settings.gift_3 != blank }}"
+    },
+    {
+      "type": "image_picker",
+      "id": "gift_3_image",
+      "label": "Gift #3 featured image",
+      "info": "An image with transparent background is recommended.",
+      "visible_if": "{{ block.settings.gift_3 != blank }}"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "gift_3_top_text",
+      "label": "Gift #3 locked top text",
+      "default": "<strong>3 PACK</strong>",
+      "visible_if": "{{ block.settings.gift_3 != blank }}"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "gift_3_bottom_text",
+      "label": "Gift #3 locked bottom text",
+      "default": "<strong>Exclusive</strong>",
+      "visible_if": "{{ block.settings.gift_3 != blank }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "gift_3_no_animation",
+      "label": "Gift #3 disable gift unlock animation",
+      "default": false,
+      "visible_if": "{{ block.settings.gift_3 != blank }}"
+    },
+    {
+      "type": "header",
+      "content": "Gift #4"
+    },
+    {
+      "type": "product",
+      "id": "gift_4",
+      "label": "Gift #4"
+    },
+    {
+      "type": "number",
+      "default": 4,
+      "id": "gift_4_quantity",
+      "label": "Gift #4 minimum quantity",
+      "info": "Minimum quantity required to unlock the gift.",
+      "visible_if": "{{ block.settings.gift_4 != blank }}"
+    },
+    {
+      "type": "image_picker",
+      "id": "gift_4_image",
+      "label": "Gift #4 featured image",
+      "info": "An image with transparent background is recommended.",
+      "visible_if": "{{ block.settings.gift_4 != blank }}"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "gift_4_top_text",
+      "label": "Gift #4 locked top text",
+      "default": "<strong>4 PACK</strong>",
+      "visible_if": "{{ block.settings.gift_4 != blank }}"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "gift_4_bottom_text",
+      "label": "Gift #4 locked bottom text",
+      "default": "<strong>Exclusive</strong>",
+      "visible_if": "{{ block.settings.gift_4 != blank }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "gift_4_no_animation",
+      "label": "Gift #4 disable gift unlock animation",
+      "default": false,
+      "visible_if": "{{ block.settings.gift_4 != blank }}"
+    },
+    {
+      "type": "header",
+      "content": "Margins"
+    },
+    {
+      "type": "range",
+      "id": "margin_top",
+      "label": "Top",
+      "min": 0,
+      "max": 45,
+      "step": 3,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "margin_bottom",
+      "label": "Bottom",
+      "min": 0,
+      "max": 45,
+      "step": 3,
+      "unit": "px",
+      "default": 15
+    }
+  ],
+  "presets": [
+    {
+      "name": "Gifts on quantity",
+      "category": "Upsells, offers & gifts"
+    }
+  ]
+}
+{% endschema %}

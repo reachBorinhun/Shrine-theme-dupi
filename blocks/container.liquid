@@ -1,0 +1,688 @@
+<style>
+  {% if block.settings.desktop_direction == 'horizontal' %}
+    @media screen and (min-width: 750px) {
+      #ContentContainer-{{ block.id }} {
+        {% if block.settings.desktop_horizontal_grid == 'flex' %}
+          display: flex;
+          justify-content: {{ block.settings.desktop_horizontal_flex_type }};
+        {% else %}
+          display: grid;
+          grid-template-columns: repeat({{ block.settings.desktop_horizontal_grid_items }}, 1fr);
+        {% endif %}
+        gap: {{ block.settings.desktop_horizontal_spacing }}px;
+        align-items: {{ block.settings.desktop_horizontal_vertical_align }};
+      }
+      {% if block.settings.desktop_disable_margins %}
+        #ContentContainer-{{ block.id }} > * {
+          margin-top: 0 !important;
+          margin-bottom: 0 !important;
+        }
+      {% endif %}
+    }
+  {% endif %}
+  {% if block.settings.mobile_direction == 'horizontal' %}
+    @media screen and (max-width: 749px) {
+      #ContentContainer-{{ block.id }} {
+        {% if block.settings.mobile_horizontal_grid == 'flex' %}
+          display: flex;
+          justify-content: {{ block.settings.mobile_horizontal_flex_type }};
+        {% else %}
+          display: grid;
+          grid-template-columns: repeat({{ block.settings.mobile_horizontal_grid_items }}, 1fr);
+        {% endif %}
+        gap: {{ block.settings.mobile_horizontal_spacing }}px;
+        align-items: {{ block.settings.mobile_horizontal_vertical_align }};
+      }
+      {% if block.settings.mobile_disable_margins %}
+        #ContentContainer-{{ block.id }} > * {
+          margin-top: 0 !important;
+          margin-bottom: 0 !important;
+        }
+      {% endif %}
+    }
+  {% endif %}
+</style>
+<div
+  class="slide-item {{ block.settings.visibility }} isolate"
+  style="
+    margin-top: {{ block.settings.margin_top | divided_by: 10.0 }}rem;
+    margin-bottom: {{ block.settings.margin_bottom | divided_by: 10.0 }}rem;
+    {% if block.settings.bg_type == 'solid' %}
+      --bg-color: {{ block.settings.bg_color }};
+    {% elsif block.settings.bg_type == 'gradient' %}
+      --bg-color: {{ block.settings.bg_gradient }};
+    {% endif %}
+    --border-style: {{ block.settings.border }};
+    --mobile-width: {{ block.settings.mobile_width }};
+    --border-color: {{ block.settings.border_color }};
+    --desktop-width: {{ block.settings.desktop_width }};
+    --border-width: {{ block.settings.border_width }}px;
+    {% if block.settings.bg_type != 'none' or block.settings.border_width > 0 %}
+      --border-radius: {{ block.settings.border_radius }}px;
+      --padding-y--mobile: {{ block.settings.vertical_mobile_padding | divided_by: 10.0 }}rem;
+      --padding-x--mobile: {{ block.settings.horizontal_mobile_padding | divided_by: 10.0 }}rem;
+      --padding-y--desktop: {{ block.settings.vertical_desktop_padding | divided_by: 10.0 }}rem;
+      --padding-x--desktop: {{ block.settings.horizontal_desktop_padding | divided_by: 10.0 }}rem;
+    {% endif %}
+  "
+>
+  {% if block.settings.media_background != 'none' %}
+    {% render 'media-background', block: block %}
+  {% endif %}
+  <div id="ContentContainer-{{ block.id }}" class="content-wrapper isolate">
+    {% content_for 'blocks' %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Slide",
+  "tag": null,
+  "blocks": [
+    {
+      "type": "@app"
+    },
+    {
+      "type": "custom-liquid"
+    },
+    {
+      "type": "image"
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "button"
+    },
+    {
+      "type": "atc-button"
+    },
+    {
+      "type": "heading"
+    },
+    {
+      "type": "text"
+    },
+    {
+      "type": "rating-stars"
+    },
+    {
+      "type": "countdown-timer"
+    },
+    {
+      "type": "collapsible-row"
+    },
+    {
+      "type": "video"
+    },
+    {
+      "type": "slider"
+    },
+    {
+      "type": "container"
+    },
+    {
+      "type": "media-slider"
+    },
+    {
+      "type": "trustpilot-stars"
+    },
+    {
+      "type": "product_popup"
+    },
+    {
+      "type": "payment-badges"
+    },
+    {
+      "type": "product_urgency"
+    },
+    {
+      "type": "review-avatars"
+    },
+    {
+      "type": "icon-with-content"
+    },
+    {
+      "type": "text-with-icon"
+    },
+    {
+      "type": "icon-with-text"
+    },
+    {
+      "type": "reviews"
+    }
+  ],
+  "settings": [
+    {
+      "type": "select",
+      "id": "visibility",
+      "options": [
+        {
+          "value": "desktop-hidden",
+          "label": "Mobile only"
+        },
+        {
+          "value": "mobile-hidden",
+          "label": "Desktop only"
+        },
+        {
+          "value": "always-display",
+          "label": "All devices"
+        }
+      ],
+      "label": "Display on",
+      "default": "always-display"
+    },
+    {
+      "type": "header",
+      "content": "Desktop layout"
+    },
+    {
+      "type": "select",
+      "id": "desktop_direction",
+      "label": "Stacking direction",
+      "options": [
+        {
+          "value": "vertical",
+          "label": "Vertical"
+        },
+        {
+          "value": "horizontal",
+          "label": "Horizontal"
+        }
+      ],
+      "default": "horizontal"
+    },
+    {
+      "type": "select",
+      "id": "desktop_horizontal_grid",
+      "label": "Horizontal stacking type",
+      "options": [
+        {
+          "value": "flex",
+          "label": "Auto-fit items"
+        },
+        {
+          "value": "grid",
+          "label": "Make all items same width"
+        }
+      ],
+      "default": "flex",
+      "visible_if": "{{ block.settings.desktop_direction == 'horizontal' }}"
+    },
+    {
+      "type": "range",
+      "id": "desktop_horizontal_grid_items",
+      "label": "Number of items per row",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "default": 3,
+      "visible_if": "{{ block.settings.desktop_direction == 'horizontal' and block.settings.desktop_horizontal_grid == 'grid' }}"
+    },
+    {
+      "type": "select",
+      "id": "desktop_horizontal_flex_type",
+      "label": "Items horizontal align",
+      "options": [
+        {
+          "value": "flex-start",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "flex-end",
+          "label": "Right"
+        },
+        {
+          "value": "space-between",
+          "label": "Space out"
+        },
+        {
+          "value": "space-evenly",
+          "label": "Space out with side spacing"
+        }
+      ],
+      "default": "space-between",
+      "visible_if": "{{ block.settings.desktop_direction == 'horizontal' and block.settings.desktop_horizontal_grid == 'flex' }}"
+    },
+    {
+      "type": "select",
+      "id": "desktop_horizontal_vertical_align",
+      "label": "Items vertical align",
+      "options": [
+        {
+          "value": "flex-start",
+          "label": "Top"
+        },
+        {
+          "value": "center",
+          "label": "Middle"
+        },
+        {
+          "value": "flex-end",
+          "label": "Bottom"
+        }
+      ],
+      "default": "center",
+      "visible_if": "{{ block.settings.desktop_direction == 'horizontal' }}"
+    },
+    {
+      "type": "range",
+      "id": "desktop_horizontal_spacing",
+      "label": "Spacing between items",
+      "min": 0,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "default": 20,
+      "visible_if": "{{ block.settings.desktop_direction == 'horizontal' }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "desktop_disable_margins",
+      "label": "Disable all margins of children blocks (items)",
+      "info": "If not using this options, make sure to manually adjust the margins of children blocks if needed.",
+      "default": true,
+      "visible_if": "{{ block.settings.desktop_direction == 'horizontal' }}"
+    },
+
+    {
+      "type": "header",
+      "content": "Mobile layout"
+    },
+    {
+      "type": "select",
+      "id": "mobile_direction",
+      "label": "Stacking direction",
+      "options": [
+        {
+          "value": "vertical",
+          "label": "Vertical"
+        },
+        {
+          "value": "horizontal",
+          "label": "Horizontal"
+        }
+      ],
+      "default": "horizontal"
+    },
+    {
+      "type": "select",
+      "id": "mobile_horizontal_grid",
+      "label": "Horizontal stacking type",
+      "options": [
+        {
+          "value": "flex",
+          "label": "Auto-fit items"
+        },
+        {
+          "value": "grid",
+          "label": "Make all items same width"
+        }
+      ],
+      "default": "flex",
+      "visible_if": "{{ block.settings.mobile_direction == 'horizontal' }}"
+    },
+    {
+      "type": "range",
+      "id": "mobile_horizontal_grid_items",
+      "label": "Number of items per row",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "default": 3,
+      "visible_if": "{{ block.settings.mobile_direction == 'horizontal' and block.settings.mobile_horizontal_grid == 'grid' }}"
+    },
+    {
+      "type": "select",
+      "id": "mobile_horizontal_flex_type",
+      "label": "Items horizontal align",
+      "options": [
+        {
+          "value": "flex-start",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "flex-end",
+          "label": "Right"
+        },
+        {
+          "value": "space-between",
+          "label": "Space out"
+        },
+        {
+          "value": "space-evenly",
+          "label": "Space out with side spacing"
+        }
+      ],
+      "default": "space-between",
+      "visible_if": "{{ block.settings.mobile_direction == 'horizontal' and block.settings.mobile_horizontal_grid == 'flex' }}"
+    },
+    {
+      "type": "select",
+      "id": "mobile_horizontal_vertical_align",
+      "label": "Items vertical align",
+      "options": [
+        {
+          "value": "flex-start",
+          "label": "Top"
+        },
+        {
+          "value": "center",
+          "label": "Middle"
+        },
+        {
+          "value": "flex-end",
+          "label": "Bottom"
+        }
+      ],
+      "default": "center",
+      "visible_if": "{{ block.settings.mobile_direction == 'horizontal' }}"
+    },
+    {
+      "type": "range",
+      "id": "mobile_horizontal_spacing",
+      "label": "Spacing between items",
+      "min": 0,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "default": 20,
+      "visible_if": "{{ block.settings.mobile_direction == 'horizontal' }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "mobile_disable_margins",
+      "label": "Disable all margins of children blocks (items)",
+      "info": "If not using this options, make sure to manually adjust the margins of children blocks if needed.",
+      "default": true,
+      "visible_if": "{{ block.settings.mobile_direction == 'horizontal' }}"
+    },
+    {
+      "type": "header",
+      "content": "Styling"
+    },
+    {
+      "type": "select",
+      "id": "bg_type",
+      "label": "Background",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "solid",
+          "label": "Solid color"
+        },
+        {
+          "value": "gradient",
+          "label": "Gradient color"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background color",
+      "default": "#F4E1FF",
+      "visible_if": "{{ block.settings.bg_type == 'solid' }}"
+    },
+    {
+      "type": "color_background",
+      "id": "bg_gradient",
+      "label": "Background gradient color",
+      "default": "linear-gradient(57deg, rgba(249, 119, 255, 1) 8%, rgba(54, 212, 255, 1) 47%, rgba(43, 252, 135, 1) 83%)",
+      "visible_if": "{{ block.settings.bg_type == 'gradient' }}"
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "label": "Corner radius",
+      "min": 0,
+      "max": 60,
+      "step": 3,
+      "unit": "px",
+      "default": 12,
+      "visible_if": "{{ block.settings.bg_type != 'none' or block.settings.border_width > 0 }}"
+    },
+    {
+      "type": "range",
+      "id": "border_width",
+      "min": 0,
+      "max": 8,
+      "step": 1,
+      "unit": "px",
+      "label": "Border thickness",
+      "default": 0
+    },
+    {
+      "type": "select",
+      "id": "border",
+      "label": "Border style",
+      "options": [
+        {
+          "value": "solid",
+          "label": "Solid"
+        },
+        {
+          "value": "dashed",
+          "label": "Dashed"
+        }
+      ],
+      "default": "solid",
+      "visible_if": "{{ block.settings.border_width > 0 }}"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border color",
+      "default": "#6D388B",
+      "visible_if": "{{ block.settings.border_width > 0 }}"
+    },
+    {
+      "type": "header",
+      "content": "Padding",
+      "visible_if": "{{ block.settings.bg_type != 'none' or block.settings.border_width > 0 }}"
+    },
+    {
+      "type": "range",
+      "id": "vertical_desktop_padding",
+      "label": "Vertical desktop padding",
+      "min": 0,
+      "max": 60,
+      "step": 3,
+      "unit": "px",
+      "default": 15,
+      "visible_if": "{{ block.settings.bg_type != 'none' or block.settings.border_width > 0 }}"
+    },
+    {
+      "type": "range",
+      "id": "horizontal_desktop_padding",
+      "label": "Horizontal desktop padding",
+      "min": 0,
+      "max": 60,
+      "step": 3,
+      "unit": "px",
+      "default": 15,
+      "visible_if": "{{ block.settings.bg_type != 'none' or block.settings.border_width > 0 }}"
+    },
+    {
+      "type": "range",
+      "id": "vertical_mobile_padding",
+      "label": "Vertical mobile padding",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 12,
+      "visible_if": "{{ block.settings.bg_type != 'none' or block.settings.border_width > 0 }}"
+    },
+    {
+      "type": "range",
+      "id": "horizontal_mobile_padding",
+      "label": "Horizontal mobile padding",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 12,
+      "visible_if": "{{ block.settings.bg_type != 'none' or block.settings.border_width > 0 }}"
+    },
+    {
+      "type": "header",
+      "content": "Media background"
+    },
+    {
+      "type": "select",
+      "id": "media_background",
+      "label": "Media background",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "image",
+          "label": "Image"
+        },
+        {
+          "value": "video",
+          "label": "Video"
+        }
+      ],
+      "default": "none",
+      "info": "Displayed over the normal color/gradient background."
+    },
+    {
+      "type": "image_picker",
+      "id": "image_background",
+      "label": "Image background",
+      "visible_if": "{{ block.settings.media_background == 'image' }}"
+    },
+    {
+      "type": "video",
+      "id": "video_background",
+      "label": "Video background",
+      "visible_if": "{{ block.settings.media_background == 'video' }}"
+    },
+    {
+      "type": "select",
+      "id": "media_background_fit",
+      "label": "Media background size",
+      "options": [
+        {
+          "value": "cover",
+          "label": "Fill entire space"
+        },
+        {
+          "value": "contain",
+          "label": "Only spread to smaller direction"
+        },
+        {
+          "value": "custom",
+          "label": "Custom"
+        }
+      ],
+      "default": "cover",
+      "visible_if": "{{ block.settings.media_background != 'none' }}"
+    },
+    {
+      "type": "number",
+      "id": "background_desktop_width",
+      "label": "Background desktop width",
+      "default": 300,
+      "visible_if": "{{ block.settings.media_background != 'none' and block.settings.media_background_fit == 'custom' }}"
+    },
+    {
+      "type": "number",
+      "id": "background_mobile_width",
+      "label": "Background mobile width",
+      "default": 200,
+      "visible_if": "{{ block.settings.media_background != 'none' and block.settings.media_background_fit == 'custom' }}"
+    },
+    {
+      "type": "select",
+      "id": "media_background_vertical_align",
+      "label": "Background vertical align",
+      "options": [
+        {
+          "value": "top",
+          "label": "Top"
+        },
+        {
+          "value": "center",
+          "label": "Middle"
+        },
+        {
+          "value": "bottom",
+          "label": "Bottom"
+        }
+      ],
+      "default": "center",
+      "visible_if": "{{ block.settings.media_background != 'none' }}"
+    },
+    {
+      "type": "select",
+      "id": "media_background_horizontal_align",
+      "label": "Background horizontal align",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "right",
+      "visible_if": "{{ block.settings.media_background != 'none' }}"
+    },
+    {
+      "type": "header",
+      "content": "Margins"
+    },
+    {
+      "type": "range",
+      "id": "margin_top",
+      "label": "Top",
+      "min": 0,
+      "max": 45,
+      "step": 3,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "margin_bottom",
+      "label": "Bottom",
+      "min": 0,
+      "max": 45,
+      "step": 3,
+      "unit": "px",
+      "default": 15,
+      "visible_if": "{{ section.settings.image_1_visibility != 'mobile-hidden' and section.settings.image_1_visibility != 'always-display' }}"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Container",
+      "category": "Layout"
+    }
+  ]
+}
+{% endschema %}
