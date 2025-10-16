@@ -123,11 +123,7 @@
           }
         }
       },
-      "block_order": [
-        "row_frqit4",
-        "row_a9Qa8J",
-        "row_NAEbjV"
-      ],
+      "block_order": ["row_frqit4", "row_a9Qa8J", "row_NAEbjV"],
       "disabled": true,
       "settings": {
         "display_id": false,

@@ -15,16 +15,6 @@
     --swatch-size: {{ section.settings.swatches_mobile_size | divided_by: 10.0 }}rem;
   }
 
-  @media screen and (min-width: 750px) {
-    .section-{{ section.id }}-padding {
-      padding-top: {{ section.settings.padding_top }}px;
-      padding-bottom: {{ section.settings.padding_bottom }}px;
-    }
-    .collection-{{ section.id }} .color-swatches-container {
-      --swatch-size: {{ section.settings.swatches_desktop_size | divided_by: 10.0 }}rem;
-    }
-  }
-
   .color-scheme-{{ section.id }}.color-custom {
     --color-background: {{ section.settings.custom_colors_background.red }}, {{ section.settings.custom_colors_background.green }}, {{ section.settings.custom_colors_background.blue }};
     --gradient-background: {% if section.settings.custom_gradient_background != blank %}{{ section.settings.custom_gradient_background }}{% else %}{{ section.settings.custom_colors_background }}{% endif %};

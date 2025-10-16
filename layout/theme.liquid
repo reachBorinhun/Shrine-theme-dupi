@@ -9,7 +9,7 @@
 
     <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
     <link rel="preconnect" href="https://js.shrinetheme.com" crossorigin>
-    
+
     {% liquid
       assign is_rtl = false
       if settings.enable_rtl == true
@@ -22,9 +22,18 @@
       endif
     %}
 
-    <script src="https://js.shrinetheme.com/js/v2/main.js?version=1" defer="defer" data-defer="true" data-is-rtl="{{ is_rtl }}" data-country-list-function="{{ settings.country_list_function }}" data-country-list="{{ settings.country_list }}" data-country-list-error="{{ settings.country_invalid_error_msg }}" data-animations-type="{{ settings.animations_type }}"></script>
+    <script
+      src="https://js.shrinetheme.com/js/v2/main.js?version=1"
+      defer="defer"
+      data-defer="true"
+      data-is-rtl="{{ is_rtl }}"
+      data-country-list-function="{{ settings.country_list_function }}"
+      data-country-list="{{ settings.country_list }}"
+      data-country-list-error="{{ settings.country_invalid_error_msg }}"
+      data-animations-type="{{ settings.animations_type }}"
+    ></script>
     <script src="{{ 'secondary.js' | asset_url }}" defer="defer" data-defer="true" data-is-rtl="{{ is_rtl }}"></script>
-    
+
     <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
@@ -50,8 +59,11 @@
     {% endif %}
 
     {% render 'meta-tags' %}
-    
+
     {{ content_for_header }}
+
+    {%- comment -%} Tailwind generated stylesheet (built via npm run dev) {%- endcomment -%}
+    <link rel="stylesheet" href="{{ 'tailwind.output.css' | asset_url }}" media="print" onload="this.media='all'">
 
     {%- liquid
       assign body_font_bold = settings.type_body_font | font_modify: 'weight', 'bold'
@@ -186,7 +198,7 @@
         --blog-card-shadow-blur-radius: {{ settings.blog_card_shadow_blur | divided_by: 10.0 }}rem;
 
         --badge-corner-radius: {{ settings.badge_corner_radius | divided_by: 10.0 }}rem;
-        
+
         --slider-arrow-size: {{ settings.slider_arrow_size | divided_by: 10.0  }}rem;
         --slider-arrow-border-radius: {{ settings.slider_arrow_border_radius | divided_by: 2.0 }}%;
         --slider-arrow-icon-size: {{ settings.slider_arrow_icon_size | divided_by: 100.0 }}em;
@@ -283,7 +295,7 @@
         --inputs-shadow-blur-radius: {{ settings.inputs_shadow_blur }}px;
         --inputs-radius-outset: {% if settings.inputs_radius > 0 %}{{ settings.inputs_radius | plus: settings.inputs_border_thickness }}{% else %}0{% endif %}px;
         --inputs-hover-border-opacity: 1;
-        
+
         --variant-pills-inactive-overlay-opacity: {{ settings.variant_pills_inactive_overlay_opacity | divided_by: 100.0 }};
         --variant-pills-text-size: {{ settings.variant_pills_text_size | divided_by: 10.0 }}rem;
         --variant-pills-padding-y: {{ settings.variant_pills_padding_y | divided_by: 10.0 }}rem;
@@ -460,13 +472,21 @@
     </script>
   </head>
 
-  <body class="gradient link-btns--{{ settings.link_btn_hover }} action-btns--{{ settings.action_btn_hover }}"{% if is_rtl %} data-rtl="true"{% endif %}>
+  <body
+    class="gradient link-btns--{{ settings.link_btn_hover }} action-btns--{{ settings.action_btn_hover }}"
+    {% if is_rtl %}
+      data-rtl="true"
+    {% endif %}
+  >
     <a class="skip-to-content-link button visually-hidden" href="#MainContent">
       {{ 'accessibility.skip_to_text' | t }}
     </a>
 
     {% sections 'header-group' %}
-    
+    {%- if template == 'index' -%}
+      {% section 'full-screen-intro-gate' %}
+    {%- endif -%}
+
     {%- if settings.cart_type == 'drawer' -%}
       {%- section 'cart-drawer' -%}
     {%- endif -%}
@@ -493,27 +513,27 @@
         cart_update_url: '{{ routes.cart_update_url }}',
         cart_clear_url: '{{ routes.cart_clear_url }}',
         cart_url: '{{ routes.cart_url }}',
-        predictive_search_url: '{{ routes.predictive_search_url }}'
+        predictive_search_url: '{{ routes.predictive_search_url }}',
       };
 
       window.cartStrings = {
         error: `{{ 'sections.cart.cart_error' | t }}`,
-        quantityError: `{{ 'sections.cart.cart_quantity_error_html' | t: quantity: '[quantity]' }}`
-      }
+        quantityError: `{{ 'sections.cart.cart_quantity_error_html' | t: quantity: '[quantity]' }}`,
+      };
 
       window.variantStrings = {
         addToCart: `{{ 'products.product.add_to_cart' | t }}`,
         soldOut: `{{ 'products.product.sold_out' | t }}`,
         unavailable: `{{ 'products.product.unavailable' | t }}`,
         unavailable_with_option: `{{ 'products.product.value_unavailable' | t: option_value: '[value]' }}`,
-      }
+      };
 
       window.accessibilityStrings = {
         imageAvailable: `{{ 'products.product.media.image_available' | t: index: '[index]' }}`,
         shareSuccess: `{{ 'general.share.success_message' | t }}`,
         pauseSlideshow: `{{ 'sections.slideshow.pause_slideshow' | t }}`,
         playSlideshow: `{{ 'sections.slideshow.play_slideshow' | t }}`,
-      }
+      };
     </script>
 
     <script>
@@ -568,7 +588,7 @@
     <script>
       (function () {
         var links = document.links;
-        for (let i = 0; i < links.length;  i++) {
+        for (let i = 0; i < links.length; i++) {
           if (links[i].hostname !== window.location.hostname) {
             links[i].target = '_blank';
             links[i].rel = 'noreferrer noopener';
@@ -579,23 +599,23 @@
 
     {% if settings.disable_inspect %}
       <script>
-        window.addEventListener("contextmenu", (e) => {
+        window.addEventListener('contextmenu', (e) => {
           e.preventDefault();
         });
-        document.addEventListener("selectstart", (e) => {
+        document.addEventListener('selectstart', (e) => {
           e.preventDefault();
         });
-        document.addEventListener('DOMContentLoaded', function() {
-          document.querySelectorAll('img').forEach(img => {
-            img.addEventListener('dragstart', function(e) {
+        document.addEventListener('DOMContentLoaded', function () {
+          document.querySelectorAll('img').forEach((img) => {
+            img.addEventListener('dragstart', function (e) {
               e.preventDefault();
-            })
-          })
-        })
+            });
+          });
+        });
         function ctrlShiftKey(e, keyCode) {
           return e.ctrlKey && e.shiftKey && e.keyCode === keyCode.charCodeAt(0);
         }
-        document.addEventListener('keydown', function(e) {
+        document.addEventListener('keydown', function (e) {
           if (
             event.keyCode === 123 ||
             ctrlShiftKey(e, 'I') ||
@@ -605,7 +625,7 @@
           ) {
             e.preventDefault();
           }
-        })
+        });
       </script>
     {% endif %}
     {% if settings.display_store_languages %}
