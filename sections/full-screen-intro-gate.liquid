@@ -36,6 +36,15 @@
   .shine-button::after { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.35) 50%, rgba(255,255,255,0) 100%); transform: translateX(-100%); animation: shine-effect 3.5s infinite linear; }
   @keyframes shine-effect { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
 
+  /* Slightly off-white enter button color (not pure #fff) */
+  #enter-button-{{ section.id }} {
+    color: #f7f7f7;
+  }
+  #enter-button-{{ section.id }}:hover,
+  #enter-button-{{ section.id }}:focus {
+    color: #ffffff;
+  }
+
   /* Prevent page scroll while intro gate exists */
   body.intro-gate-active { overflow: hidden; }
 
@@ -92,7 +101,7 @@
       <button
         id="enter-button-{{ section.id }}"
         type="button"
-        class="text-xl font-medium text-white tracking-wider cursor-pointer shine-button animate-pulse px-4 py-2 focus:outline-none focus:ring-4 focus:ring-white/30"
+        class="text-xl font-medium text-gray-200 hover:text-white tracking-wider cursor-pointer shine-button animate-pulse px-4 py-2 focus:outline-none focus:ring-4 focus:ring-white/30"
         aria-label="Enter site"
       >
         {{ button_text }}
