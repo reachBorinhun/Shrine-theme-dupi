@@ -1,0 +1,104 @@
+/* Overrides to remove card shadow and border-radius, and center title/price */
+.card,
+.card__inner,
+.card__media,
+.card-wrapper,
+.collection-list__item {
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  overflow: visible !important;
+}
+
+.card__heading,
+.card-information,
+.card__information,
+.card__badge,
+.card__content {
+  text-align: center !important;
+}
+
+/* Ensure media images don't crop corners */
+.card__media img {
+  border-radius: 0 !important;
+}
+
+/* Remove any default card background rounding or outline */
+.card--card,
+.card--standard {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* If there's a separate shadow wrapper, remove it */
+.card .shadow,
+.card-shadow,
+.card__shadow {
+  display: none !important;
+}
+
+/* Remove shadows set via pseudo-elements (used in base.css) */
+.card--card:after,
+.card--standard .card__inner:after,
+.card--card .card__inner:after,
+.card--standard:after,
+.card:after,
+.card__inner:after {
+  box-shadow: none !important;
+  content: none !important;
+  background: transparent !important;
+}
+
+/* Fallback to remove any inline shadow properties set via variables */
+.card,
+.card--card,
+.card--standard,
+.card__inner {
+  box-shadow: none !important;
+}
+
+/* Reduce any extra spacing applied to list items or card wrappers */
+.collection-list__item,
+.splide__slide__container--card,
+.slider__slide,
+.product-grid > * {
+  margin: 0 !important;
+  /* keep 8px internal padding so content doesn't touch edges */
+  padding: 8px !important;
+}
+
+/* Ensure the media area fills the card and images cover the area for tighter look */
+.card__media,
+.card .media,
+.card__media .media,
+.card .card__media {
+  width: 100% !important;
+  height: 100% !important;
+  /* respect the outer 8px padding from the list item */
+  padding: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.card__media img,
+.card .media img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
+
+/* Force product grid gap on desktop to match design */
+@media screen and (min-width: 990px) {
+  .product-grid {
+    gap: 4px !important;
+    column-gap: 4px !important;
+    row-gap: 4px !important;
+  }
+
+  /* Also ensure splide list/gutters don't add extra spacing */
+  .splide__list,
+  .splide__slide {
+    gap: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}

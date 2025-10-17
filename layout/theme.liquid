@@ -64,6 +64,8 @@
 
     {%- comment -%} Tailwind generated stylesheet (built via npm run dev) {%- endcomment -%}
     <link rel="stylesheet" href="{{ 'tailwind.output.css' | asset_url }}" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="{{ 'base.css' | asset_url }}" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="{{ 'overrides.css' | asset_url }}" media="print" onload="this.media='all'">
 
     {%- liquid
       assign body_font_bold = settings.type_body_font | font_modify: 'weight', 'bold'

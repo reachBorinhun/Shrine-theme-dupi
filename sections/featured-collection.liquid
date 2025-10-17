@@ -61,6 +61,9 @@
     assign has_desktop_slider = true
   endif
 
+  assign has_mobile_slider = false
+  assign has_desktop_slider = false
+
   assign side_padding_desktop = section.settings.desktop_side_padding
   if section.settings.enable_mobile_preview
     assign side_padding_mobile = 24
@@ -76,7 +79,7 @@
       <span class="copy-success">ID copied successfully!</span>
     </copy-button>
   {% endif %}
-  <div class="collection collection-{{ section.id }} section-{{ section.id }}-padding">
+  <div class=" collection collection-{{ section.id }} section-{{ section.id }}-padding">
     <div class="collection__title animate-item animate-item--child index-0 title-wrapper title-wrapper--no-top-margin page-width{% if show_mobile_slider %} title-wrapper--self-padded-tablet-down{% endif %}{% if show_desktop_slider %} collection__title--desktop-slider{% endif %}">
       {%- if section.settings.title != blank -%}
         {% render 'section-title' %}
@@ -98,12 +101,14 @@
     <div class="featured-collection-wrapper page-width{% if section.settings.desktop_full_page %} desktop-full-page{% endif %}{% if has_mobile_slider %} mobile-full-page{% endif %}">
       <div
         class="product-grid contains-card contains-card--product{% if settings.card_style == 'standard' %} contains-card--standard{% endif %}{% if section.settings.stretch_cards %} grid--stretch{% endif %}"
-        style="--columns-desktop: {{ section.settings.columns_desktop }};--columns-mobile: {{ columns_mobile_int }};--gap-desktop:{{ section.settings.desktop_spacing }}px;--gap-mobile:1.5rem;--right-padding-desktop:{{ side_padding_desktop }}px;--left-padding-desktop:{% if section.settings.desktop_padding_calc %}{{ side_padding_desktop }}{% else %}0{% endif %}px;--side-padding-mobile:{{ side_padding_mobile }}px;"
+        style="--columns-desktop: 4;--columns-mobile: {{ columns_mobile_int }};--gap-desktop:4px;--gap-mobile:1.5rem;--right-padding-desktop:8px;--left-padding-desktop:8px;--side-padding-mobile:{{ side_padding_mobile }}px;--image-padding:8px;"
       >
         {% if has_mobile_slider or has_desktop_slider %}
           <splide-component
-            class="spl
-            ide"
+            class="
+              spl
+              ide
+            "
             data-type="{{ section.settings.type }}"
             data-autoplay="{{ section.settings.autoplay }}"
             data-autoplay-speed="{{ section.settings.autoplay_speed }}"
