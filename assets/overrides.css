@@ -86,9 +86,55 @@
   object-fit: cover !important;
 }
 
-/* Force product grid gap on desktop to match design */
+/* Mobile: 2 columns per row */
+@media screen and (max-width: 749px) {
+  .product-grid {
+    --columns-mobile: 2 !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 4px !important;
+    column-gap: 4px !important;
+    row-gap: 4px !important;
+  }
+
+  .splide__list,
+  .splide__slide {
+    gap: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  /* Reduce card inner padding on small screens */
+  .product-grid > * {
+    padding: 4px !important;
+  }
+}
+
+/* Tablet: 3 columns per row */
+@media screen and (min-width: 750px) and (max-width: 989px) {
+  .product-grid {
+    --columns-desktop: 3 !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 4px !important;
+    column-gap: 4px !important;
+    row-gap: 4px !important;
+  }
+
+  .splide__list,
+  .splide__slide {
+    gap: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  /* Slightly reduce card inner padding on tablet for tighter rows */
+  .product-grid > * {
+    padding: 6px !important;
+  }
+}
+
+/* Desktop: 4 columns per row (your original code) */
 @media screen and (min-width: 990px) {
   .product-grid {
+    --columns-desktop: 4 !important;
+    grid-template-columns: repeat(4, 1fr) !important;
     gap: 4px !important;
     column-gap: 4px !important;
     row-gap: 4px !important;
@@ -101,4 +147,46 @@
     margin: 0 !important;
     padding: 0 !important;
   }
+}
+
+/* Reduce outer container padding for the featured collection so cards can be wider
+   Keep product gap (grid gap) unchanged — this only reduces the row's left/right inset */
+.featured-collection-wrapper .product-grid {
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+  box-sizing: border-box !important;
+}
+
+@media screen and (min-width: 750px) and (max-width: 989px) {
+  /* tablet: slightly smaller container padding */
+  .featured-collection-wrapper .product-grid {
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+  }
+}
+
+@media screen and (max-width: 749px) {
+  /* mobile: very small container padding to maximize card width */
+  .featured-collection-wrapper .product-grid {
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+  }
+}
+
+/* Aggressive: remove any ancestor padding for featured collection instances */
+.featured-collection-wrapper,
+.featured-collection-wrapper.page-width,
+.collection.featured-collection-wrapper {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  max-width: 100% !important;
+}
+
+.featured-collection-wrapper .page-width,
+.featured-collection-wrapper .collection {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  max-width: none !important;
 }
