@@ -33,7 +33,7 @@
     if custom_color_scheme
       assign card_color_scheme = custom_color_scheme
     endif
-     
+
     assign product_form_id = 'quick-add-' | append: section_id | append: card_product.id
     assign quick_add_skip_index = 0
     assign has_swatches = false
@@ -43,7 +43,7 @@
       assign swatches_product_option_index = -1
       assign option_value_index = 0
       assign = custom_name_identifier = '-' | append: section_id | append: card_product.id
-  
+
       for option in card_product.options_with_values
         if option.name == swatches_option_name
           assign swatches_product_option_index = forloop.index0
@@ -95,7 +95,7 @@
                 {% endunless %}
                 width="{{ card_product.featured_media.width }}"
                 height="{{ card_product.featured_media.height }}"
-                id='{{ product_form_id }}-image'
+                id="{{ product_form_id }}-image"
               >
               {% comment %}theme-check-enable ImgLazyLoading{% endcomment %}
 
@@ -149,14 +149,20 @@
                 {{- 'products.product.sold_out' | t -}}
               </span>
             {%- elsif badges != 'disabled' -%}
-              {% assign percentage_saved = card_product.compare_at_price | minus: card_product.price | times: 100.0 | divided_by: card_product.compare_at_price | floor | append: '%' %}
+              {% assign percentage_saved = card_product.compare_at_price
+                | minus: card_product.price
+                | times: 100.0
+                | divided_by: card_product.compare_at_price
+                | floor
+                | append: '%'
+              %}
               {% capture money_saved %}
                 {{ card_product.compare_at_price | minus: card_product.price | money_without_trailing_zeros }}
               {% endcapture %}
               {% if badges == 'custom' %}
                 {% liquid
                   assign badge_index = false
-                  assign badge_text = nil
+                  assign badge_text = null
                   for tag in card_product.tags
                     if tag contains 'custom-badge-'
                       assign badge_index = tag | remove: 'custom-badge-' | minus: 1
@@ -168,12 +174,14 @@
                     assign badge_text = badges_array[badge_index]
                   endif
                 %}
-                {% if badge_text != nil %}
+                {% if badge_text != null %}
                   <span
                     id="NoMediaStandardBadge-{{ section_id }}-{{ card_product.id }}"
                     class="badge badge--bottom-left color-{{ settings.sale_badge_color_scheme }}"
                   >
-                    <span class='nowrap'>{{ badge_text | replace: '[percentage]', percentage_saved | replace: '[amount]', money_saved }}</span>
+                    <span class="nowrap">
+                      {{- badge_text | replace: '[percentage]', percentage_saved | replace: '[amount]', money_saved -}}
+                    </span>
                   </span>
                 {% endif %}
               {% elsif card_product.compare_at_price > card_product.price and settings.sale_badge_text != blank %}
@@ -181,7 +189,14 @@
                   id="NoMediaStandardBadge-{{ section_id }}-{{ card_product.id }}"
                   class="badge badge--bottom-left color-{{ settings.sale_badge_color_scheme }}"
                 >
-                  {% if settings.sale_basge_discount_icon %}{% render 'icon-discount' %}{% endif %}<span class='nowrap'>{{ settings.sale_badge_text | replace: '[percentage]', percentage_saved | replace: '[amount]', money_saved }}</span>
+                  {% if settings.sale_basge_discount_icon %}{% render 'icon-discount' %}{% endif -%}
+                  <span class="nowrap">
+                    {{-
+                      settings.sale_badge_text
+                      | replace: '[percentage]', percentage_saved
+                      | replace: '[amount]', money_saved
+                    -}}
+                  </span>
                 </span>
               {%- endif -%}
             {%- endif -%}
@@ -250,16 +265,132 @@
             {%- endif -%}
 
             {% render 'price', product: card_product, price_class: '', hide_currency_code: true %}
+
+            {%- comment -%} card-level dynamic size buttons (UI only) {%- endcomment -%}
+            {%- assign size_option_index = -1 -%}
+            {%- for opt in card_product.options_with_values -%}
+              {%- assign lower = opt.name | downcase -%}
+              {%- if lower contains 'size' -%}
+                {%- assign size_option_index = forloop.index0 -%}
+              {%- endif -%}
+            {%- endfor -%}
+
+            {%- if size_option_index == -1 and card_product.options.size > 0 -%}
+              {%- assign size_option_index = 0 -%}
+            {%- endif -%}
+
+            {%- if size_option_index != -1 -%}
+              <div class="card-size-swatches" aria-hidden="false">
+                {%- assign vals = card_product.options_with_values[size_option_index].values -%}
+                {%- for vlabel in vals -%}
+                  {%- assign matched_variant = null -%}
+                  {%- for vv in card_product.variants -%}
+                    {%- assign opt_value = vv.options[size_option_index] -%}
+                    {%- if opt_value == vlabel -%}
+                      {%- assign matched_variant = vv -%}
+                      {%- break -%}
+                    {%- endif -%}
+                  {%- endfor -%}
+                  {%- assign original_label = vlabel | strip -%}
+                  {%- assign final_label = original_label -%}
+
+                  {%- if original_label contains '(' and original_label contains ')' -%}
+                    {%- assign parts = original_label | split: '(' -%}
+                    {%- assign size_word = parts[0] | strip | downcase -%}
+                    {%- assign measurement_part = parts[1] | remove: ')' | strip -%}
+
+                    {%- assign short_size = size_word -%}
+                    {%- if size_word == 'xsmall'
+                      or size_word == 'x-small'
+                      or size_word == 'extra small'
+                      or size_word == 'xs'
+                    -%}
+                      {%- assign short_size = 'XS' -%}
+                    {%- elsif size_word == 'small' or size_word == 's' -%}
+                      {%- assign short_size = 'S' -%}
+                    {%- elsif size_word == 'medium' or size_word == 'm' -%}
+                      {%- assign short_size = 'M' -%}
+                    {%- elsif size_word == 'large' or size_word == 'l' -%}
+                      {%- assign short_size = 'L' -%}
+                    {%- elsif size_word == 'xlarge'
+                      or size_word == 'x-large'
+                      or size_word == 'extra large'
+                      or size_word == 'xl'
+                    -%}
+                      {%- assign short_size = 'XL' -%}
+                    {%- elsif size_word == '2xlarge'
+                      or size_word == '2xl'
+                      or size_word == 'xxl'
+                      or size_word == '2x'
+                    -%}
+                      {%- assign short_size = '2XL' -%}
+                    {%- endif -%}
+
+                    {%- assign final_label = short_size | append: ' (' | append: measurement_part | append: ')' -%}
+
+                  {%- else -%}
+                    {%- assign size_lower = original_label | downcase | strip -%}
+                    {%- if size_lower == 'xsmall'
+                      or size_lower == 'x-small'
+                      or size_lower == 'extra small'
+                      or size_lower == 'xs'
+                    -%}
+                      {%- assign final_label = 'XS' -%}
+                    {%- elsif size_lower == 'small' or size_lower == 's' -%}
+                      {%- assign final_label = 'S' -%}
+                    {%- elsif size_lower == 'medium' or size_lower == 'm' -%}
+                      {%- assign final_label = 'M' -%}
+                    {%- elsif size_lower == 'large' or size_lower == 'l' -%}
+                      {%- assign final_label = 'L' -%}
+                    {%- elsif size_lower == 'xlarge'
+                      or size_lower == 'x-large'
+                      or size_lower == 'extra large'
+                      or size_lower == 'xl'
+                    -%}
+                      {%- assign final_label = 'XL' -%}
+                    {%- elsif size_lower == '2xlarge'
+                      or size_lower == '2xl'
+                      or size_lower == 'xxl'
+                      or size_lower == '2x'
+                    -%}
+                      {%- assign final_label = '2XL' -%}
+                    {%- endif -%}
+                  {%- endif -%}
+
+                  {%- assign is_selected = false -%}
+                  {%- if matched_variant
+                    and card_product.selected_or_first_available_variant
+                    and matched_variant.id == card_product.selected_or_first_available_variant.id
+                  -%}
+                    {%- assign is_selected = true -%}
+                  {%- endif -%}
+                  <button
+                    type="button"
+                    class="variant-swatch small{% if is_selected %} is-selected{% endif %}"
+                    data-size="{{ original_label }}"
+                    data-variant-id="{% if matched_variant %}{{ matched_variant.id }}{% endif %}"
+                    data-available="{% if matched_variant and matched_variant.available %}true{% else %}false{% endif %}"
+                    data-selected="{% if is_selected %}true{% else %}false{% endif %}"
+                    {% unless matched_variant and matched_variant.available %}
+                      disabled aria-disabled="true"
+                    {% endunless %}
+                    aria-pressed="{% if is_selected %}true{% else %}false{% endif %}"
+                  >
+                    <span>{{ final_label }}</span>
+                  </button>
+                {%- endfor -%}
+              </div>
+            {%- endif -%}
           </div>
         </div>
         {% if has_swatches %}
           {% assign quick_add_skip_index = 1 %}
-          
+
           <card-variant-selects
-            if='card-variant-selects-{{ product_form_id }}'
+            if="card-variant-selects-{{ product_form_id }}"
             data-section="{{ product_form_id }}"
             data-url="{{ card_product.url }}"
-            class='no-js-hidden display-block'
+            class="no-js-hidden display-block"
             data-update-url="false"
           >
             {%- for option in card_product.options_with_values -%}
@@ -275,17 +406,17 @@
                 <div class="visually-hidden product-form__input__type" data-type="{{ type }}">&nbsp</div>
                 {% case type %}
                   {% when 'swatches' %}
-                    <div class='card__swatches-container color-swatches-container color-swatches-container--size-small flex-justify-{{ settings.card_text_alignment }}'>
+                    <div class="card__swatches-container color-swatches-container color-swatches-container--size-small flex-justify-{{ settings.card_text_alignment }}">
                       {%- for value in option.values -%}
                         {% liquid
                           assign hex_value = ''
-                          
+
                           for color in predefined_colors
                             assign color_line = color | remove: '<p>' | remove: '</p>'
                             assign color_parts = color_line | split: '='
                             assign option_name = color_parts[0] | strip
                             assign option_hex = color_parts[1] | strip
-                        
+
                             if value == option_name
                               assign hex_value = option_hex
                               assign current_option_name = option_name
@@ -293,7 +424,7 @@
                             endif
                           endfor
                         %}
-                  
+
                         <div class="color-swatch{% if hex_value == blank %} hidden{% endif %}">
                           <input
                             type="radio"
@@ -309,7 +440,10 @@
                           <div class="color-swatch__image">
                             <div class="color-swatch__custom-color" style="--bg-color: {{ hex_value }}">&nbsp</div>
                           </div>
-                          <label class="color-swatch_hidden-label" for="{{ product_form_id }}-{{ current_option_name }}-{{ option_value_index }}">
+                          <label
+                            class="color-swatch_hidden-label"
+                            for="{{ product_form_id }}-{{ current_option_name }}-{{ option_value_index }}"
+                          >
                           </label>
                           <span class="color-swatch__label">{{ current_option_name }}</span>
                         </div>
@@ -318,7 +452,7 @@
                   {% when 'pills' %}
                     {% render 'product-variant-options',
                       product: card_product,
-                      option: option, 
+                      option: option,
                       type: 'pills',
                       custom_name_identifier: custom_name_identifier,
                       custom_product_form_id: product_form_id
@@ -344,7 +478,7 @@
               endif
               assign quick_add_options = card_product.options.size | minus: quick_add_skip_index
               assign ab_convert_variants = false
-              if card_product.variants.first.title contains "Default" and card_product.variants.size == 2
+              if card_product.variants.first.title contains 'Default' and card_product.variants.size == 2
                 assign ab_convert_variants = true
               endif
               if quick_add_options < 1 or ab_convert_variants
@@ -399,7 +533,7 @@
                 </div>
               </quick-add-modal>
             {%- else -%}
-              <product-form id='product-form-{{ product_form_id }}'>
+              <product-form id="product-form-{{ product_form_id }}">
                 {%- form 'product',
                   card_product,
                   id: product_form_id,
@@ -409,7 +543,7 @@
                 -%}
                   <div class="hidden product-form__variants" data-values=""></div>
                   <input
-                    if='{{ product_form_id }}-variant-id'
+                    if="{{ product_form_id }}-variant-id"
                     type="hidden"
                     name="id"
                     value="{{ card_product.selected_or_first_available_variant.id }}"
@@ -438,7 +572,7 @@
                       disabled
                     {% endif %}
                   >
-                    <span class='main-atc__label__text'>
+                    <span class="main-atc__label__text">
                       {%- if card_product.selected_or_first_available_variant.available -%}
                         {{ 'products.product.add_to_cart' | t }}
                       {%- else -%}
