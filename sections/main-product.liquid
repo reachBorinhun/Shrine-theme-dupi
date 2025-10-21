@@ -119,9 +119,6 @@
           {%- assign product_form_id = 'product-form-' | append: section.id -%}
 
           {% content_for 'blocks' %}
-
-          {% render 'size-selector' %}
-
           <a href="{{ product.url }}" class="link product__view-details animate-arrow">
             {{ 'products.product.view_full_details' | t }}
             {% render 'icon-arrow' %}
@@ -222,7 +219,6 @@
       assign seo_media = product.featured_media
     endif
   -%}
-
   <script type="application/ld+json">
     {
       "@context": "http://schema.org/",

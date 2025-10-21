@@ -119,6 +119,8 @@
                   height="{{ card_product.media[1].height }}"
                 >
               {%- endif -%}
+              {%- comment -%} Include size-add-to-cart on pages that render product cards (homepage/collection). Use a client-side guard to avoid duplicate loads. {%- endcomment -%}
+              {%- comment -%} size-add-to-cart loader removed from snippet to avoid appearing as text in some render contexts. Script will be included globally on non-product pages instead. {%- endcomment -%}
             </div>
           </div>
         {%- endif -%}

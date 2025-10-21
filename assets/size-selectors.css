@@ -61,6 +61,10 @@
   align-items: center;
   justify-content: center;
 
+  /* sit above card links / overlays so taps hit the button */
+  position: relative;
+  z-index: 1100;
+
   /* Elevation */
   position: relative;
   z-index: 1;
@@ -81,8 +85,14 @@
   transform: translateY(-1px);
 }
 
-/* Focus state for keyboard navigation */
-.size-btn:focus {
+/* Focus: hide focus ring on mouse/touch but keep it for keyboard users */
+.size-btn:focus:not(:focus-visible),
+.card-size-swatches .variant-swatch:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.size-btn:focus-visible,
+.card-size-swatches .variant-swatch:focus-visible {
   outline: 3px solid rgba(59, 130, 246, 0.5);
   outline-offset: 2px;
 }
@@ -182,6 +192,9 @@
   flex-wrap: wrap;
   margin-top: 0.5rem;
   justify-content: center;
+  /* ensure the swatch container sits above underlying card link */
+  position: relative;
+  z-index: 1000;
 }
 
 .card-size-swatches .variant-swatch {
@@ -192,6 +205,8 @@
   background: #fff;
   color: #1f2937;
   border-radius: 6px;
+  position: relative;
+  z-index: 1100;
   font-weight: 600;
   font-size: 13px;
   display: inline-flex;
