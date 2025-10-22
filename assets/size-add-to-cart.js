@@ -1,13 +1,17 @@
 /*
-  size-add-to-cart.js - FIXED VERSION
-  - Ensured all functions are within the IIFE (Immediately Invoked Function Expression)
-  - Implemented proper scoping for size button selection to prevent cross-product conflicts
-  - Moved and fixed the initialization function to run at page load and on mutation
-  - Added improved inventory validation logic with structured return objects and low-stock warnings
+  size-add-to-cart.js - FINAL OPTIMIZED VERSION
+  - Implements optimistic UI updates for instant perceived performance.
+  - Runs network operations (add to cart, fetch cart JSON, fetch fragment) in parallel.
+  - Fixes all scoping and duplicate function issues.
+  - Includes enhanced inventory validation with low-stock warnings.
+  - FIX: Re-opens cart drawer after content injection to solve the "blank offcanvas" issue.
 */
 
 (function () {
   "use strict";
+
+  // **OPTIMIZATION 7: Cache last known cart state**
+  var cachedCart = null;
 
   var config = {
     sizeButtonSelector: ".size-btn, .variant-swatch, [data-variant-id]",
@@ -130,7 +134,7 @@
     return null;
   }
 
-  // **TASK 2: REPLACED validateInventory function with improved logic**
+  // REPLACED validateInventory function with improved logic
   function validateInventory(productJson, variantId) {
     try {
       // If no product JSON available, return null (unknown - let server validate)
@@ -254,7 +258,7 @@
     return live;
   }
 
-  // **TASK 1: ADDED MISSING announceToScreenReader function (now correctly placed)**
+  // ADDED MISSING announceToScreenReader function (now correctly placed)
   function announceToScreenReader(message) {
     try {
       var live = createAriaLive();
@@ -271,7 +275,7 @@
     }
   }
 
-  // **TASK 2: MOVED updateSizeButtonSelection inside the IIFE and updated scoping**
+  // MOVED updateSizeButtonSelection inside the IIFE and updated scoping
   /**
    * Marks a size button as selected and deselects all others in the same container.
    * This provides visual feedback showing which size is currently chosen.
@@ -282,25 +286,25 @@
       if (!selectedButton) return;
 
       // Find the container holding all size buttons for this product
-      // We need to be very specific to avoid affecting other products on the page
       var container = selectedButton.closest(
         ".size-buttons-grid, .card-size-swatches, .size-selector-container"
       );
-      
+
       if (!container) {
         // Fallback: look for parent form or product section
         container = selectedButton.closest(
           "form, [data-product-form], .product, .card"
         );
       }
-      
+
       if (!container) {
         // Last resort: look for closest product wrapper
-        container = selectedButton.closest('[class*="product"]') || 
-                    selectedButton.closest('[id*="product"]') ||
-                    selectedButton.closest('[id*="Product"]');
+        container =
+          selectedButton.closest('[class*="product"]') ||
+          selectedButton.closest('[id*="product"]') ||
+          selectedButton.closest('[id*="Product"]');
       }
-      
+
       if (!container) {
         // If still no container, only deselect siblings
         var parent = selectedButton.parentElement;
@@ -309,9 +313,9 @@
         } else {
           // Absolute fallback - just select this button
           try {
-            selectedButton.setAttribute('aria-pressed', 'true');
-            selectedButton.setAttribute('data-selected', 'true');
-            selectedButton.classList.add('is-selected');
+            selectedButton.setAttribute("aria-pressed", "true");
+            selectedButton.setAttribute("data-selected", "true");
+            selectedButton.classList.add("is-selected");
           } catch (e) {}
           return;
         }
@@ -319,16 +323,17 @@
 
       // Get all size buttons in this SPECIFIC container only
       var allButtons = container.querySelectorAll(config.sizeButtonSelector);
-      
+
       // Log for debugging
       try {
-        console.log && console.log('SizeAddToCart: updateSizeButtonSelection', {
-          container: container.className || container.id || 'unknown',
-          totalButtons: allButtons.length,
-          selectedButton: selectedButton.textContent
-        });
+        console.log &&
+          console.log("SizeAddToCart: updateSizeButtonSelection", {
+            container: container.className || container.id || "unknown",
+            totalButtons: allButtons.length,
+            selectedButton: selectedButton.textContent,
+          });
       } catch (e) {}
-      
+
       // Deselect all buttons in this container first
       for (var i = 0; i < allButtons.length; i++) {
         var btn = allButtons[i];
@@ -336,7 +341,7 @@
           btn.setAttribute("aria-pressed", "false");
           btn.removeAttribute("data-selected");
           btn.classList.remove("is-selected");
-          
+
           // Update aria-label for screen readers
           var label = btn.getAttribute("aria-label") || btn.textContent || "";
           if (label) {
@@ -353,7 +358,7 @@
         selectedButton.setAttribute("aria-pressed", "true");
         selectedButton.setAttribute("data-selected", "true");
         selectedButton.classList.add("is-selected");
-        
+
         // Update aria-label for screen readers
         var selectedLabel =
           selectedButton.getAttribute("aria-label") ||
@@ -365,12 +370,10 @@
             selectedLabel.trim() + ", selected"
           );
         }
-        
+
         // Announce selection to screen readers
-        announceToScreenReader(
-          "Size " + (selectedButton.textContent || "").trim() + " selected"
-        );
-        
+        // This is skipped here and handled later in the main click function to work better with the optimistic flow
+
         // Log for debugging
         try {
           console.log &&
@@ -392,8 +395,8 @@
       } catch (er) {}
     }
   }
-  
-  // **TASK 3: MOVED initializeSizeButtonStates to the top level of the IIFE**
+
+  // MOVED initializeSizeButtonStates to the top level of the IIFE
   /**
    * Initialize the selection state for size buttons on page load.
    * If a size is pre-selected (e.g., from URL parameter or default), mark it as selected.
@@ -404,16 +407,16 @@
       var containers = document.querySelectorAll(
         ".size-buttons-grid, .card-size-swatches, .size-selector-container"
       );
-      
+
       for (var i = 0; i < containers.length; i++) {
         var container = containers[i];
-        
+
         // Check if any button is already marked as selected in HTML
         var preSelected = container.querySelector(
           '.size-btn[aria-pressed="true"], .size-btn[data-selected="true"], .size-btn.is-selected, ' +
-          '.variant-swatch[aria-pressed="true"], .variant-swatch[data-selected="true"], .variant-swatch.is-selected'
+            '.variant-swatch[aria-pressed="true"], .variant-swatch[data-selected="true"], .variant-swatch.is-selected'
         );
-        
+
         if (preSelected) {
           updateSizeButtonSelection(preSelected);
         } else {
@@ -424,7 +427,8 @@
             if (hiddenInput && hiddenInput.value) {
               // Find button matching this variant ID
               var matchingBtn = container.querySelector(
-                config.sizeButtonSelector + '[data-variant-id="' +
+                config.sizeButtonSelector +
+                  '[data-variant-id="' +
                   hiddenInput.value +
                   '"]'
               );
@@ -435,7 +439,7 @@
           }
         }
       }
-      
+
       try {
         console.log &&
           console.log(
@@ -450,7 +454,6 @@
       } catch (er) {}
     }
   }
-
 
   function createToastContainer() {
     var c = $(config.toastContainerSelector);
@@ -513,12 +516,15 @@
   }
 
   function fetchCartJson() {
-    return fetchWithTimeout(config.cartJsonUrl, { method: "GET" }, 5000).then(
-      function (res) {
+    return fetchWithTimeout(config.cartJsonUrl, { method: "GET" }, 5000)
+      .then(function (res) {
         if (!res.ok) throw new Error("Cart fetch failed");
         return res.json();
-      }
-    );
+      })
+      .then(function (cart) {
+        cachedCart = cart; // Cache for optimistic updates
+        return cart;
+      });
   }
 
   function renderCartDrawerFromJson(cart) {
@@ -647,6 +653,7 @@
     }
   }
 
+  // **OPTIMIZATION 4: Updated Loading Placeholder**
   function showOptimisticDrawerPlaceholder() {
     try {
       var container =
@@ -658,8 +665,13 @@
       if (existing) return;
       var wrapper = document.createElement("div");
       wrapper.className = "drawer__cart-items-wrapper size-add-optimistic";
+      // Animated spinner for better UX
       wrapper.innerHTML =
-        '<div style="padding:1.25rem;text-align:center;color:#666">Updating cart&hellip;</div>';
+        '<div style="padding:1.25rem;text-align:center;color:#666">' +
+        '<div style="display:inline-block;width:20px;height:20px;border:3px solid #e5e7eb;border-top-color:#3b82f6;border-radius:50%;animation:spin 0.8s linear infinite;"></div>' +
+        '<p style="margin-top:0.75rem;font-size:14px;">Adding to cart...</p>' +
+        "<style>@keyframes spin{to{transform:rotate(360deg)}}</style>" +
+        "</div>";
       if (container.firstChild)
         container.insertBefore(wrapper, container.firstChild);
       else container.appendChild(wrapper);
@@ -931,17 +943,25 @@
     } catch (e) {}
   }
 
-  function tryOpenCartDrawer() {
+  // **OPTIMIZATION 5: Added skipRefresh flag to tryOpenCartDrawer**
+  function tryOpenCartDrawer(skipRefresh) {
     try {
-      console.log && console.log("SizeAddToCart: tryOpenCartDrawer called");
+      console.log &&
+        console.log(
+          "SizeAddToCart: tryOpenCartDrawer called, skipRefresh=",
+          skipRefresh
+        );
     } catch (e) {}
 
-    try {
-      if (window.theme && typeof window.theme.refreshCart === "function") {
-        window.theme.refreshCart();
-      }
-      window.dispatchEvent(new CustomEvent("cart:refresh"));
-    } catch (e) {}
+    // Only refresh if not opening optimistically
+    if (!skipRefresh) {
+      try {
+        if (window.theme && typeof window.theme.refreshCart === "function") {
+          window.theme.refreshCart();
+        }
+        window.dispatchEvent(new CustomEvent("cart:refresh"));
+      } catch (e) {}
+    }
 
     if (typeof window[config.cartDrawerOpenFunction] === "function") {
       try {
@@ -1029,11 +1049,6 @@
       }
     } catch (e) {}
 
-    // Previously an inline outline was added here on click which caused a
-    // visible blue focus ring for mouse/touch users. That behavior was
-    // removed in favor of CSS :focus-visible so keyboard users still see
-    // an accessible focus ring while mouse/touch users do not.
-
     var available = btn.dataset[config.dataAvailableAttr];
     if (
       available === "false" ||
@@ -1042,7 +1057,7 @@
     )
       return;
 
-    // **TASK 4: Update visual selection state immediately when clicked**
+    // Update visual selection state immediately when clicked
     try {
       updateSizeButtonSelection(btn);
     } catch (e) {
@@ -1050,10 +1065,6 @@
         console.error && console.error("Error updating button selection", e);
       } catch (er) {}
     }
-
-    // Do not mark button as in-flight yet — wait until variant resolved to
-    // prevent marking unrelated quick clicks. Use pendingVariants map keyed
-    // by variantId to prevent duplicate adds for the same variant.
 
     var variantId =
       btn.dataset.variantId ||
@@ -1103,7 +1114,7 @@
       return;
     }
 
-    // **UPDATED Inventory validation logic**
+    // Inventory validation before attempting add
     try {
       if (!productJson) productJson = parseProductJson();
       var inventoryCheck = validateInventory(productJson, variantId);
@@ -1165,75 +1176,136 @@
     var attempts = 0;
     function attemptAdd() {
       attempts++;
+
+      // **OPTIMIZATION 1 & 5: Open drawer immediately with loading state (skip theme refresh here)**
       try {
+        tryOpenCartDrawer(true);
         showOptimisticDrawerPlaceholder();
+      } catch (e) {}
+
+      // **OPTIMIZATION 2: Update cart count optimistically**
+      try {
+        var cc = $(config.cartCountSelector);
+        if (cc) {
+          var currentCount =
+            parseInt(cc.textContent) ||
+            (cachedCart ? cachedCart.item_count : 0);
+          cc.textContent = String(currentCount + 1);
+
+          // Update cart icon bubble optimistically
+          var iconBubble = document.getElementById("cart-icon-bubble");
+          if (iconBubble) {
+            var existing = iconBubble.querySelector(".cart-count-bubble");
+            if (existing) existing.remove();
+
+            var newCount = currentCount + 1;
+            if (newCount > 0) {
+              var div = document.createElement("div");
+              div.className = "cart-count-bubble";
+              if (newCount < 100) {
+                var span = document.createElement("span");
+                span.setAttribute("aria-hidden", "true");
+                span.textContent = String(newCount);
+                div.appendChild(span);
+              }
+              var sr = document.createElement("span");
+              sr.className = "visually-hidden";
+              sr.textContent =
+                window.theme &&
+                window.theme.cartStrings &&
+                window.theme.cartStrings.count
+                  ? window.theme.cartStrings.count
+                  : "";
+              div.appendChild(sr);
+              iconBubble.appendChild(div);
+            }
+          }
+        }
       } catch (e) {}
 
       return postAddToCart(variantId)
         .then(function (added) {
-          return fetchCartJson()
-            .catch(function () {
-              return null;
-            })
-            .then(function (cart) {
-              if (cart && typeof cart.item_count !== "undefined") {
-                var cc = $(config.cartCountSelector);
-                if (cc) cc.textContent = String(cart.item_count);
+          // **OPTIMIZATION 3: Run cart JSON fetch and fragment fetch in PARALLEL**
+          var cartJsonPromise = fetchCartJson().catch(function () {
+            return null;
+          });
 
-                try {
-                  var iconBubble = document.getElementById("cart-icon-bubble");
-                  if (iconBubble) {
-                    var nonUpsellCount = cart.item_count;
-                    var existing =
-                      iconBubble.querySelector(".cart-count-bubble");
-                    if (existing) existing.remove();
-                    if (nonUpsellCount > 0) {
-                      var div = document.createElement("div");
-                      div.className = "cart-count-bubble";
-                      if (nonUpsellCount < 100) {
-                        var span = document.createElement("span");
-                        span.setAttribute("aria-hidden", "true");
-                        span.textContent = String(nonUpsellCount);
-                        div.appendChild(span);
-                      }
-                      var sr = document.createElement("span");
-                      sr.className = "visually-hidden";
-                      sr.textContent =
-                        window.theme &&
-                        window.theme.cartStrings &&
-                        window.theme.cartStrings.count
-                          ? window.theme.cartStrings.count
-                          : "";
-                      div.appendChild(sr);
-                      iconBubble.appendChild(div);
+          var fragmentPromise = fetchAndInjectDrawerFragment().catch(
+            function () {
+              return false;
+            }
+          );
+
+          // Wait for both to complete
+          return Promise.all([cartJsonPromise, fragmentPromise]).then(function (
+            results
+          ) {
+            var cart = results[0];
+            var injected = results[1];
+
+            // Overwrite optimistic cart count with real data
+            if (cart && typeof cart.item_count !== "undefined") {
+              var cc = $(config.cartCountSelector);
+              if (cc) cc.textContent = String(cart.item_count);
+
+              try {
+                var iconBubble = document.getElementById("cart-icon-bubble");
+                if (iconBubble) {
+                  var nonUpsellCount = cart.item_count;
+                  var existing = iconBubble.querySelector(".cart-count-bubble");
+                  if (existing) existing.remove();
+                  if (nonUpsellCount > 0) {
+                    var div = document.createElement("div");
+                    div.className = "cart-count-bubble";
+                    if (nonUpsellCount < 100) {
+                      var span = document.createElement("span");
+                      span.setAttribute("aria-hidden", "true");
+                      span.textContent = String(nonUpsellCount);
+                      div.appendChild(span);
                     }
+                    var sr = document.createElement("span");
+                    sr.className = "visually-hidden";
+                    sr.textContent =
+                      window.theme &&
+                      window.theme.cartStrings &&
+                      window.theme.cartStrings.count
+                        ? window.theme.cartStrings.count
+                        : "";
+                    div.appendChild(sr);
+                    iconBubble.appendChild(div);
                   }
-                } catch (e) {}
-              }
-
-              var hidden = $(config.hiddenVariantInputSelector);
-              if (hidden) hidden.value = variantId;
-
-              dispatchCartUpdated(cart);
-
-              return fetchAndInjectDrawerFragment().then(function (injected) {
-                removeOptimisticPlaceholder();
-                if (!injected && cart) {
-                  try {
-                    renderCartDrawerFromJson(cart);
-                  } catch (e) {}
                 }
-                return new Promise(function (resolve) {
-                  setTimeout(resolve, 200);
-                }).then(function () {
-                  tryOpenCartDrawer();
+              } catch (e) {}
+            }
 
-                  // Success: cart updated. Clear in-flight/pending state.
-                  clearInFlightState(btn, variantId);
-                  return added;
-                });
-              });
-            });
+            var hidden = $(config.hiddenVariantInputSelector);
+            if (hidden) hidden.value = variantId;
+
+            dispatchCartUpdated(cart);
+
+            removeOptimisticPlaceholder();
+
+            // If fragment injection failed, fallback to JSON rendering
+            if (!injected && cart) {
+              try {
+                renderCartDrawerFromJson(cart);
+              } catch (e) {}
+            }
+
+            // **FIX START: Re-run the open-drawer logic after content injection/replacement**
+            if (injected || cart) {
+              // Use a small timeout to ensure the browser has fully processed the DOM replacement/injection
+              // and the custom element has finished its synchronous initialization before we force it open again.
+              setTimeout(function () {
+                tryOpenCartDrawer(true); // Re-open the potentially replaced drawer element
+              }, 50);
+            }
+            // **FIX END**
+
+            // Clear in-flight/pending state.
+            clearInFlightState(btn, variantId);
+            return added;
+          });
         })
         .catch(function (err) {
           if (attempts <= config.maxRetries) {
@@ -1273,6 +1345,22 @@
           b.click();
         }
       });
+
+      // **OPTIMIZATION 6: Prefetch product JSON on hover for instant validation**
+      b.addEventListener(
+        "mouseenter",
+        function () {
+          try {
+            // Trigger JSON parse early so it's cached for subsequent clicks
+            if (!b._productJsonCached) {
+              parseProductJson();
+              b._productJsonCached = true;
+            }
+          } catch (e) {}
+        },
+        { once: true }
+      );
+
       attached++;
     });
     try {
@@ -1281,7 +1369,7 @@
     } catch (e) {}
   }
 
-  // **TASK 5: Check Page Load Initialization - ensure initializeSizeButtonStates is called here**
+  // Check Page Load Initialization - ensure initializeSizeButtonStates is called here
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", function () {
       attachHandlers();
@@ -1415,10 +1503,10 @@
           }
         }
       });
-      // **TASK 6: Update MutationObserver to call initializeSizeButtonStates**
+      // Update MutationObserver to call initializeSizeButtonStates
       if (found) {
         attachHandlers();
-        initializeSizeButtonStates(); 
+        initializeSizeButtonStates();
         try {
           console.log &&
             console.log(
@@ -1432,6 +1520,5 @@
       subtree: true,
     });
   } catch (e) {}
-
   window.SizeAddToCart = { init: attachHandlers };
 })();
