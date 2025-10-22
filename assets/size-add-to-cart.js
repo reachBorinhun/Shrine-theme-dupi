@@ -1,18 +1,31 @@
 /*
-  size-add-to-cart.js - FINAL OPTIMIZED VERSION
+  size-add-to-cart.js - FINAL OPTIMIZED VERSION with MEMORY LEAK PREVENTION & EXPONENTIAL BACKOFF
   - Implements optimistic UI updates for instant perceived performance.
   - Runs network operations (add to cart, fetch cart JSON, fetch fragment) in parallel.
   - Fixes all scoping and duplicate function issues.
   - Includes enhanced inventory validation with low-stock warnings.
   - FIX: Re-opens cart drawer after content injection to solve the "blank offcanvas" issue.
+  - ADDITION: Implements comprehensive memory leak prevention and cleanup functions.
+  - ADDITION: Implements Exponential Backoff for network resilience.
 */
-
-(function () {
+(function (global) {
   "use strict";
+
+  // **MEMORY LEAK PREVENTION: Store listener references for later removal**
+  var boundEventListeners = {
+    sizeButtonClick: null,
+    sizeButtonKeydown: null,
+    sizeButtonMouseenter: null,
+    documentClick: null,
+    documentKeydown: null,
+    documentOverlayClick: null,
+    mutationObserver: null,
+  };
+  var mutationObserverInstance = null;
+  var attachedButtonSet = new Set(); // Track buttons to prevent duplicate attachments
 
   // **OPTIMIZATION 7: Cache last known cart state**
   var cachedCart = null;
-
   var config = {
     sizeButtonSelector: ".size-btn, .variant-swatch, [data-variant-id]",
     sizeLabelSelector: ".size-label-text",
@@ -32,22 +45,14 @@
     toastContainerSelector: "#global-toasts",
     cartDrawerOpenFunction: "openCartDrawer",
     requestTimeoutMs: 8000,
-    retryDelayMs: 600,
-    maxRetries: 1,
+    retryDelayMs: 600, // Base delay for exponential backoff
+    maxRetries: 2, // Increased default retries
   };
 
-  try {
-    console.log &&
-      console.log(
-        "SizeAddToCart: script loaded, selector=",
-        config.sizeButtonSelector
-      );
-  } catch (e) {}
-
+  // --- Utility Functions ---
   function $(selector, context) {
     return (context || document).querySelector(selector);
   }
-
   function $all(selector, context) {
     return Array.prototype.slice.call(
       (context || document).querySelectorAll(selector)
@@ -146,7 +151,6 @@
           lowStock: false,
         };
       }
-
       // Find the variant in product JSON
       var variant = null;
       for (var i = 0; i < productJson.variants.length; i++) {
@@ -160,7 +164,6 @@
           break;
         }
       }
-
       // Variant not found in product data
       if (!variant) {
         return {
@@ -170,7 +173,6 @@
           lowStock: false,
         };
       }
-
       // Check 1: Shopify's `available` flag (most reliable)
       if (typeof variant.available !== "undefined") {
         if (!variant.available) {
@@ -182,13 +184,11 @@
           };
         }
       }
-
       // Check 2: Inventory management and policy
       if (variant.inventory_management) {
         // If inventory tracking is enabled
         if (typeof variant.inventory_quantity !== "undefined") {
           var qty = variant.inventory_quantity;
-
           // Check inventory policy - respect Shopify's deny/continue setting
           if (variant.inventory_policy === "deny" && qty <= 0) {
             return {
@@ -198,7 +198,6 @@
               lowStock: false,
             };
           }
-
           // Check for low stock (1-3 items remaining) - creates urgency
           if (qty > 0 && qty <= 3) {
             return {
@@ -209,7 +208,6 @@
               quantity: qty,
             };
           }
-
           // Check if completely out of stock
           if (qty <= 0) {
             return {
@@ -221,7 +219,6 @@
           }
         }
       }
-
       // All checks passed - item is available
       return {
         available: true,
@@ -284,19 +281,16 @@
   function updateSizeButtonSelection(selectedButton) {
     try {
       if (!selectedButton) return;
-
       // Find the container holding all size buttons for this product
       var container = selectedButton.closest(
         ".size-buttons-grid, .card-size-swatches, .size-selector-container"
       );
-
       if (!container) {
         // Fallback: look for parent form or product section
         container = selectedButton.closest(
           "form, [data-product-form], .product, .card"
         );
       }
-
       if (!container) {
         // Last resort: look for closest product wrapper
         container =
@@ -304,7 +298,6 @@
           selectedButton.closest('[id*="product"]') ||
           selectedButton.closest('[id*="Product"]');
       }
-
       if (!container) {
         // If still no container, only deselect siblings
         var parent = selectedButton.parentElement;
@@ -320,19 +313,8 @@
           return;
         }
       }
-
       // Get all size buttons in this SPECIFIC container only
       var allButtons = container.querySelectorAll(config.sizeButtonSelector);
-
-      // Log for debugging
-      try {
-        console.log &&
-          console.log("SizeAddToCart: updateSizeButtonSelection", {
-            container: container.className || container.id || "unknown",
-            totalButtons: allButtons.length,
-            selectedButton: selectedButton.textContent,
-          });
-      } catch (e) {}
 
       // Deselect all buttons in this container first
       for (var i = 0; i < allButtons.length; i++) {
@@ -341,7 +323,6 @@
           btn.setAttribute("aria-pressed", "false");
           btn.removeAttribute("data-selected");
           btn.classList.remove("is-selected");
-
           // Update aria-label for screen readers
           var label = btn.getAttribute("aria-label") || btn.textContent || "";
           if (label) {
@@ -358,7 +339,6 @@
         selectedButton.setAttribute("aria-pressed", "true");
         selectedButton.setAttribute("data-selected", "true");
         selectedButton.classList.add("is-selected");
-
         // Update aria-label for screen readers
         var selectedLabel =
           selectedButton.getAttribute("aria-label") ||
@@ -370,20 +350,8 @@
             selectedLabel.trim() + ", selected"
           );
         }
-
         // Announce selection to screen readers
         // This is skipped here and handled later in the main click function to work better with the optimistic flow
-
-        // Log for debugging
-        try {
-          console.log &&
-            console.log("SizeAddToCart: Selected size button", {
-              size: selectedButton.textContent,
-              variantId:
-                selectedButton.dataset.variantId ||
-                selectedButton.getAttribute("data-variant-id"),
-            });
-        } catch (e) {}
       } catch (e) {
         try {
           console.error && console.error("Error setting selected state", e);
@@ -407,16 +375,13 @@
       var containers = document.querySelectorAll(
         ".size-buttons-grid, .card-size-swatches, .size-selector-container"
       );
-
       for (var i = 0; i < containers.length; i++) {
         var container = containers[i];
-
         // Check if any button is already marked as selected in HTML
         var preSelected = container.querySelector(
           '.size-btn[aria-pressed="true"], .size-btn[data-selected="true"], .size-btn.is-selected, ' +
             '.variant-swatch[aria-pressed="true"], .variant-swatch[data-selected="true"], .variant-swatch.is-selected'
         );
-
         if (preSelected) {
           updateSizeButtonSelection(preSelected);
         } else {
@@ -439,15 +404,6 @@
           }
         }
       }
-
-      try {
-        console.log &&
-          console.log(
-            "SizeAddToCart: Initialized selection states for",
-            containers.length,
-            "containers"
-          );
-      } catch (e) {}
     } catch (e) {
       try {
         console.error && console.error("initializeSizeButtonStates error", e);
@@ -494,6 +450,10 @@
     opts.signal = controller.signal;
     return fetch(url, opts).finally(function () {
       clearTimeout(id);
+      // AbortController cleanup is handled by fetch when signal is aborted.
+      // Explicitly nullifying the controller here isn't strictly necessary
+      // but can be done for clarity if desired.
+      // controller = null; // Optional
     });
   }
 
@@ -535,18 +495,10 @@
         document.getElementById("CartDrawer-Form") ||
         document.getElementById("CartDrawer");
       if (!container) {
-        try {
-          console.log &&
-            console.log(
-              "SizeAddToCart: renderCartDrawerFromJson - unable to find drawer container"
-            );
-        } catch (e) {}
         return;
       }
-
       var wrapper = document.createElement("div");
       wrapper.className = "drawer__cart-items-wrapper";
-
       if (!cart.items || cart.items.length === 0) {
         wrapper.innerHTML =
           '<div class="drawer__empty"><p class="cart__empty-text">Your cart is empty.</p></div>';
@@ -554,7 +506,6 @@
         container.appendChild(wrapper);
         return;
       }
-
       var ul = document.createElement("ul");
       ul.className = "cart-items list-unstyled";
       cart.items.forEach(function (item, idx) {
@@ -566,7 +517,6 @@
         li.setAttribute("role", "row");
         li.setAttribute("data-index", String(idx + 1));
         li.setAttribute("data-quantity", String(item.quantity || 0));
-
         var media = "";
         if (item.image) {
           media =
@@ -581,14 +531,12 @@
             '" loading="lazy" alt="" width="72" height="72">' +
             "</div>";
         }
-
         var title =
           '<div class="cart-drawer-item__right"><div class="cart-drawer-item__details-and-delete-btn"><div class="cart-item__details" role="cell">' +
           '<h4 class="cart-item__name h4 break">' +
           (item.product_title || item.title || "") +
           "</h4>" +
           "</div></div></div>";
-
         var qtyPrice =
           '<div class="cart-item__totals"><div class="cart-item__price">' +
           (item.final_price ? (item.final_price / 100).toFixed(2) : "") +
@@ -596,13 +544,10 @@
           '<div class="cart-item__quantity">Qty: ' +
           (item.quantity || 0) +
           "</div></div>";
-
         li.innerHTML = (media || "") + title + qtyPrice;
         ul.appendChild(li);
       });
-
       wrapper.appendChild(ul);
-
       var totals = document.createElement("div");
       totals.className = "cart-drawer__totals";
       var subtotal =
@@ -616,23 +561,12 @@
         subtotal +
         "</span></div>";
       wrapper.appendChild(totals);
-
       container.innerHTML = "";
       container.appendChild(wrapper);
-
-      try {
-        console.log &&
-          console.log(
-            "SizeAddToCart: renderCartDrawerFromJson - injected drawer HTML, items=",
-            cart.items && cart.items.length
-          );
-      } catch (e) {}
-
       var live = document.getElementById("CartDrawer-LiveRegionText");
       if (live) {
         live.textContent = (cart.item_count || 0) + " items in cart";
       }
-
       // Ensure cart-drawer element state reflects cart emptiness
       try {
         var cartDrawerEl =
@@ -774,7 +708,6 @@
               doc.getElementById("CartDrawer-Form") ||
               doc.getElementById("CartDrawer");
             if (!frag) return false;
-
             // Prefer copying the full CartDrawer root if the server returned it.
             // Replacing the root preserves server-side classes/attributes and makes
             // sure any data-* attributes that affect visibility/initialization are applied.
@@ -784,7 +717,6 @@
             var localCartRoot =
               document.getElementById("CartDrawer") ||
               document.querySelector("cart-drawer");
-
             if (serverCartRoot && localCartRoot && localCartRoot.parentNode) {
               try {
                 // If the fragment contains external script tags, load them first.
@@ -796,7 +728,6 @@
                       replacement,
                       localCartRoot
                     );
-
                     // Re-select the newly-inserted root and run inline scripts inside it
                     var newLocalRoot =
                       document.getElementById("CartDrawer") ||
@@ -806,12 +737,6 @@
                         runScriptsInElement(newLocalRoot);
                       } catch (e) {}
                     }
-                    try {
-                      console.log &&
-                        console.log(
-                          "SizeAddToCart: fetchAndInjectDrawerFragment - replaced root and ran scripts"
-                        );
-                    } catch (e) {}
                     return true;
                   })
                   .catch(function () {
@@ -867,7 +792,6 @@
                   return true;
                 });
             }
-
             // If the server returned a cart-notification fragment (for header bubble or notification), inject it too
             try {
               var notif = doc.getElementById("cart-notification");
@@ -878,7 +802,6 @@
                   runScriptsInElement(localNotif);
                 }
               }
-
               var serverBubble = doc.getElementById("cart-icon-bubble");
               if (serverBubble) {
                 var localBubble = document.getElementById("cart-icon-bubble");
@@ -886,7 +809,6 @@
                   localBubble.innerHTML = serverBubble.innerHTML;
                 }
               }
-
               // Ensure <cart-drawer> element class matches server fragment
               var serverCartRoot =
                 doc.getElementById("CartDrawer") ||
@@ -905,12 +827,6 @@
             } catch (e) {
               /* non-fatal */
             }
-            try {
-              console.log &&
-                console.log(
-                  "SizeAddToCart: fetchAndInjectDrawerFragment - injected server fragment"
-                );
-            } catch (e) {}
             return true;
           } catch (e) {
             try {
@@ -945,14 +861,6 @@
 
   // **OPTIMIZATION 5: Added skipRefresh flag to tryOpenCartDrawer**
   function tryOpenCartDrawer(skipRefresh) {
-    try {
-      console.log &&
-        console.log(
-          "SizeAddToCart: tryOpenCartDrawer called, skipRefresh=",
-          skipRefresh
-        );
-    } catch (e) {}
-
     // Only refresh if not opening optimistically
     if (!skipRefresh) {
       try {
@@ -962,7 +870,6 @@
         window.dispatchEvent(new CustomEvent("cart:refresh"));
       } catch (e) {}
     }
-
     if (typeof window[config.cartDrawerOpenFunction] === "function") {
       try {
         window[config.cartDrawerOpenFunction]();
@@ -975,7 +882,6 @@
     try {
       window.dispatchEvent(new CustomEvent("cart:open"));
     } catch (e) {}
-
     try {
       // Open details-based drawer if it exists
       var details = document.getElementById("Details-CartDrawer");
@@ -986,7 +892,6 @@
           details.setAttribute("open", "");
         }
       }
-
       // Ensure root cart-drawer element shows non-empty state
       var localCartRoot =
         document.querySelector("cart-drawer") ||
@@ -1007,7 +912,6 @@
             localCartRoot.classList.add("is-empty");
           }
         } catch (e) {}
-
         // Call open() if custom element implements it
         try {
           if (typeof localCartRoot.open === "function") {
@@ -1025,17 +929,100 @@
     } catch (e) {}
   }
 
-  function handleSizeButtonClick(evt) {
-    var btn = evt.currentTarget || evt.target;
+  // Robust fallback to close the cart drawer. Exposed only inside the IIFE.
+  // This prevents ReferenceErrors when overlay clicks attempt to call a missing global helper.
+  function closeCartDrawerFallback() {
+    try {
+      // Preferred: theme helper
+      if (window.theme && typeof window.theme.closeCartDrawer === "function") {
+        try {
+          window.theme.closeCartDrawer();
+        } catch (e) {}
+        return;
+      }
+    } catch (e) {}
+    try {
+      // Other possible global helpers
+      if (typeof window.closeCartDrawer === "function") {
+        try {
+          window.closeCartDrawer();
+        } catch (e) {}
+        return;
+      }
+    } catch (e) {}
+    try {
+      // Signal via event so other code can respond
+      try {
+        window.dispatchEvent(new CustomEvent("cart:close"));
+      } catch (e) {}
+    } catch (e) {}
+    try {
+      // Close details-based drawer if used
+      var details = document.getElementById("Details-CartDrawer");
+      if (details && typeof details.open !== "undefined") {
+        try {
+          details.open = false;
+        } catch (e) {
+          try {
+            details.removeAttribute("open");
+          } catch (er) {}
+        }
+      }
+    } catch (e) {}
+    try {
+      // Remove common classes from cart root to hide it
+      var root =
+        document.querySelector("cart-drawer") ||
+        document.getElementById("CartDrawer");
+      if (root) {
+        try {
+          root.classList.remove("active");
+        } catch (e) {}
+        try {
+          root.classList.remove("is-open");
+        } catch (e) {}
+        try {
+          root.classList.remove("open");
+        } catch (e) {}
+        try {
+          root.classList.remove("is-empty");
+        } catch (e) {}
+      }
+    } catch (e) {}
+    try {
+      // Ensure any body scroll-lock classes are removed so the page becomes scrollable again
+      try {
+        var body = document.body;
+        if (body && body.classList && body.classList.length) {
+          var toRemove = [];
+          for (var ci = 0; ci < body.classList.length; ci++) {
+            var clsName = body.classList[ci];
+            if (
+              typeof clsName === "string" &&
+              clsName.indexOf("overflow-hidden") === 0
+            )
+              toRemove.push(clsName);
+          }
+          toRemove.forEach(function (c) {
+            try {
+              body.classList.remove(c);
+            } catch (e) {}
+          });
+        }
+      } catch (e) {}
+      try {
+        document.documentElement.style.removeProperty("--viewport-height");
+      } catch (e) {}
+    } catch (e) {}
+  }
+
+  // **MEMORY LEAK PREVENTION: Store listener functions as named functions**
+  function sizeButtonClickHandler(e) {
+    var btn = e.currentTarget || e.target;
     if (!btn.classList || !btn.classList.contains("size-btn")) {
       btn = btn.closest ? btn.closest(config.sizeButtonSelector) : btn;
     }
     if (!btn) return;
-
-    try {
-      console.log && console.log("SizeAddToCart: click", btn);
-    } catch (e) {}
-
     try {
       if (window.SizeAddToCartDebugAlert) {
         var ds =
@@ -1048,7 +1035,6 @@
         alert("Size button clicked: " + ds);
       }
     } catch (e) {}
-
     var available = btn.dataset[config.dataAvailableAttr];
     if (
       available === "false" ||
@@ -1056,7 +1042,6 @@
       btn.getAttribute("aria-disabled") === "true"
     )
       return;
-
     // Update visual selection state immediately when clicked
     try {
       updateSizeButtonSelection(btn);
@@ -1065,21 +1050,11 @@
         console.error && console.error("Error updating button selection", e);
       } catch (er) {}
     }
-
     var variantId =
       btn.dataset.variantId ||
       btn.dataset["variant-id"] ||
       btn.getAttribute("data-variant-id");
     var resolvedFrom = "button";
-
-    try {
-      console.log &&
-        console.log(
-          "SizeAddToCart: resolved variantId (pre-json) =",
-          variantId
-        );
-    } catch (e) {}
-
     var productJson = null;
     if (!variantId) {
       productJson = parseProductJson();
@@ -1107,18 +1082,15 @@
         }
       }
     }
-
     if (!variantId) {
       clearInFlightState(btn, null);
       showToast("Unable to find variant for this size.", "error");
       return;
     }
-
     // Inventory validation before attempting add
     try {
       if (!productJson) productJson = parseProductJson();
       var inventoryCheck = validateInventory(productJson, variantId);
-
       // Explicitly out of stock - block the add
       if (inventoryCheck.available === false) {
         clearInFlightState(btn, variantId);
@@ -1129,20 +1101,8 @@
           inventoryCheck.message || "This size is out of stock.",
           "error"
         );
-
-        // Log for debugging
-        try {
-          console.log &&
-            console.log("SizeAddToCart: Inventory check failed", {
-              variantId: variantId,
-              reason: inventoryCheck.reason,
-              message: inventoryCheck.message,
-            });
-        } catch (e) {}
-
         return;
       }
-
       // Low stock warning (non-blocking - still allows add to cart)
       if (inventoryCheck.lowStock && inventoryCheck.message) {
         showToast(inventoryCheck.message, "info");
@@ -1153,14 +1113,12 @@
         console.error && console.error("Inventory validation error", e);
       } catch (er) {}
     }
-
     // If another click already started an add for this variant, ignore
     if (pendingVariants[variantId]) {
       announceToScreenReader("Adding item...");
       clearInFlightState(btn, variantId);
       return;
     }
-
     // Mark this variant as pending and set button state
     pendingVariants[variantId] = true;
     try {
@@ -1172,17 +1130,14 @@
     try {
       btn.setAttribute && btn.setAttribute("aria-busy", "true");
     } catch (e) {}
-
     var attempts = 0;
     function attemptAdd() {
       attempts++;
-
       // **OPTIMIZATION 1 & 5: Open drawer immediately with loading state (skip theme refresh here)**
       try {
         tryOpenCartDrawer(true);
         showOptimisticDrawerPlaceholder();
       } catch (e) {}
-
       // **OPTIMIZATION 2: Update cart count optimistically**
       try {
         var cc = $(config.cartCountSelector);
@@ -1191,13 +1146,11 @@
             parseInt(cc.textContent) ||
             (cachedCart ? cachedCart.item_count : 0);
           cc.textContent = String(currentCount + 1);
-
           // Update cart icon bubble optimistically
           var iconBubble = document.getElementById("cart-icon-bubble");
           if (iconBubble) {
             var existing = iconBubble.querySelector(".cart-count-bubble");
             if (existing) existing.remove();
-
             var newCount = currentCount + 1;
             if (newCount > 0) {
               var div = document.createElement("div");
@@ -1222,32 +1175,27 @@
           }
         }
       } catch (e) {}
-
       return postAddToCart(variantId)
         .then(function (added) {
           // **OPTIMIZATION 3: Run cart JSON fetch and fragment fetch in PARALLEL**
           var cartJsonPromise = fetchCartJson().catch(function () {
             return null;
           });
-
           var fragmentPromise = fetchAndInjectDrawerFragment().catch(
             function () {
               return false;
             }
           );
-
           // Wait for both to complete
           return Promise.all([cartJsonPromise, fragmentPromise]).then(function (
             results
           ) {
             var cart = results[0];
             var injected = results[1];
-
             // Overwrite optimistic cart count with real data
             if (cart && typeof cart.item_count !== "undefined") {
               var cc = $(config.cartCountSelector);
               if (cc) cc.textContent = String(cart.item_count);
-
               try {
                 var iconBubble = document.getElementById("cart-icon-bubble");
                 if (iconBubble) {
@@ -1277,21 +1225,16 @@
                 }
               } catch (e) {}
             }
-
             var hidden = $(config.hiddenVariantInputSelector);
             if (hidden) hidden.value = variantId;
-
             dispatchCartUpdated(cart);
-
             removeOptimisticPlaceholder();
-
             // If fragment injection failed, fallback to JSON rendering
             if (!injected && cart) {
               try {
                 renderCartDrawerFromJson(cart);
               } catch (e) {}
             }
-
             // **FIX START: Re-run the open-drawer logic after content injection/replacement**
             if (injected || cart) {
               // Use a small timeout to ensure the browser has fully processed the DOM replacement/injection
@@ -1301,75 +1244,216 @@
               }, 50);
             }
             // **FIX END**
-
             // Clear in-flight/pending state.
             clearInFlightState(btn, variantId);
             return added;
           });
         })
         .catch(function (err) {
+          // **NETWORK RESILIENCE: Exponential Backoff**
           if (attempts <= config.maxRetries) {
+            // Calculate delay: base_delay * (2 ^ (attempt_number - 1))
+            var delay = config.retryDelayMs * Math.pow(2, attempts - 1);
             return new Promise(function (resolve) {
-              setTimeout(resolve, config.retryDelayMs);
+              setTimeout(resolve, delay);
             }).then(attemptAdd);
           }
+          // If attempts exceed maxRetries, handle failure
           clearInFlightState(btn, variantId);
           showToast("Failed to add to cart. Please try again.", "error");
           return Promise.reject(err);
         });
     }
-
     attemptAdd();
+  }
+
+  function sizeButtonKeydownHandler(e) {
+    if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
+      e.preventDefault();
+      e.currentTarget.click(); // Use currentTarget to ensure the correct button is clicked
+    }
+  }
+
+  function sizeButtonMouseenterHandler() {
+    try {
+      // Trigger JSON parse early so it's cached for subsequent clicks
+      if (!this._productJsonCached) {
+        // Use 'this' to reference the button
+        parseProductJson();
+        this._productJsonCached = true;
+      }
+    } catch (e) {}
+  }
+
+  function documentClickHandler(e) {
+    var btn =
+      e.target && e.target.closest
+        ? e.target.closest(config.sizeButtonSelector)
+        : null;
+    if (!btn) {
+      // Check for overlay click
+      var overlay =
+        e.target && e.target.closest
+          ? e.target.closest("#CartDrawer-Overlay, .cart-drawer__overlay")
+          : null;
+      if (overlay) {
+        setTimeout(function () {
+          // Defensive: call a robust fallback close function if available
+          try {
+            if (typeof closeCartDrawerFallback === "function") {
+              closeCartDrawerFallback();
+            } else {
+              // Best-effort direct close operations if fallback doesn't exist yet
+              try {
+                if (
+                  window.theme &&
+                  typeof window.theme.closeCartDrawer === "function"
+                ) {
+                  window.theme.closeCartDrawer();
+                } else if (typeof window.closeCartDrawer === "function") {
+                  window.closeCartDrawer();
+                } else {
+                  // Dispatch event for other listeners
+                  try {
+                    window.dispatchEvent(new CustomEvent("cart:close"));
+                  } catch (e) {}
+                  // Close <details> if present
+                  try {
+                    var d = document.getElementById("Details-CartDrawer");
+                    if (d && typeof d.open !== "undefined") d.open = false;
+                  } catch (e) {}
+                  // Remove active/open classes from cart roots
+                  try {
+                    var localCartRoot =
+                      document.querySelector("cart-drawer") ||
+                      document.getElementById("CartDrawer");
+                    if (localCartRoot) {
+                      localCartRoot.classList.remove("active");
+                      localCartRoot.classList.remove("is-open");
+                      localCartRoot.classList.remove("open");
+                    }
+                  } catch (e) {}
+                }
+              } catch (e) {}
+            }
+          } catch (e) {}
+        }, 0);
+        return; // Exit early if it was an overlay click
+      }
+      return; // Exit early if it wasn't a size button click
+    }
+    try {
+      sizeButtonClickHandler({ currentTarget: btn, target: btn });
+    } catch (err) {
+      console.error && console.error(err);
+    }
+  }
+
+  function documentKeydownHandler(e) {
+    if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
+      var btn =
+        e.target && e.target.closest
+          ? e.target.closest(config.sizeButtonSelector)
+          : null;
+      if (btn) {
+        e.preventDefault();
+        try {
+          sizeButtonClickHandler({ currentTarget: btn, target: btn });
+        } catch (err) {
+          console.error && console.error(err);
+        }
+      }
+    }
   }
 
   function attachHandlers() {
     var buttons = $all(config.sizeButtonSelector);
     if (!buttons || !buttons.length) {
-      try {
-        console.log &&
-          console.log(
-            "SizeAddToCart: no buttons found for selector",
-            config.sizeButtonSelector
-          );
-      } catch (e) {}
       return;
     }
     var attached = 0;
     buttons.forEach(function (b) {
-      if (b._sizeAddAttached) return;
-      b._sizeAddAttached = true;
-      b.addEventListener("click", handleSizeButtonClick);
-      b.addEventListener("keydown", function (e) {
-        if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
-          e.preventDefault();
-          b.click();
-        }
-      });
+      // MEMORY LEAK PREVENTION: Check if already attached using the Set
+      if (attachedButtonSet.has(b)) {
+        return; // Skip if already attached
+      }
+      attachedButtonSet.add(b);
 
-      // **OPTIMIZATION 6: Prefetch product JSON on hover for instant validation**
+      // Attach listeners using the stored references
+      b.addEventListener("click", boundEventListeners.sizeButtonClick);
+      b.addEventListener("keydown", boundEventListeners.sizeButtonKeydown);
+      // Use { once: true } for mouseenter to achieve the same effect as the original code
       b.addEventListener(
         "mouseenter",
-        function () {
-          try {
-            // Trigger JSON parse early so it's cached for subsequent clicks
-            if (!b._productJsonCached) {
-              parseProductJson();
-              b._productJsonCached = true;
-            }
-          } catch (e) {}
-        },
+        boundEventListeners.sizeButtonMouseenter,
         { once: true }
       );
 
       attached++;
     });
-    try {
-      console.log &&
-        console.log("SizeAddToCart: attached handlers to", attached, "buttons");
-    } catch (e) {}
   }
 
-  // Check Page Load Initialization - ensure initializeSizeButtonStates is called here
+  // **MEMORY LEAK PREVENTION: Create a function to detach handlers from specific buttons**
+  function detachHandlersFromButtons(buttons) {
+    if (!buttons || !Array.isArray(buttons)) return;
+    buttons.forEach(function (b) {
+      if (attachedButtonSet.has(b)) {
+        b.removeEventListener("click", boundEventListeners.sizeButtonClick);
+        b.removeEventListener("keydown", boundEventListeners.sizeButtonKeydown);
+        // Note: Mouseenter listener with {once: true} automatically removes itself after firing once.
+        // If it was attached multiple times, removeEventListener might not remove it if the same function reference wasn't used.
+        // Our {once: true} approach handles this.
+        attachedButtonSet.delete(b); // Remove from the tracking set
+      }
+    });
+  }
+
+  // **MEMORY LEAK PREVENTION: Cleanup function to remove all listeners and observers**
+  function destroy() {
+    // 1. Remove listeners from all previously attached buttons
+    var allAttachedButtons = Array.from(attachedButtonSet);
+    detachHandlersFromButtons(allAttachedButtons);
+
+    // 2. Remove global document listeners
+    if (boundEventListeners.documentClick) {
+      document.removeEventListener("click", boundEventListeners.documentClick);
+    }
+    if (boundEventListeners.documentKeydown) {
+      document.removeEventListener(
+        "keydown",
+        boundEventListeners.documentKeydown
+      );
+    }
+    // The overlay listener is handled within the main document click handler now.
+
+    // 3. Disconnect MutationObserver
+    if (mutationObserverInstance) {
+      mutationObserverInstance.disconnect();
+      mutationObserverInstance = null;
+    }
+
+    // 4. Clear the button tracking set
+    attachedButtonSet.clear();
+
+    // 5. Clear cached data if necessary (optional)
+    cachedCart = null;
+
+    // 6. Clear stored listener references
+    for (var key in boundEventListeners) {
+      if (boundEventListeners.hasOwnProperty(key)) {
+        boundEventListeners[key] = null;
+      }
+    }
+  }
+
+  // Initialize bound listener functions
+  boundEventListeners.sizeButtonClick = sizeButtonClickHandler;
+  boundEventListeners.sizeButtonKeydown = sizeButtonKeydownHandler;
+  boundEventListeners.sizeButtonMouseenter = sizeButtonMouseenterHandler;
+  boundEventListeners.documentClick = documentClickHandler;
+  boundEventListeners.documentKeydown = documentKeydownHandler;
+
+  // Check Page Load Initialization
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", function () {
       attachHandlers();
@@ -1380,113 +1464,18 @@
     initializeSizeButtonStates();
   }
 
+  // Attach global listeners using stored references
+  document.addEventListener("click", boundEventListeners.documentClick, {
+    passive: false,
+  });
+  document.addEventListener("keydown", boundEventListeners.documentKeydown);
+
+  // Ensure clicking the overlay/backdrop closes the drawer
+  // This logic is now integrated into the main document click handler (documentClickHandler)
+
+  // **MEMORY LEAK PREVENTION: Initialize and store MutationObserver**
   try {
-    document.addEventListener(
-      "click",
-      function (e) {
-        var btn =
-          e.target && e.target.closest
-            ? e.target.closest(config.sizeButtonSelector)
-            : null;
-        if (!btn) return;
-        try {
-          handleSizeButtonClick({
-            currentTarget: btn,
-            target: btn,
-            preventDefault: function () {},
-            stopPropagation: function () {},
-          });
-        } catch (err) {
-          console.error && console.error(err);
-        }
-      },
-      { passive: false }
-    );
-
-    document.addEventListener("keydown", function (e) {
-      if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
-        var btn =
-          e.target && e.target.closest
-            ? e.target.closest(config.sizeButtonSelector)
-            : null;
-        if (btn) {
-          e.preventDefault();
-          try {
-            handleSizeButtonClick({ currentTarget: btn, target: btn });
-          } catch (err) {
-            console.error && console.error(err);
-          }
-        }
-      }
-    });
-  } catch (e) {}
-
-  try {
-    if (!window.__SizeAddToCartDebug) window.__SizeAddToCartDebug = {};
-  } catch (e) {}
-
-  // Ensure clicking the overlay/backdrop closes the drawer even if the
-  // drawer element was replaced dynamically and lost its JS listeners.
-  function closeCartDrawerFallback() {
-    try {
-      var cartRoot =
-        document.querySelector("cart-drawer") ||
-        document.getElementById("CartDrawer");
-      // If custom element has close() method, call it.
-      if (cartRoot && typeof cartRoot.close === "function") {
-        try {
-          cartRoot.close();
-          return true;
-        } catch (e) {}
-      }
-
-      // If there's a details-based drawer, close it
-      var details = document.getElementById("Details-CartDrawer");
-      if (details) {
-        try {
-          details.open = false;
-        } catch (e) {
-          details.removeAttribute("open");
-        }
-      }
-
-      // Toggle classes to hide drawer as a last resort
-      if (cartRoot) {
-        try {
-          cartRoot.classList.remove("active");
-          cartRoot.classList.add("is-hidden");
-          var inner =
-            cartRoot.querySelector && cartRoot.querySelector(".drawer__inner");
-          if (inner) inner.classList.remove("active");
-        } catch (e) {}
-      }
-      // Dispatch a refresh/close event so other code can respond
-      try {
-        window.dispatchEvent(new CustomEvent("cart:close"));
-      } catch (e) {}
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  // Delegate overlay clicks to ensure backdrop closes the drawer.
-  try {
-    document.addEventListener("click", function (e) {
-      var overlay =
-        e.target && e.target.closest
-          ? e.target.closest("#CartDrawer-Overlay, .cart-drawer__overlay")
-          : null;
-      if (!overlay) return;
-      // Prevent double-handling if some native handler already closed it
-      setTimeout(function () {
-        closeCartDrawerFallback();
-      }, 0);
-    });
-  } catch (e) {}
-
-  try {
-    var observer = new MutationObserver(function (mutations) {
+    mutationObserverInstance = new MutationObserver(function (mutations) {
       var found = false;
       mutations.forEach(function (m) {
         if (!m.addedNodes) return;
@@ -1503,22 +1492,29 @@
           }
         }
       });
-      // Update MutationObserver to call initializeSizeButtonStates
       if (found) {
         attachHandlers();
         initializeSizeButtonStates();
-        try {
-          console.log &&
-            console.log(
-              "SizeAddToCart: MutationObserver attached new handlers and initialized states"
-            );
-        } catch (e) {}
       }
     });
-    observer.observe(document.documentElement || document.body, {
-      childList: true,
-      subtree: true,
-    });
-  } catch (e) {}
-  window.SizeAddToCart = { init: attachHandlers };
-})();
+    mutationObserverInstance.observe(
+      document.documentElement || document.body,
+      {
+        childList: true,
+        subtree: true,
+      }
+    );
+  } catch (e) {
+    console.error &&
+      console.error("SizeAddToCart: Failed to initialize MutationObserver", e);
+  }
+
+  // **MEMORY LEAK PREVENTION: Expose the destroy function globally**
+  global.SizeAddToCart = {
+    init: attachHandlers,
+    destroy: destroy, // Expose the cleanup function
+  };
+
+  // Optional: Auto-cleanup on page unload (useful if script is re-injected)
+  // window.addEventListener('beforeunload', destroy);
+})(window || globalThis);

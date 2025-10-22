@@ -77,8 +77,10 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Hover state (only for available buttons) */
-.size-btn:not([aria-disabled="true"]):not([disabled]):hover {
+/* Hover state (only for available, non-selected buttons) */
+.size-btn:not([aria-disabled="true"]):not([disabled]):not(
+    [aria-pressed="true"]
+  ):not([data-selected="true"]):not(.is-selected):hover {
   background: #f9fafb;
   border-color: #9ca3af;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
@@ -114,10 +116,21 @@
   font-weight: 700;
 }
 
+/* Selected buttons intentionally do not receive hover transforms/lighting.
+   Keep selected appearance stable so the active state doesn't jump on pointer hover. */
+
+/* Explicitly override hover for selected buttons and swatches */
+.size-btn.is-selected:hover,
 .size-btn[aria-pressed="true"]:hover,
-.size-btn[data-selected="true"]:hover {
-  background: #1d4ed8; /* Darker blue on hover */
-  border-color: #1d4ed8;
+.size-btn[data-selected="true"]:hover,
+.card-size-swatches .variant-swatch.is-selected:hover,
+.card-size-swatches .variant-swatch[data-selected="true"]:hover {
+  /* preserve selected visuals and prevent hover transform/shadow */
+  transform: none !important;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3) !important;
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border-color: #2563eb !important;
 }
 
 /* OUT-OF-STOCK / UNAVAILABLE STATE */

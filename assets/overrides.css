@@ -190,3 +190,73 @@
   padding-right: 0 !important;
   max-width: none !important;
 }
+
+/* Cart drawer mobile override: keep off-canvas slide-from-right but constrain panel width
+   Put this in overrides.css so it loads after base.css and survives snippet edits. */
+@media screen and (max-width: 500px) {
+  /* keep root full-bleed so overlay and focus trap behave normally */
+  .cart-drawer--mobile-width-full .cart-drawer {
+    width: 100% !important;
+    max-width: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+  }
+
+  /* constrain the sliding panel, anchor to right, and preserve slide transform */
+  .cart-drawer--mobile-width-full .drawer__inner {
+    position: absolute !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: min(420px, 92vw) !important;
+    max-width: 92vw !important;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15) !important;
+    border-radius: 8px 0 0 8px !important;
+    margin: 0 !important;
+    /* ensure it's positioned off-canvas before active state */
+    transform: translateX(100%) !important;
+    transition: transform var(--duration-default, 0.28s) ease !important;
+    will-change: transform !important;
+    backface-visibility: hidden !important;
+    transform-origin: center right !important;
+  }
+
+  /* when drawer becomes active, slide the constrained panel into view */
+  .drawer.active .cart-drawer--mobile-width-full .drawer__inner,
+  .cart-drawer--mobile-width-full .drawer.active .drawer__inner {
+    transform: translateX(0) !important;
+  }
+
+  .cart-drawer__overlay {
+    background: rgba(0, 0, 0, 0.5) !important;
+  }
+}
+
+/* Broader, high-specificity rules that target the actual CartDrawer instance so
+   the override works even if the snippet or mobile_width class changes. */
+@media screen and (max-width: 500px) {
+  /* Target the instance by ID (rendered in the snippet) */
+  #CartDrawer .drawer__inner,
+  .cart-drawer .drawer__inner {
+    position: absolute !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: min(420px, 92vw) !important;
+    max-width: 92vw !important;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15) !important;
+    border-radius: 8px 0 0 8px !important;
+    margin: 0 !important;
+    transform: translateX(100%) !important;
+    transition: transform var(--duration-default, 0.28s) ease !important;
+    will-change: transform !important;
+    backface-visibility: hidden !important;
+    transform-origin: center right !important;
+  }
+
+  /* Active state when the top-level drawer element becomes active */
+  .drawer.active #CartDrawer .drawer__inner,
+  .drawer.active .cart-drawer .drawer__inner {
+    transform: translateX(0) !important;
+  }
+}
