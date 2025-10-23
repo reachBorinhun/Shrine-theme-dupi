@@ -68,6 +68,61 @@
     <link rel="stylesheet" href="{{ 'overrides.css' | asset_url }}" media="print" onload="this.media='all'">
     <link rel="stylesheet" href="{{ 'size-selectors.css' | asset_url }}" media="print" onload="this.media='all'">
 
+    <!-- Inline helper: measure header + tickers and set CSS variables to keep them sticky -->
+    <script>
+      (function () {
+        // Throttle with rAF
+        let raf = null;
+
+        function measure() {
+          if (raf) cancelAnimationFrame(raf);
+          raf = requestAnimationFrame(() => {
+            try {
+              const docEl = document.documentElement;
+              // Find all horizontal tickers that may be present
+              const tickers = Array.from(
+                document.querySelectorAll('.horizontal-ticker, .horizontal-ticker-and-content')
+              );
+              // Primary header element(s)
+              const header = document.querySelector('.header, .header-wrapper, .sticky-header, sticky-header');
+
+              const totalTickerHeight = tickers.reduce((sum, el) => {
+                // exclude tickers not visible
+                const style = getComputedStyle(el);
+                if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return sum;
+                return sum + (el.offsetHeight || 0);
+              }, 0);
+
+              const headerHeight = header ? header.offsetHeight || 0 : 0;
+
+              docEl.style.setProperty('--horizontal-ticker-height', totalTickerHeight + 'px');
+              docEl.style.setProperty('--header-height', headerHeight + 'px');
+              docEl.style.setProperty('--ticker-and-header-height', totalTickerHeight + headerHeight + 'px');
+            } catch (e) {
+              // silent fail — don't block page
+            }
+          });
+        }
+
+        // Measure on load, DOMContentLoaded, and resize
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+          measure();
+        } else {
+          document.addEventListener('DOMContentLoaded', measure, { once: true });
+        }
+
+        window.addEventListener('load', measure, { passive: true });
+        window.addEventListener('resize', measure, { passive: true });
+
+        // MutationObserver to detect dynamic changes to tickers or header
+        const mo = new MutationObserver(measure);
+        mo.observe(document.documentElement || document.body, { childList: true, subtree: true, attributes: true });
+
+        // Expose for debugging if needed (avoid in prod)
+        window.__shrine_measureTickerHeader = measure;
+      })();
+    </script>
+
     {%- liquid
       assign body_font_bold = settings.type_body_font | font_modify: 'weight', 'bold'
       assign body_font_italic = settings.type_body_font | font_modify: 'style', 'italic'
@@ -476,7 +531,7 @@
   </head>
 
   <body
-    class="gradient link-btns--{{ settings.link_btn_hover }} action-btns--{{ settings.action_btn_hover }}"
+    class="gradient link-btns--{{ settings.link_btn_hover }} action-btns--{{ settings.action_btn_hover }}{% if template == 'index' %} home-has-gap{% endif %}"
     {% if is_rtl %}
       data-rtl="true"
     {% endif %}
