@@ -1,12 +1,14 @@
 /*
-  size-add-to-cart.js - FINAL OPTIMIZED VERSION with MEMORY LEAK PREVENTION & EXPONENTIAL BACKOFF
+  size-add-to-cart.js - FINAL OPTIMIZED VERSION with IMMEDIATE ITEM RENDERING
   - Implements optimistic UI updates for instant perceived performance.
   - Runs network operations (add to cart, fetch cart JSON, fetch fragment) in parallel.
-  - Fixes all scoping and duplicate function issues.
-  - Includes enhanced inventory validation with low-stock warnings.
-  - FIX: Re-opens cart drawer after content injection to solve the "blank offcanvas" issue.
-  - ADDITION: Implements comprehensive memory leak prevention and cleanup functions.
+  - FIX: Implements IMMEDIATE rendering of the added item based on the /cart/add.js response.
+  - FIX: Modified setButtonLoadingState to show ONLY "Adding..." text and REMOVE INLINE SPINNER, 
+         addressing the crossed-out text and visible spinner issue (CSS is now responsible 
+         for handling the visual state of `.is-loading`).
+  - FIX: Adds INLINE CSS OVERRIDE to remove the text-decoration: line-through from the button.
   - ADDITION: Implements Exponential Backoff for network resilience.
+  - ADDITION: Implements comprehensive memory leak prevention and cleanup functions.
 */
 (function (global) {
   "use strict";
@@ -18,8 +20,6 @@
     sizeButtonMouseenter: null,
     documentClick: null,
     documentKeydown: null,
-    documentOverlayClick: null,
-    mutationObserver: null,
   };
   var mutationObserverInstance = null;
   var attachedButtonSet = new Set(); // Track buttons to prevent duplicate attachments
@@ -106,6 +106,65 @@
         } catch (e) {}
         try {
           btn.removeAttribute && btn.removeAttribute("aria-busy");
+        } catch (e) {}
+        
+        // **FIX: Remove inline text-decoration override**
+        try {
+            btn.style.removeProperty('text-decoration');
+        } catch (e) {}
+
+        // Restore original label text if we saved it when loading started
+        try {
+          if (btn.dataset && btn.dataset.originalLabel) {
+            try {
+              var lbl = getLabelElement(btn);
+              if (lbl) {
+                  lbl.textContent = btn.dataset.originalLabel;
+                  try {
+                      lbl.style.removeProperty('text-decoration'); // Clean label element too
+                  } catch(e) {}
+              }
+            } catch (er) {}
+            try {
+              delete btn.dataset.originalLabel;
+            } catch (er) {}
+          }
+        } catch (e) {}
+        // Remove inline spinner if present
+        try {
+          if (btn.querySelector) {
+            var sp = btn.querySelector(".btn-spinner, .size-btn-spinner");
+            if (sp && sp.remove) sp.remove();
+          }
+        } catch (e) {}
+        // Restore disabled state if we stored it
+        try {
+          if (
+            btn.dataset &&
+            typeof btn.dataset.originalDisabled !== "undefined"
+          ) {
+            var orig = btn.dataset.originalDisabled === "true";
+            try {
+              if (!orig) {
+                try {
+                  btn.removeAttribute("disabled");
+                } catch (e) {}
+                try {
+                  btn.removeAttribute("aria-disabled");
+                } catch (e) {}
+              } else {
+                try {
+                  btn.setAttribute("disabled", "");
+                } catch (e) {}
+                try {
+                  btn.setAttribute("aria-disabled", "true");
+                } catch (e) {}
+              }
+            } catch (er) {}
+            try {
+              delete btn.dataset.originalDisabled;
+            } catch (er) {}
+          }
         } catch (e) {}
         try {
           btn._sizeAddProcessing = false;
@@ -284,39 +343,32 @@
     }
   }
 
-  // MOVED updateSizeButtonSelection inside the IIFE and updated scoping
   /**
    * Marks a size button as selected and deselects all others in the same container.
-   * This provides visual feedback showing which size is currently chosen.
    * @param {HTMLElement} selectedButton - The button that was clicked
    */
   function updateSizeButtonSelection(selectedButton) {
     try {
       if (!selectedButton) return;
-      // Find the container holding all size buttons for this product
       var container = selectedButton.closest(
         ".size-buttons-grid, .card-size-swatches, .size-selector-container"
       );
       if (!container) {
-        // Fallback: look for parent form or product section
         container = selectedButton.closest(
           "form, [data-product-form], .product, .card"
         );
       }
       if (!container) {
-        // Last resort: look for closest product wrapper
         container =
           selectedButton.closest('[class*="product"]') ||
           selectedButton.closest('[id*="product"]') ||
           selectedButton.closest('[id*="Product"]');
       }
       if (!container) {
-        // If still no container, only deselect siblings
         var parent = selectedButton.parentElement;
         if (parent) {
           container = parent;
         } else {
-          // Absolute fallback - just select this button
           try {
             selectedButton.setAttribute("aria-pressed", "true");
             selectedButton.setAttribute("data-selected", "true");
@@ -490,10 +542,6 @@
     opts.signal = controller.signal;
     return fetch(url, opts).finally(function () {
       clearTimeout(id);
-      // AbortController cleanup is handled by fetch when signal is aborted.
-      // Explicitly nullifying the controller here isn't strictly necessary
-      // but can be done for clarity if desired.
-      // controller = null; // Optional
     });
   }
 
@@ -526,6 +574,129 @@
         return cart;
       });
   }
+
+  /**
+   * NEW OPTIMIZATION: Renders a single added item into the drawer using the minimal
+   * data from the /cart/add.js response. This provides an instant visual update.
+   * @param {Object} item - The cart item object returned from /cart/add.js
+   */
+  function renderOptimisticCartItem(item) {
+    try {
+      if (!item) return;
+
+      var container =
+        document.getElementById("CartDrawer-CartItems") ||
+        document.getElementById("CartDrawer-Form");
+
+      // We only render optimistically if the full drawer has been opened AND the loading placeholder is present
+      // and the container is not empty (or we're adding the first item).
+      var placeholder = document.querySelector(".size-add-optimistic");
+      if (!container || !placeholder) {
+        return;
+      }
+
+      var itemsList = container.querySelector(".cart-items.list-unstyled");
+      var isFirstItem = !itemsList;
+
+      if (isFirstItem) {
+         // Clear the placeholder container and structure the drawer if it was totally empty.
+         var wrapper = container.querySelector('.drawer__cart-items-wrapper');
+         if (wrapper) wrapper.remove(); 
+         
+         wrapper = document.createElement("div");
+         wrapper.className = "drawer__cart-items-wrapper";
+         
+         itemsList = document.createElement("ul");
+         itemsList.className = "cart-items list-unstyled";
+         
+         wrapper.appendChild(itemsList);
+         
+         var totals = document.createElement("div");
+         totals.className = "cart-drawer__totals";
+         totals.id = "CartDrawer-Totals";
+         wrapper.appendChild(totals);
+         
+         container.innerHTML = "";
+         container.appendChild(wrapper);
+      } else {
+        // If the placeholder is still showing, remove it
+        placeholder.remove();
+      }
+
+      // 1. Construct the new item's HTML
+      var li = document.createElement("li");
+      // Use a distinct class to identify this item as 'optimistically added'
+      li.className = "cart-drawer-item cart-item cart-item--optimistic cart-item--product-" +
+        (item.handle || "");
+      li.setAttribute("role", "row");
+      li.setAttribute("data-id", String(item.id || "temp"));
+
+      var price = (item.final_price || item.price) / 100;
+      var currency = item.final_price_formatted ? item.final_price_formatted.replace(/[\d\.\,]/g, '').trim() : '';
+      
+      var imageSrc = (item.featured_image && item.featured_image.url) || item.image || '';
+      // Shopify's /cart/add.js response gives full image URLs sometimes, sometimes not. Use what's available.
+      if (imageSrc && imageSrc.indexOf('http') === -1 && imageSrc.indexOf('//') !== -1) {
+          imageSrc = 'https:' + imageSrc; // Force https if protocol-relative
+      }
+
+      var html = 
+        '<div class="cart-item__media" role="cell">' +
+          (item.url
+            ? '<a href="' + (item.url || "#") + '" class="cart-item__link" tabindex="-1" aria-hidden="true"></a>'
+            : "") +
+          '<img class="cart-item__image" src="' +
+          (imageSrc || "") +
+          '" loading="lazy" alt="" width="72" height="72">' +
+        "</div>" +
+        '<div class="cart-drawer-item__right">' +
+          '<div class="cart-drawer-item__details-and-delete-btn">' +
+            '<div class="cart-item__details" role="cell">' +
+              '<h4 class="cart-item__name h4 break">' + (item.product_title || item.title || "") + '</h4>' +
+              // Display variant title if available
+              (item.variant_title ? '<div class="cart-item__variant-title">' + item.variant_title + '</div>' : '') +
+            '</div>' +
+          '</div>' +
+          '<div class="cart-item__totals">' +
+            '<div class="cart-item__price">' + currency + price.toFixed(2) + '</div>' +
+            '<div class="cart-item__quantity">Qty: ' + (item.quantity || 1) + '</div>' +
+          '</div>' +
+        '</div>';
+
+      li.innerHTML = html;
+      
+      // 2. Insert the new item at the top of the list (most themes show new items first)
+      if (itemsList.firstChild) {
+          itemsList.insertBefore(li, itemsList.firstChild);
+      } else {
+          itemsList.appendChild(li);
+      }
+
+      // 3. Update the subtotal (best effort using item data)
+      // This is a rough estimate and will be replaced by the fragment later
+      var subtotalEl = container.querySelector('#CartDrawer-Totals .cart-drawer__totals__money');
+      if (subtotalEl) {
+          try {
+              // This is complicated without the full cart object, so we'll use cached data if available
+              if (cachedCart && typeof cachedCart.items_subtotal_price === "number") {
+                  var newTotal = cachedCart.items_subtotal_price;
+                  subtotalEl.textContent = currency + (newTotal / 100).toFixed(2);
+              }
+          } catch (e) { /* silent fail */ }
+      }
+      
+      // Update item count live region (already done outside this function, but for safety)
+      var live = document.getElementById("CartDrawer-LiveRegionText");
+      if (live) {
+        var currentCount = parseInt(live.textContent) || (cachedCart ? cachedCart.item_count : 0);
+        live.textContent = (currentCount + 1) + " items in cart";
+      }
+
+    } catch (e) {
+      console.error("renderOptimisticCartItem error", e);
+    }
+  }
+
 
   function renderCartDrawerFromJson(cart) {
     try {
@@ -578,6 +749,7 @@
           '<h4 class="cart-item__name h4 break">' +
           (item.product_title || item.title || "") +
           "</h4>" +
+          (item.variant_title ? '<div class="cart-item__variant-title">' + item.variant_title + '</div>' : '') +
           "</div></div></div>";
         var qtyPrice =
           '<div class="cart-item__totals"><div class="cart-item__price">' +
@@ -649,9 +821,24 @@
         '<p style="margin-top:0.75rem;font-size:14px;">Adding to cart...</p>' +
         "<style>@keyframes spin{to{transform:rotate(360deg)}}</style>" +
         "</div>";
-      if (container.firstChild)
-        container.insertBefore(wrapper, container.firstChild);
-      else container.appendChild(wrapper);
+      // If the cart list already exists, insert the placeholder at the top of the container,
+      // but only if the container is currently empty or only has a totals section.
+      var itemsList = container.querySelector(".cart-items.list-unstyled");
+      var isTrulyEmpty = !itemsList || itemsList.children.length === 0;
+
+      if (isTrulyEmpty) {
+        container.innerHTML = ""; // Clear existing empty message
+        container.appendChild(wrapper);
+      } else if (itemsList) {
+        // If items exist, don't clear the whole container. Just insert the spinner before the first item.
+        itemsList.insertAdjacentElement('beforebegin', wrapper);
+      } else {
+        // Fallback for full drawer root injection
+        if (container.firstChild)
+            container.insertBefore(wrapper, container.firstChild);
+        else container.appendChild(wrapper);
+      }
+
     } catch (e) {}
   }
 
@@ -661,6 +848,102 @@
       if (ex) ex.remove();
     } catch (e) {}
   }
+
+  // Helper: find the label element inside a size/variant button
+  function getLabelElement(btn) {
+    try {
+      if (!btn) return null;
+      if (btn.querySelector) {
+        var el = btn.querySelector(config.sizeLabelSelector);
+        if (el) return el;
+        // fallback to the first child span
+        el = btn.querySelector("span");
+        return el || null;
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  // Set loading state on a button: save original label, show localized 'Adding…', add spinner, disable
+  function setButtonLoadingState(btn) {
+    try {
+      if (!btn) return;
+
+      // FIX: Remove any existing manual spinner remnants
+      try {
+        if (btn.querySelector) {
+          var sp = btn.querySelector(".btn-spinner, .size-btn-spinner");
+          if (sp && sp.remove) sp.remove();
+        }
+      } catch (e) {}
+
+      // Save original label AND REPLACE TEXT WITH 'Adding...'
+      var lbl = getLabelElement(btn);
+      try {
+        if (lbl && typeof lbl.textContent !== "undefined") {
+          try {
+            btn.dataset.originalLabel = lbl.textContent;
+          } catch (e) {}
+          var loadingText =
+            (window.theme &&
+              window.theme.cartStrings &&
+              window.theme.cartStrings.adding) ||
+            (window.theme && window.theme.addingToCartText) ||
+            "Adding\u2026";
+          try {
+            lbl.textContent = loadingText;
+          } catch (e) {}
+          
+          // **FIX: Inline CSS override to remove line-through on the label element**
+          try {
+              lbl.style.setProperty('text-decoration', 'none', 'important');
+          } catch (e) {}
+          
+        }
+      } catch (e) {}
+      
+      // **FIX: Inline CSS override to remove line-through on the button element itself**
+      try {
+          btn.style.setProperty('text-decoration', 'none', 'important');
+      } catch (e) {}
+
+      // Save original disabled state and disable to prevent duplicate clicks
+      try {
+        var origDisabled =
+          (btn.hasAttribute && btn.hasAttribute("disabled")) ||
+          (btn.getAttribute && btn.getAttribute("aria-disabled") === "true");
+        try {
+          btn.dataset.originalDisabled = origDisabled ? "true" : "false";
+        } catch (e) {}
+        try {
+          btn.setAttribute("disabled", "");
+        } catch (e) {}
+        try {
+          btn.setAttribute("aria-disabled", "true");
+        } catch (e) {}
+      } catch (e) {}
+
+      // Ensure loading class + aria busy
+      try {
+        btn.classList.add(config.loadingClass);
+      } catch (e) {}
+      try {
+        btn.setAttribute && btn.setAttribute("aria-busy", "true");
+      } catch (e) {}
+
+      // Announce to screen reader
+      try {
+        var ann =
+          (window.theme &&
+            window.theme.cartStrings &&
+            window.theme.cartStrings.adding) ||
+          (window.theme && window.theme.addingToCartText) ||
+          "Adding\u2026";
+        announceToScreenReader(ann);
+      } catch (e) {}
+    } catch (e) {}
+  }
+
 
   function runScriptsInElement(el) {
     try {
@@ -752,8 +1035,6 @@
               doc.getElementById("CartDrawer");
             if (!frag) return false;
             // Prefer copying the full CartDrawer root if the server returned it.
-            // Replacing the root preserves server-side classes/attributes and makes
-            // sure any data-* attributes that affect visibility/initialization are applied.
             var serverCartRoot =
               doc.getElementById("CartDrawer") ||
               doc.querySelector("cart-drawer");
@@ -763,9 +1044,6 @@
             if (serverCartRoot && localCartRoot && localCartRoot.parentNode) {
               try {
                 // INJECTION CHANGE (PRIORITY 3): Inject immediately. Do NOT execute inline
-                // or external scripts from the fragment here — instead dispatch an
-                // event so the drawer / notification components can re-initialize
-                // themselves in a controlled way.
                 var replacement = serverCartRoot.cloneNode(true);
                 localCartRoot.parentNode.replaceChild(
                   replacement,
@@ -794,7 +1072,7 @@
                 document.getElementById("CartDrawer-Form") ||
                 document.getElementById("CartDrawer");
               if (!container) return false;
-              // INJECTION CHANGE (PRIORITY 3): Inject immediately and run inline scripts.
+              // INJECTION CHANGE (PRIORITY 3): Inject immediately.
               try {
                 container.innerHTML = frag.innerHTML;
               } catch (e) {
@@ -803,8 +1081,7 @@
                 } catch (er) {}
               }
 
-              // Notify components to re-initialize themselves instead of
-              // executing fragment scripts directly from here.
+              // Notify components to re-initialize themselves
               try {
                 window.dispatchEvent(
                   new CustomEvent("cart:drawer:updated", {
@@ -825,8 +1102,7 @@
                     localNotif.innerHTML = notif.innerHTML;
                   } catch (e) {}
                 }
-                // Let cart-notification listen for `cart:drawer:updated` and
-                // re-initialize itself; still dispatch the event so it runs now.
+                // Let cart-notification listen for `cart:drawer:updated`
                 try {
                   window.dispatchEvent(
                     new CustomEvent("cart:drawer:updated", {
@@ -838,11 +1114,6 @@
                   );
                 } catch (e) {}
               }
-              // Do NOT copy the header/cart bubble HTML from the server fragment.
-              // The fragment may be generated before our POST completes and thus
-              // contain stale counts. We keep optimistic/header bubble updates
-              // performed by the click flow and only accept authoritative
-              // data from the /cart.js JSON fallback.
               // Ensure <cart-drawer> element class matches server fragment
               var serverCartRoot =
                 doc.getElementById("CartDrawer") ||
@@ -970,7 +1241,6 @@
   }
 
   // Robust fallback to close the cart drawer. Exposed only inside the IIFE.
-  // This prevents ReferenceErrors when overlay clicks attempt to call a missing global helper.
   function closeCartDrawerFallback() {
     try {
       // Preferred: theme helper
@@ -1094,7 +1364,6 @@
       btn.dataset.variantId ||
       btn.dataset["variant-id"] ||
       btn.getAttribute("data-variant-id");
-    var resolvedFrom = "button";
     var productJson = null;
     if (!variantId) {
       productJson = parseProductJson();
@@ -1118,7 +1387,6 @@
         }
         if (v && v.id) {
           variantId = v.id;
-          resolvedFrom = "productJson";
         }
       }
     }
@@ -1170,6 +1438,12 @@
     try {
       btn.setAttribute && btn.setAttribute("aria-busy", "true");
     } catch (e) {}
+    try {
+      // Replace visible label with localized 'Adding…', disable button
+      try {
+        setButtonLoadingState(btn);
+      } catch (e) {}
+    } catch (e) {}
     var attempts = 0;
     function attemptAdd() {
       attempts++;
@@ -1200,175 +1474,95 @@
 
       return postAddToCart(variantId)
         .then(function (added) {
-          // Try fragment-first injection for HTML drawer content.
-          // IMPORTANT: do NOT extract counts from the injected DOM (may be stale).
-          return fetchAndInjectDrawerFragment()
-            .then(function (injected) {
-              if (injected) {
-                // ensure hidden input updated
-                try {
-                  var hidden = $(config.hiddenVariantInputSelector);
-                  if (hidden) hidden.value = variantId;
-                } catch (e) {}
+          // --- IMMEDIATE ITEM RENDERING & DRAWER OPEN START ---
+          // This executes right after the successful add-to-cart call.
+          removeOptimisticPlaceholder(); // Remove general drawer placeholder if present
+          
+          // Open the drawer immediately, now that we have the item data
+          tryOpenCartDrawer(true); 
 
-                // Ensure cachedCart exists and reflects the optimistic value. Seed from localStorage only.
-                try {
-                  if (
-                    !cachedCart ||
-                    typeof cachedCart.item_count !== "number"
-                  ) {
-                    var stored = null;
-                    try {
-                      stored = localStorage.getItem("cart:item_count");
-                    } catch (e) {}
-                    var ic = parseInt(stored, 10);
-                    cachedCart = { item_count: isNaN(ic) ? 0 : ic };
-                  }
-                } catch (e) {}
+          // Render the added item to the drawer UI immediately
+          renderOptimisticCartItem(added);
+          // --- IMMEDIATE ITEM RENDERING & DRAWER OPEN END ---
 
-                // Dispatch optimistic cart update (do NOT overwrite from fragment)
-                // Open the drawer with injected content, then apply the optimistic UI.
-                try {
-                  removeOptimisticPlaceholder();
-                } catch (e) {}
-                tryOpenCartDrawer(true); // open now that fragment content is injected
+          // Run slower, parallel requests in the background
+          var fragmentPromise = fetchAndInjectDrawerFragment().catch(
+            function () {
+              return false;
+            }
+          );
+          
+          // Fallback fetch cart JSON is run now only if fragment fails later
+          var cartJsonPromise = fetchCartJson().catch(function () {
+            return null;
+          });
 
-                // Now update the visible header/cart bubble using the optimistic value
-                try {
-                  var ccAfter = $(config.cartCountSelector);
-                  if (
-                    ccAfter &&
-                    cachedCart &&
-                    typeof cachedCart.item_count !== "undefined"
-                  ) {
-                    ccAfter.textContent = String(cachedCart.item_count);
-                  }
-                } catch (e) {}
-                try {
-                  var iconBubbleAfter =
-                    document.getElementById("cart-icon-bubble");
-                  if (
-                    iconBubbleAfter &&
-                    cachedCart &&
-                    typeof cachedCart.item_count !== "undefined"
-                  ) {
+          // Wait for fragment to ensure full accuracy
+          return Promise.all([fragmentPromise, cartJsonPromise]).then(function (
+            results
+          ) {
+            var injected = results[0];
+            var cart = results[1];
+
+            // Final cart count/total update (using server data from cart.json)
+            if (cart && typeof cart.item_count !== "undefined") {
+              // Update all UI elements (header count, bubble, cached cart) with authoritative JSON data
+              var ccAfter = $(config.cartCountSelector);
+              if (ccAfter) ccAfter.textContent = String(cart.item_count);
+              cachedCart = cart;
+              
+              // Update Bubble Count (omitted for brevity, assume accurate update)
+              try {
+                var iconBubbleAfter =
+                  document.getElementById("cart-icon-bubble");
+                if (iconBubbleAfter) {
                     var existingAfter =
                       iconBubbleAfter.querySelector(".cart-count-bubble");
                     if (existingAfter) existingAfter.remove();
-                    var newCountAfter = cachedCart.item_count;
+                    var newCountAfter = cart.item_count;
                     if (newCountAfter > 0) {
-                      var divAfter = document.createElement("div");
-                      divAfter.className = "cart-count-bubble";
-                      if (newCountAfter < 100) {
-                        var spanAfter = document.createElement("span");
-                        spanAfter.setAttribute("aria-hidden", "true");
-                        spanAfter.textContent = String(newCountAfter);
-                        divAfter.appendChild(spanAfter);
-                      }
-                      var srAfter = document.createElement("span");
-                      srAfter.className = "visually-hidden";
-                      srAfter.textContent =
-                        window.theme &&
-                        window.theme.cartStrings &&
-                        window.theme.cartStrings.count
-                          ? window.theme.cartStrings.count
-                          : "";
-                      divAfter.appendChild(srAfter);
-                      iconBubbleAfter.appendChild(divAfter);
+                        var divAfter = document.createElement("div");
+                        divAfter.className = "cart-count-bubble";
+                        if (newCountAfter < 100) {
+                          var spanAfter = document.createElement("span");
+                          spanAfter.setAttribute("aria-hidden", "true");
+                          spanAfter.textContent = String(newCountAfter);
+                          divAfter.appendChild(spanAfter);
+                        }
+                        var srAfter = document.createElement("span");
+                        srAfter.className = "visually-hidden";
+                        srAfter.textContent =
+                          window.theme &&
+                          window.theme.cartStrings &&
+                          window.theme.cartStrings.count
+                            ? window.theme.cartStrings.count
+                            : "";
+                        divAfter.appendChild(srAfter);
+                        iconBubbleAfter.appendChild(divAfter);
                     }
-                  }
-                } catch (e) {}
-
-                // Dispatch optimistic cart update (do NOT overwrite from fragment)
-                try {
-                  dispatchCartUpdated(cachedCart);
-                } catch (e) {
-                  try {
-                    dispatchCartUpdated({
-                      item_count:
-                        cachedCart && cachedCart.item_count
-                          ? cachedCart.item_count
-                          : null,
-                    });
-                  } catch (er) {}
                 }
+              } catch (e) {}
+            } else if (injected) {
+                // If cart.json failed but fragment succeeded, rely on the fragment event dispatch 
+                // to update counts (if theme is listening).
+            }
+            
 
-                clearInFlightState(btn, variantId);
-                return added;
-              }
+            var hidden = $(config.hiddenVariantInputSelector);
+            if (hidden) hidden.value = variantId;
 
-              // Fragment injection failed - fallback to authoritative /cart.js JSON
-              return fetchCartJson()
-                .then(function (cart) {
-                  try {
-                    var cc = $(config.cartCountSelector);
-                    if (cc && cart && typeof cart.item_count !== "undefined")
-                      cc.textContent = String(cart.item_count);
-                  } catch (e) {}
-                  var hidden = $(config.hiddenVariantInputSelector);
-                  if (hidden) hidden.value = variantId;
+            dispatchCartUpdated(cart || { item_count: cachedCart.item_count });
 
-                  // authoritative update from server JSON
-                  dispatchCartUpdated(cart);
-                  removeOptimisticPlaceholder();
-                  if (cart) {
-                    try {
-                      renderCartDrawerFromJson(cart);
-                    } catch (e) {}
-                  }
-                  tryOpenCartDrawer(true);
-                  clearInFlightState(btn, variantId);
-                  return added;
-                })
-                .catch(function () {
-                  clearInFlightState(btn, variantId);
-                  removeOptimisticPlaceholder();
-                  showToast(
-                    "Failed to refresh cart. Please try again.",
-                    "error"
-                  );
-                  return added;
-                });
-            })
-            .catch(function () {
-              // If fragment fetch errored, fall back to cart.json (authoritative)
-              try {
-                return fetchCartJson()
-                  .then(function (cart) {
-                    try {
-                      var cc = $(config.cartCountSelector);
-                      if (cc && cart && typeof cart.item_count !== "undefined")
-                        cc.textContent = String(cart.item_count);
-                    } catch (e) {}
-                    var hidden = $(config.hiddenVariantInputSelector);
-                    if (hidden) hidden.value = variantId;
-                    dispatchCartUpdated(cart);
-                    removeOptimisticPlaceholder();
-                    if (cart) {
-                      try {
-                        renderCartDrawerFromJson(cart);
-                      } catch (e) {}
-                    }
-                    tryOpenCartDrawer(true);
-                    clearInFlightState(btn, variantId);
-                    return added;
-                  })
-                  .catch(function () {
-                    clearInFlightState(btn, variantId);
-                    removeOptimisticPlaceholder();
-                    showToast(
-                      "Failed to refresh cart. Please try again.",
-                      "error"
-                    );
-                    return added;
-                  });
-              } catch (e) {
-                clearInFlightState(btn, variantId);
-                removeOptimisticPlaceholder();
-                showToast("Failed to refresh cart. Please try again.", "error");
-                return added;
-              }
-            });
+            // Re-run the open-drawer logic after content injection/replacement
+            if (injected || cart) {
+              setTimeout(function () {
+                tryOpenCartDrawer(true); // Re-open the potentially replaced drawer element
+              }, 50);
+            }
+
+            clearInFlightState(btn, variantId);
+            return added;
+          });
         })
         .catch(function (err) {
           // Exponential backoff retry
@@ -1378,8 +1572,16 @@
               setTimeout(resolve, delay);
             }).then(attemptAdd);
           }
+          // If attempts exceed maxRetries, handle failure
           clearInFlightState(btn, variantId);
           showToast("Failed to add to cart. Please try again.", "error");
+          // Revert optimistic count (best effort)
+          try {
+            var cc = $(config.cartCountSelector);
+            if (cc) cc.textContent = String((parseInt(cc.textContent, 10) || 1) - 1);
+            if (cachedCart) cachedCart.item_count = (cachedCart.item_count || 1) - 1;
+          } catch (e) {}
+          removeOptimisticPlaceholder();
           return Promise.reject(err);
         });
     }
@@ -1421,39 +1623,6 @@
           try {
             if (typeof closeCartDrawerFallback === "function") {
               closeCartDrawerFallback();
-            } else {
-              // Best-effort direct close operations if fallback doesn't exist yet
-              try {
-                if (
-                  window.theme &&
-                  typeof window.theme.closeCartDrawer === "function"
-                ) {
-                  window.theme.closeCartDrawer();
-                } else if (typeof window.closeCartDrawer === "function") {
-                  window.closeCartDrawer();
-                } else {
-                  // Dispatch event for other listeners
-                  try {
-                    window.dispatchEvent(new CustomEvent("cart:close"));
-                  } catch (e) {}
-                  // Close <details> if present
-                  try {
-                    var d = document.getElementById("Details-CartDrawer");
-                    if (d && typeof d.open !== "undefined") d.open = false;
-                  } catch (e) {}
-                  // Remove active/open classes from cart roots
-                  try {
-                    var localCartRoot =
-                      document.querySelector("cart-drawer") ||
-                      document.getElementById("CartDrawer");
-                    if (localCartRoot) {
-                      localCartRoot.classList.remove("active");
-                      localCartRoot.classList.remove("is-open");
-                      localCartRoot.classList.remove("open");
-                    }
-                  } catch (e) {}
-                }
-              } catch (e) {}
             }
           } catch (e) {}
         }, 0);
@@ -1543,7 +1712,6 @@
         boundEventListeners.documentKeydown
       );
     }
-    // The overlay listener is handled within the main document click handler now.
 
     // 3. Disconnect MutationObserver
     if (mutationObserverInstance) {
@@ -1596,9 +1764,6 @@
   });
   document.addEventListener("keydown", boundEventListeners.documentKeydown);
 
-  // Ensure clicking the overlay/backdrop closes the drawer
-  // This logic is now integrated into the main document click handler (documentClickHandler)
-
   // **MEMORY LEAK PREVENTION: Initialize and store MutationObserver**
   try {
     mutationObserverInstance = new MutationObserver(function (mutations) {
@@ -1641,6 +1806,4 @@
     destroy: destroy, // Expose the cleanup function
   };
 
-  // Optional: Auto-cleanup on page unload (useful if script is re-injected)
-  // window.addEventListener('beforeunload', destroy);
 })(window || globalThis);
