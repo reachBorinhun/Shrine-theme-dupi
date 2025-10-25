@@ -1,7 +1,7 @@
 <section
   id="MainProduct-{{ section.id }}"
   class="color-{{ section.settings.color_scheme }} gradient section-{{ section.id }}-padding"
-  data-section="{{ section.id }}"
+  data-section="{{ section.id }} "
 >
   {%- style -%}
     .section-{{ section.id }}-padding {
@@ -13,6 +13,149 @@
       .section-{{ section.id }}-padding {
         padding-top: {{ section.settings.desktop_padding_top }}px;
         padding-bottom: {{ section.settings.desktop_padding_bottom }}px;
+      }
+    }
+
+    /* ----- Product page: make variant pills look like homepage variant buttons ----- */
+    /* Scoped to this MainProduct section instance so it doesn't affect other pages */
+    /* Simpler, robust layout: keep the label container as a full-width block
+       and allow the pill labels to flow inline and wrap naturally beneath it.
+       This avoids overlapping multiple direct children into the same grid cell. */
+    #MainProduct-{{ section.id }} .product-form__input--pills {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+    }
+
+    /* Ensure the option label container is a full-width block sitting above
+       the value controls. */
+    #MainProduct-{{ section.id }} .product-form__input--pills > .product-form__label-container {
+      display: block;
+      margin-bottom: 0.25rem;
+      font-weight: 600;
+      color: inherit;
+    }
+
+    /* Make pill labels inline-flex so they sit on the same line and wrap to the
+       next line naturally. Inputs are visually hidden and won't affect flow. */
+    #MainProduct-{{ section.id }} .product-form__input--pills label[class*="accent-color-"] {
+      display: inline-flex;
+      margin-right: 0.5rem;
+      margin-bottom: 0.5rem;
+      vertical-align: middle;
+    }
+
+    /* For other types that render a block container (swatches, selects, quantity-breaks),
+       ensure those containers occupy full width and keep expected layout. */
+    #MainProduct-{{ section.id }} .product-form__input--pills .color-swatches-container,
+    #MainProduct-{{ section.id }} .product-form__input--pills .quantity-breaks-container,
+    #MainProduct-{{ section.id }} .product-form__input--pills .select {
+      display: block;
+      width: 100%;
+    }
+
+    /* visually hide native radio but keep accessible */
+    #MainProduct-{{ section.id }} .product-form__input--pills input[type="radio"] {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      overflow: hidden !important;
+      clip: rect(0 0 0 0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
+      padding: 0 !important;
+      margin: -1px !important;
+    }
+
+    /* Pill appearance (matches card variant / size button visuals) */
+    #MainProduct-{{ section.id }} .product-form__input--pills label[class*="accent-color-"] {
+      min-width: max-content;
+      min-height: 34px;
+      height: 34px;
+      padding: 0 12px;
+      border: 2px solid #d1d5db;
+      background: #ffffff;
+      color: #1f2937;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      letter-spacing: 0;
+      text-align: center;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 1;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      transition: all 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Hover for available options */
+    #MainProduct-{{ section.id }} .product-form__input--pills input:not(:disabled) + label[class*="accent-color-"]:hover {
+      background: #f9fafb;
+      border-color: #9ca3af;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+      transform: translateY(-1px);
+    }
+
+    /* Keyboard focus visible */
+    #MainProduct-{{ section.id }} .product-form__input--pills input:focus-visible + label[class*="accent-color-"] {
+      outline: 3px solid rgba(59, 130, 246, 0.5);
+      outline-offset: 2px;
+    }
+
+    /* Selected state */
+    #MainProduct-{{ section.id }} .product-form__input--pills input:checked + label[class*="accent-color-"],
+    #MainProduct-{{ section.id }} .product-form__input--pills label.is-selected[class*="accent-color-"] {
+      background: #2563eb;
+      color: #ffffff;
+      border-color: #2563eb;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+      font-weight: 700;
+    }
+
+    /* Keep selected visuals stable on hover */
+    #MainProduct-{{ section.id }} .product-form__input--pills input:checked + label[class*="accent-color-"]:hover {
+      transform: none;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+      background: #2563eb;
+      color: #ffffff;
+      border-color: #2563eb;
+    }
+
+    /* Disabled / unavailable */
+    #MainProduct-{{ section.id }} .product-form__input--pills input:disabled + label[class*="accent-color-"],
+    #MainProduct-{{ section.id }} .product-form__input--pills input[aria-disabled="true"] + label[class*="accent-color-"],
+    #MainProduct-{{ section.id }} .product-form__input--pills label.unavailable[class*="accent-color-"] {
+      opacity: 0.5;
+      cursor: not-allowed;
+      pointer-events: none;
+      background: #f9fafb;
+      border-color: #e5e7eb;
+      color: #6b7280;
+      text-decoration: line-through;
+      text-decoration-thickness: 2px;
+      text-decoration-color: #9ca3af;
+    }
+
+    @media (min-width: 750px) {
+      #MainProduct-{{ section.id }} .product-form__input--pills label[class*="accent-color-"] {
+        min-height: 36px;
+        height: 36px;
+        padding: 0 16px;
+        font-size: 15px;
+      }
+    }
+
+    @media (min-width: 990px) {
+      #MainProduct-{{ section.id }} .product-form__input--pills label[class*="accent-color-"] {
+        min-height: 38px;
+        height: 38px;
+        padding: 0 18px;
+        font-size: 15px;
       }
     }
 
@@ -264,6 +407,29 @@
     }
   </script>
 </section>
+
+<script>
+  // Move size selector into the element with the specific ID if it exists.
+  document.addEventListener('DOMContentLoaded', function () {
+    try {
+      var targetId = 'custom-label-template--19122599166144__main-1';
+      var target = document.getElementById(targetId);
+      if (!target) return;
+
+      // Find a size selector within this main product section
+      var sectionEl = document.getElementById('MainProduct-{{ section.id }}');
+      if (!sectionEl) return;
+      var sizeSelector = sectionEl.querySelector('.size-selector-container');
+      if (!sizeSelector) return;
+
+      // Move it under the target ID
+      target.appendChild(sizeSelector);
+    } catch (e) {
+      // swallow errors to avoid interfering with other scripts
+      console.error('size-selector-move', e);
+    }
+  });
+</script>
 
 {% schema %}
 {

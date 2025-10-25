@@ -357,3 +357,11 @@ body.home-has-gap {
 .collection[class*="section-"][class*="-padding"] {
   padding-top: 0 !important;
 }
+
+/* Make sold-out badge clearly red across the theme */
+.price--sold-out .price__badge-sold-out,
+.price__badge-sold-out {
+  background: transparent !important;
+  color: #ef4444 !important; /* red text */
+  border-color: transparent !important;
+}
