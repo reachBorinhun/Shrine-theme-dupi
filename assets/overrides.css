@@ -8,6 +8,24 @@
   );
   --nav-desktop-padding-inline: 48px; /* default desktop left/right padding for nav */
   --nav-content-gap: 48px; /* extra vertical gap between nav and content on homepage */
+  /* Extra spacing to push collection content further below the header when needed.
+    Increase this if you want collection content to sit noticeably lower under the
+    navbar. Default is intentionally larger than the original to satisfy requests
+    to "come more below". */
+  --collection-top-offset: 40px;
+  /* Drawer z-index: very high so drawer sits above any other UI layer */
+  --menu-drawer-z-index: 99999;
+}
+
+/* Ensure the menu drawer renders above the backdrop overlay we added earlier.
+   The overlay uses z-index:1050; raise the drawer higher so it sits on top. */
+menu-drawer,
+menu-drawer *,
+.menu-drawer,
+.menu-drawer__inner-container,
+.menu-drawer__menu,
+.menu-drawer__title-and-close-btn {
+  z-index: var(--menu-drawer-z-index) !important;
 }
 
 /* Larger gap on desktop */
@@ -79,6 +97,25 @@ body {
     --ticker-and-header-height,
     calc(var(--horizontal-ticker-height, 0px) + var(--header-height, 0px))
   ) !important;
+}
+
+#MainContent [class*="main-collection-product-grid"],
+#MainContent [class*="__main-collection-product-grid"],
+#MainContent
+  [class*="section-template--"][class*="main-collection-product-grid"] {
+  padding-top: calc(
+    var(
+        --ticker-and-header-height,
+        calc(var(--horizontal-ticker-height, 0px) + var(--header-height, 0px))
+      ) + var(--collection-top-offset, 40px)
+  ) !important;
+}
+
+/* Mobile: increase the extra offset so collection content moves further below the navbar */
+@media screen and (max-width: 749px) {
+  :root {
+    --collection-top-offset: 56px;
+  }
 }
 
 /* Homepage: add extra gap between the navbar and the main content */
@@ -364,4 +401,540 @@ body.home-has-gap {
   background: transparent !important;
   color: #ef4444 !important; /* red text */
   border-color: transparent !important;
+}
+
+/* Tables in rich text (product descriptions, blog posts) should render
+   responsively without forcing a horizontal scrollbar. Instead we allow
+   the table to use auto layout and let cells wrap/break words on small
+   screens so content remains readable. The JS wrapper (if present)
+   will not force scrolling because the wrapper is visible by default. */
+.rte-table-wrapper {
+  /* Do not force a scrollable box here — keep wrapper present for structure
+     but allow visible overflow so tables can reflow rather than scroll. */
+  overflow-x: visible !important;
+  -webkit-overflow-scrolling: auto;
+  margin: 0 0 1rem 0;
+}
+
+.product__description.rte table,
+.rte table {
+  width: 100% !important;
+  border-collapse: collapse;
+  table-layout: auto !important; /* allow columns to size based on content */
+}
+
+/* Small screens: avoid horizontal scrolling. Let table cells wrap and
+   reduce paddings slightly for better fit. Hiding the thead is avoided
+   so the table retains header semantics; instead we focus on wrapping. */
+@media screen and (max-width: 830px) {
+  .product__description.rte table,
+  .rte table {
+    display: table;
+    width: 100%;
+    overflow: visible;
+  }
+
+  .product__description.rte table th,
+  .product__description.rte table td,
+  .rte table th,
+  .rte table td {
+    white-space: normal !important;
+    word-break: break-word !important;
+    padding: 0.4rem 0.6rem !important;
+    font-size: 0.95rem;
+  }
+
+  /* If a table is extremely wide with many columns, this helps prevent
+     overflow by allowing columns to shrink and break lines. */
+  .product__description.rte table td,
+  .product__description.rte table th,
+  .rte table td,
+  .rte table th {
+    min-width: 0;
+  }
+}
+
+/* Ensure product info top-padding only applies on tablet/desktop
+   The base stylesheet applies these on mobile; we want padding-top
+   only starting at min-width: 750px. Put overrides here so they load
+   after the main CSS and are easy to maintain. */
+@media screen and (max-width: 749px) {
+  /* remove any top padding applied on mobile */
+  .product__info-wrapper--top-padding,
+  .product__info-wrapper--top-padding-small {
+    padding-top: 0 !important;
+  }
+}
+
+@media screen and (min-width: 750px) {
+  /* restore intended top padding at >=750px */
+  .product__info-wrapper--top-padding {
+    padding-top: 14rem !important;
+  }
+
+  .product__info-wrapper--top-padding-small {
+    padding-top: 0.5rem !important;
+  }
+}
+
+/* Remove underline only for the header "MENU" toggle (keep other links intact) */
+.header .header__icon--menu,
+.header .header__icon--menu.summary,
+.header .header__icon--menu .header__menu-text {
+  text-decoration: none !important;
+  border-bottom: none !important;
+}
+
+/* Animated crossfade for navbar Menu -> Close label */
+.header__menu-text {
+  position: relative;
+  display: inline-block;
+  line-height: 1;
+  min-width: 3.2rem; /* avoid width jump—tweak if labels are longer */
+}
+.header__menu-text > span {
+  display: block;
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  transition: opacity 320ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    transform 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: opacity, transform;
+}
+.header__menu-text--menu {
+  opacity: 1;
+  transform: translateY(0);
+}
+.header__menu-text--close {
+  opacity: 0;
+  transform: translateY(6px);
+  transition-delay: 80ms;
+}
+.header__icon--menu.is-open .header__menu-text--menu {
+  opacity: 0;
+  transform: translateY(-6px);
+  transition-delay: 0ms;
+}
+.header__icon--menu.is-open .header__menu-text--close {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0ms;
+}
+
+/* Make sure the visible label remains accessible/centered on small screens */
+@media screen and (max-width: 749px) {
+  .header__menu-text {
+    min-width: 4.5rem;
+  }
+}
+
+/* --- Redesigned Back to Top button (visual only) ---
+   Visual treatment only: dark rectangular button with thin white border
+   and uppercase label. Does NOT change behavior or visibility logic; the
+   JS that toggles inline `display:none` remains authoritative. */
+.scroll-to-top-btn {
+  /* let content size the button instead of forcing a circle */
+  width: auto !important;
+  height: auto !important;
+  min-width: 3.6rem !important; /* give a minimum width so label fits */
+  padding: 1rem 0.9rem !important;
+  border-radius: 4px !important; /* override earlier circular rule */
+  border: 1px solid rgba(255, 255, 255, 0.95) !important;
+  background: rgba(10, 10, 10, 0.96) !important; /* near-black background */
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35) !important;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: #ffffff; /* fallback color for text pseudoelement */
+  display: inline-flex; /* do NOT use !important so inline style display:none still hides it */
+}
+
+/* Hide the original SVG icon visually but keep it in the DOM for any scripts */
+.scroll-to-top-btn svg {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  visibility: hidden !important;
+}
+
+/* Smooth appear/disappear transitions (fade + slight lift) */
+.scroll-to-top-btn {
+  opacity: 0;
+  transform: translateY(8px) scale(0.995);
+  transition: opacity 220ms ease, transform 220ms ease;
+  pointer-events: none; /* prevent clicks while invisible */
+}
+.scroll-to-top-btn.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+/* Use a pseudo-element to render the label text so we don't change DOM/JS */
+.scroll-to-top-btn::after {
+  content: "BACK TO TOP";
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  display: block;
+  line-height: 1;
+}
+
+/* Positioning: respect existing offset variables used by the section */
+.scroll-to-top-btn-bottom-right {
+  right: var(--offset-x);
+  bottom: calc(var(--offset-y) + 0.25rem);
+}
+
+/* Slightly smaller on very small screens */
+@media screen and (max-width: 420px) {
+  .scroll-to-top-btn {
+    padding: 0.35rem 0.5rem;
+  }
+  .scroll-to-top-btn::after {
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+  }
+}
+
+/* Hide underline pseudo-elements if the theme uses them for links */
+
+/* Drawer: bottom account block padding and subtle top border */
+/* Drawer: bottom account block - make it sticky to the drawer floor
+   and give the inner container bottom padding so content doesn't sit under it. */
+.list-social__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.list-social__account .list-social__account-text {
+  display: inline-block;
+  margin-left: 0.25rem;
+  font-size: 0.95rem;
+}
+
+/* Make the drawer inner container a positioned parent so absolute bottom-left
+   elements can be positioned relative to it. */
+.menu-drawer__inner-container {
+  position: relative;
+}
+
+/* Drawer top padding variable and application — increase breathing room under the header on mobile */
+:root {
+  --menu-drawer-padding-top: 9.5rem;
+  /* Push the drawer further below the header/tickers by default.
+     You can tweak this value (px) to nudge the drawer down/up. */
+  --menu-drawer-offset: 24px;
+}
+
+/* Mobile-specific: increase the offset so the drawer sits further below stacked
+   tickers/navbar on small viewports (fixes visible cart/menu icons overlapping). */
+@media screen and (max-width: 749px) {
+  :root {
+    --menu-drawer-offset: 48px;
+  }
+}
+
+@media screen and (max-width: 749px) {
+  .menu-drawer__inner-container {
+    padding-top: var(--menu-drawer-padding-top, 2.5rem) !important;
+  }
+}
+
+/* Position the menu drawer below the measured header bottom (tickers + navbar).
+   Prefer the theme JS measurement `--header-bottom-position` when available.
+   Use `--menu-drawer-offset` for small manual tuning (defaults to 8px on mobile).
+   Also set a matching height so the drawer doesn't overlap the fixed header/icons. */
+#menu-drawer,
+.menu-drawer {
+  top: calc(
+    var(--header-bottom-position, var(--ticker-and-header-height, 72px)) +
+      var(--menu-drawer-offset, 8px)
+  ) !important;
+  height: calc(
+    var(--viewport-height, 100vh) -
+      (
+        var(--header-bottom-position, var(--ticker-and-header-height, 72px)) +
+          var(--menu-drawer-offset, 8px)
+      )
+  ) !important;
+  /* ensure the drawer sits above the backdrop pseudo-element */
+  z-index: var(--menu-drawer-z-index) !important;
+  overflow: visible !important;
+}
+
+/* Ensure mobile facets button sits beneath the menu drawer. Some themes render
+   the mobile facets button with a fixed position and its own z-index; to avoid
+   it appearing above the drawer we force its z-index to sit just below the
+   drawer's z-index variable. */
+.mobile-facets__open,
+.mobile-facets__open-wrapper,
+.mobile-facets__close,
+.mobile-facets__close-button {
+  z-index: calc(var(--menu-drawer-z-index, 99999) - 1) !important;
+}
+
+/* Safety: if the drawer still appears underneath due to stacking contexts,
+   force the drawer to be fixed and on top. The JS already applies inline
+   positioning on open, but this ensures CSS fallback covers cases where JS
+   hasn't run yet. */
+#menu-drawer,
+.menu-drawer {
+  position: fixed !important;
+  left: 0 !important;
+  right: 0 !important;
+}
+
+/* Bottom-left account block: keep it inset from the left, include safe-area inset,
+   and reserve space at the bottom of the navigation container so items don't hide. */
+.menu-drawer__account-bottom-left {
+  --account-bottom-left-height: calc(64px + env(safe-area-inset-bottom, 0px));
+  position: absolute;
+  left: 1.25rem;
+  bottom: -20px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.5rem 0.25rem 0;
+  z-index: 6;
+  background: inherit;
+  box-sizing: border-box;
+}
+
+/* Reserve more bottom space so the scrollable menu items don't get overlapped */
+.menu-drawer__navigation-container {
+  padding-bottom: calc(var(--account-bottom-left-height, 64px) + 1rem);
+}
+
+.header .header__icon--menu::after,
+.header .header__icon--menu::before,
+.header .header__icon--menu.summary::after,
+.header .header__icon--menu.summary::before {
+  display: none !important;
+  content: none !important;
+}
+
+/* Restore the menu-drawer backdrop only when the menu is open (expanded state).
+   Earlier we hid all pseudo-elements which also removed the intended backdrop.
+   This rule re-enables the overlay for the expanded menu without reintroducing
+   other pseudo-elements site-wide. */
+.header .header__icon--menu[aria-expanded="true"]::before {
+  content: "" !important;
+  display: block !important;
+  position: absolute !important;
+  top: 100% !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: calc(
+    var(--viewport-height, 100vh) - (var(--header-bottom-position, 100%))
+  ) !important;
+  background: rgba(var(--color-base-text), 0.5) !important;
+  z-index: 1050 !important; /* sits behind the drawer but above page content */
+}
+
+/* Hide the header search icon on narrow screens (we'll surface search inside the menu drawer) */
+@media screen and (max-width: 749px) {
+  .header__icon--search {
+    display: none !important;
+  }
+}
+
+/* Style the search trigger inside the menu drawer to match the account/login link */
+.menu-drawer__search-trigger {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.6rem !important;
+}
+.menu-drawer__search-trigger .icon,
+.menu-drawer__search-trigger svg {
+  width: 1.25rem !important;
+  height: 1.25rem !important;
+}
+.menu-drawer__search-text {
+  display: inline-block !important;
+}
+
+/* Mobile: make SEARCH match COLLECTIONS and remove collection borders */
+@media screen and (max-width: 749px) {
+  /* Remove divider/border under the menu title and between list items */
+  .menu-drawer__mobile-content,
+  .menu-drawer__menu .list-menu__item,
+  .menu-drawer__menu,
+  .menu-drawer__navigation-container {
+    border: none !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+    background-image: none !important;
+  }
+
+  /* Specifically remove any top/bottom borders on the title */
+  .menu-drawer__title {
+    border-bottom: none !important;
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+  }
+
+  /* Ensure all menu items have the same left inset and font-size */
+  .menu-drawer__navigation,
+  .menu-drawer__navigation .menu-drawer__menu,
+  .menu-drawer__navigation .menu-drawer__menu .menu-drawer__menu-item,
+  .menu-drawer__menu .list-menu__item a,
+  .menu-drawer__menu .list-menu__item {
+    padding-left: 1.25rem !important;
+    font-size: 13px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.9px !important;
+    color: #111 !important;
+  }
+
+  /* Hide the search icon so only the word appears, and make the word visually match 'COLLECTIONS' */
+  .menu-drawer__search-trigger svg,
+  .menu-drawer__search-trigger .icon {
+    display: none !important;
+  }
+  .menu-drawer__search-trigger .menu-drawer__search-text,
+  .menu-drawer__search-trigger {
+    font-size: 13px !important;
+    font-weight: 400 !important;
+    color: #111 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.9px !important;
+    padding: 15px 0 !important;
+    display: block !important;
+  }
+
+  /* Hide the top title row and the visible close (X) control on mobile
+     We keep the elements in the DOM for accessibility/script hooks but hide them visually. */
+  .menu-drawer__title-and-close-btn,
+  .menu-drawer__title,
+  .menu-drawer__close,
+  .menu-drawer__close-btn,
+  .menu-drawer__close-button,
+  .menu-drawer .icon--close,
+  .menu-drawer button[aria-label*="Close" i],
+  .menu-drawer button[aria-label*="close" i] {
+    display: none !important;
+    visibility: hidden !important;
+    width: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Remove any separators from list items that look like borders */
+  .menu-drawer__menu .list-menu__item::before,
+  .menu-drawer__menu .list-menu__item::after {
+    content: none !important;
+    display: none !important;
+  }
+
+  /* Style bottom-left account/login to match SEARCH/COLLECTIONS and hide icon on mobile */
+  .menu-drawer__account-bottom-left,
+  .menu-drawer__account-bottom-left .list-social__link,
+  .menu-drawer__account-bottom-left .list-social__account-text,
+  .menu-drawer__account-bottom-left .list-social__account {
+    font-size: 13px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.9px !important;
+    color: #111 !important;
+    padding: 15px 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    font-weight: 600 !important;
+  }
+
+  /* Hide the login/account icon or avatar so only the text remains */
+  .menu-drawer__account-bottom-left svg,
+  .menu-drawer__account-bottom-left .icon,
+  .menu-drawer__account-bottom-left img {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+  .menu-drawer__account-text {
+    font-weight: 500;
+    padding-left: 10px;
+  }
+}
+
+/* === Strong: hide every visible border/line inside the menu drawer ===
+   Some base styles add 1px dividers on the title container or list items.
+   This catch-all rule removes borders, box-shadows and pseudo-elements
+   for any descendants of .menu-drawer so the drawer shows no lines. */
+.menu-drawer,
+.menu-drawer *,
+.menu-drawer *::before,
+.menu-drawer *::after {
+  border: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+  /* keep background and gradients intact; only remove borders/shadows */
+}
+
+/* Remove border on the title/close row specifically (higher specificity in some themes) */
+.menu-drawer__title-and-close-btn,
+.menu-drawer__title-and-close-btn * {
+  border: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+
+/* Ensure list items don't have bottom borders */
+.menu-drawer__menu .list-menu__item,
+.menu-drawer__menu .list-menu__item a,
+.menu-drawer__menu .menu-drawer__menu-item {
+  border: none !important;
+  border-bottom: none !important;
+}
+
+/* Additional mobile polish: ensure the bottom-left login uses the same left inset
+   and text style as SEARCH / COLLECTIONS so it visually matches the menu items. */
+@media screen and (max-width: 749px) {
+  .menu-drawer__account-bottom-left {
+    left: 1.25rem !important; /* align with menu items */
+    padding-left: 1.25rem !important; /* match the left inset of list items */
+    padding-top: 0.25rem !important;
+    padding-bottom: 0.25rem !important;
+    padding-right: 0.5rem !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.9px !important;
+    color: #111 !important;
+    line-height: 1 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    background: inherit !important;
+  }
+
+  .menu-drawer__account-bottom-left .list-social__account-text,
+  .menu-drawer__account-bottom-left .list-social__link {
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.9px !important;
+    color: #111 !important;
+    line-height: 1 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* keep icon hidden (we already hide it, but repeat here to ensure specificity) */
+  .menu-drawer__account-bottom-left svg,
+  .menu-drawer__account-bottom-left .icon,
+  .menu-drawer__account-bottom-left img {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
 }

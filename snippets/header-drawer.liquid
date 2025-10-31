@@ -21,8 +21,13 @@
     <summary
       class="header__icon{% if text_menu_icon %} header__icon--text{% endif %} header__icon--menu header__icon--summary link focus-inset"
       aria-label="{{ 'sections.header.menu' | t }}"
+      data-menu-text="{{ 'sections.header.menu' | t }}"
+      data-close-text="Close"
     >
-      <span class="header__menu-text">{{ 'sections.header.menu' | t }}</span>
+      <span class="header__menu-text">
+        <span class="header__menu-text--menu">{{ 'sections.header.menu' | t }}</span>
+        <span class="header__menu-text--close" aria-hidden="true">Close</span>
+      </span>
     </summary>
     <div
       id="menu-drawer"
@@ -196,6 +201,18 @@
                 </li>
               {%- endfor -%}
             </ul>
+            <!-- Insert SEARCH as a menu list item so it matches other items visually -->
+            <ul class="menu-drawer__menu list-menu" role="list">
+              <li>
+                <a
+                  href="#"
+                  class="menu-drawer__menu-item list-menu__item link link--text focus-inset menu-drawer__search-trigger"
+                  aria-label="{{ 'general.search.search' | t }}"
+                >
+                  <span class="menu-drawer__search-text">{{ 'general.search.search' | t | default: 'Search' }}</span>
+                </a>
+              </li>
+            </ul>
           </nav>
           <!-- start secondary nav -->
           {% if section.settings.secondary_menu != blank %}
@@ -294,19 +311,7 @@
           <!-- end secondary nav -->
           <div class="menu-drawer__utility-links">
             {%- if shop.customer_accounts_enabled -%}
-              <a
-                href="{%- if customer -%}{{ routes.account_url }}{%- else -%}{{ routes.account_login_url }}{%- endif -%}"
-                class="menu-drawer__account link focus-inset h5"
-              >
-                {% render 'icon-account', always_icon: true %}
-                {%- liquid
-                  if customer
-                    echo 'customer.account_fallback' | t
-                  else
-                    echo 'customer.log_in' | t
-                  endif
-                -%}
-              </a>
+              <!-- account link moved to bottom of drawer (kept out of utility links) -->
             {%- endif -%}
             <ul class="list list-social list-unstyled" role="list">
               {%- if settings.social_twitter_link != blank -%}
@@ -381,10 +386,225 @@
                   </a>
                 </li>
               {%- endif -%}
+              {%- comment -%} account moved out of the social list; rendered at drawer bottom-left {%- endcomment -%}
             </ul>
           </div>
+          <!-- account placed bottom-left of the drawer -->
+
+          {% if shop.customer_accounts_enabled -%}
+            <div class="menu-drawer__account-bottom-left">
+              <a
+                href="{%- if customer -%}{{ routes.account_url }}{%- else -%}{{ routes.account_login_url }}{%- endif -%}"
+                class="menu-drawer__account link focus-inset h5"
+              >
+                {% render 'icon-account' %}
+                <span class="menu-drawer__account-text">
+                  {%- liquid
+                    if customer
+                      echo 'customer.account_fallback' | t
+                    else
+                      echo 'customer.log_in' | t
+                    endif
+                  -%}
+                </span>
+              </a>
+            </div>
+          {%- endif %}
         </div>
       </div>
     </div>
   </details>
+  <script>
+    (function () {
+      function onReady(fn) {
+        if (document.readyState != 'loading') fn();
+        else document.addEventListener('DOMContentLoaded', fn);
+      }
+      onReady(function () {
+        var searchTrigger = document.querySelector('.menu-drawer__search-trigger');
+        var headerSearchToggle = document.querySelector(
+          '.header__icon--search.modal__toggle, .header__search summary.modal__toggle, .header__search .modal__toggle'
+        );
+        var details = document.getElementById('Details-menu-drawer-container');
+        if (!searchTrigger || !headerSearchToggle || !details) return;
+        searchTrigger.addEventListener('click', function (e) {
+          e.preventDefault();
+          try {
+            // close the drawer details element
+            if (details.hasAttribute('open')) details.removeAttribute('open');
+            // also ensure any header menu toggle's aria-expanded is reset so the overlay pseudo-element is removed
+            try {
+              var menuToggles = document.querySelectorAll('.header__icon--menu[aria-expanded]');
+              if (menuToggles && menuToggles.length) {
+                menuToggles.forEach(function (el) {
+                  try {
+                    el.setAttribute('aria-expanded', 'false');
+                  } catch (e) {}
+                });
+              }
+            } catch (err) {}
+          } catch (err) {}
+          // small delay to allow close animation before opening modal
+          setTimeout(function () {
+            try {
+              headerSearchToggle.click();
+            } catch (err) {}
+          }, 220);
+        });
+
+        // Immediate swap: when the summary (menu toggle) is clicked, change the visible
+        // word immediately (no animation delay). The existing 'toggle' handler will
+        // also update on state change, but this ensures instant feedback on click.
+        try {
+          var summaryToggleImmediate = details.querySelector('summary.header__icon--menu') || document.querySelector('.header__icon--menu');
+          if (summaryToggleImmediate) {
+            (function (summaryEl, det) {
+              var menuWrapper = summaryEl.querySelector('.header__menu-text');
+              var menuSpan = menuWrapper ? menuWrapper.querySelector('.header__menu-text--menu') : null;
+              var closeSpan = menuWrapper ? menuWrapper.querySelector('.header__menu-text--close') : null;
+              var menuLabel = summaryEl.getAttribute('data-menu-text') || '{{ 'sections.header.menu' | t }}';
+              var closeLabel = summaryEl.getAttribute('data-close-text') || 'Close';
+
+              // initialize text in the stacked spans in case data attributes differ
+              try {
+                if (menuSpan) menuSpan.textContent = menuLabel;
+                if (closeSpan) closeSpan.textContent = closeLabel;
+              } catch (err) {}
+
+              // Immediate visual toggle on click: add/remove class so CSS animations run
+              summaryEl.addEventListener('click', function () {
+                try {
+                  var willOpen = !det.hasAttribute('open');
+                  if (willOpen) {
+                    summaryEl.classList.add('is-open');
+                    try { summaryEl.setAttribute('aria-label', closeLabel); } catch (e) {}
+                  } else {
+                    summaryEl.classList.remove('is-open');
+                    try { summaryEl.setAttribute('aria-label', menuLabel); } catch (e) {}
+                  }
+                } catch (err) {}
+              });
+            })(summaryToggleImmediate, details);
+          }
+        } catch (err) {}
+
+        // --- Ensure drawer sits below the navbar deterministically ---
+        function updateHeaderBottomPosition() {
+          try {
+            var headerEl = document.querySelector('.header-wrapper') || document.querySelector('.header');
+            if (!headerEl) return;
+            var rect = headerEl.getBoundingClientRect();
+            // rect.bottom is viewport-relative; use it for fixed-position top
+            var bottom = Math.round(rect.bottom);
+            document.documentElement.style.setProperty('--header-bottom-position', bottom + 'px');
+            return bottom;
+          } catch (err) {
+            return null;
+          }
+        }
+
+        function applyMenuDrawerInlinePosition() {
+          try {
+            var menu = document.getElementById('menu-drawer') || document.querySelector('.menu-drawer');
+            var headerEl = document.querySelector('.header-wrapper') || document.querySelector('.header');
+            if (!menu || !headerEl) return;
+            var rect = headerEl.getBoundingClientRect();
+            var topPx = Math.round(rect.bottom);
+
+            // Read CSS offset variable so CSS and JS agree on the desired gap
+            var computedOffset = getComputedStyle(document.documentElement).getPropertyValue('--menu-drawer-offset');
+            var offset = 0;
+            if (computedOffset) {
+              // strip non-digits and parse integer px value, fallback to 0
+              var match = computedOffset.match(/(-?\d+)\s*px/);
+              if (match) offset = parseInt(match[1], 10) || 0;
+              else {
+                // try parseInt directly (handles numeric strings)
+                offset = parseInt(computedOffset, 10) || 0;
+              }
+            } else {
+              offset = 8; // default used in CSS fallbacks
+            }
+
+            topPx = topPx + offset;
+
+            var heightPx = Math.max(0, Math.round(window.innerHeight - topPx));
+            // Apply inline styles so the drawer is fixed under the header and never overlaps it
+            menu.style.position = 'fixed';
+            menu.style.left = '0';
+            menu.style.right = '0';
+            menu.style.top = topPx + 'px';
+            menu.style.height = heightPx + 'px';
+            try {
+              var zIndexVar = getComputedStyle(document.documentElement).getPropertyValue('--menu-drawer-z-index');
+              var zIndexVal = parseInt(zIndexVar, 10);
+              if (!isNaN(zIndexVal)) menu.style.zIndex = zIndexVal;
+              else menu.style.zIndex = 99999;
+            } catch (err) {
+              menu.style.zIndex = 99999;
+            }
+          } catch (err) {}
+        }
+
+        // When the drawer toggles open, apply the inline position after a tiny delay
+        try {
+          details.addEventListener('toggle', function () {
+            try {
+                var summaryToggle = details.querySelector('summary.header__icon--menu') || document.querySelector('.header__icon--menu');
+                // toggle visible word between Menu and Close when drawer opens/closes
+                try {
+                  if (summaryToggle) {
+                    var menuWrapper = summaryToggle.querySelector('.header__menu-text');
+                    var menuSpan = menuWrapper ? menuWrapper.querySelector('.header__menu-text--menu') : null;
+                    var closeSpan = menuWrapper ? menuWrapper.querySelector('.header__menu-text--close') : null;
+                    var menuLabel = summaryToggle.getAttribute('data-menu-text') || '{{ 'sections.header.menu' | t }}';
+                    var closeLabel = summaryToggle.getAttribute('data-close-text') || 'Close';
+                    if (details.hasAttribute('open')) {
+                      // open -> animate to Close
+                      summaryToggle.classList.add('is-open');
+                      try { summaryToggle.setAttribute('aria-label', closeLabel); } catch (e) {}
+                    } else {
+                      // closed -> animate to Menu
+                      summaryToggle.classList.remove('is-open');
+                      try { summaryToggle.setAttribute('aria-label', menuLabel); } catch (e) {}
+                    }
+                  }
+                } catch (err) {}
+
+                if (details.hasAttribute('open')) {
+                  setTimeout(function () {
+                    updateHeaderBottomPosition();
+                    applyMenuDrawerInlinePosition();
+                  }, 30);
+                } else {
+                // clean up inline styles so CSS can resume control
+                try {
+                  var menu = document.getElementById('menu-drawer') || document.querySelector('.menu-drawer');
+                  if (menu) {
+                    menu.style.position = '';
+                    menu.style.left = '';
+                    menu.style.right = '';
+                    menu.style.top = '';
+                    menu.style.height = '';
+                    menu.style.zIndex = '';
+                  }
+                } catch (err) {}
+              }
+            } catch (err) {}
+          });
+        } catch (err) {}
+
+        // initial measurement and on resize
+        try {
+          updateHeaderBottomPosition();
+        } catch (e) {}
+        window.addEventListener('resize', function () {
+          try {
+            updateHeaderBottomPosition();
+            applyMenuDrawerInlinePosition();
+          } catch (e) {}
+        });
+      });
+    })();
+  </script>
 </header-drawer>

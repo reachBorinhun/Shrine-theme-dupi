@@ -15,6 +15,7 @@
   <button
     class="floating-btn scroll-to-top-btn scroll-to-top-btn-{{ section.settings.position }} scroll-to-top-btn-{{ section.id }} color-{{ section.settings.color_scheme }}"
     onclick="handleScrollToTop()"
+    aria-label="Back to top"
     {% unless section.settings.display_after == 0 %}
       style="display:none;"
     {% endunless %}
@@ -32,24 +33,54 @@
       <path fill="currentColor" d="M233.4 105.4c12.5-12.5 32.8-12.5 45.3 0l192 192c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L256 173.3 86.6 342.6c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l192-192z"></path>
     </svg>
   </button>
-  
+
   <script>
     {% unless section.settings.display_after == 0 %}
-      function checkBtnVisibility() {
-        const scrollToTopBtn = document.querySelector('.scroll-to-top-btn');
-        if (scrollToTopBtn) {
-          if (window.scrollY > {{ section.settings.display_after }}) {
-            scrollToTopBtn.style.display = '';
+      (function () {
+        var TRANSITION_MS = 220;
+        function checkBtnVisibility() {
+          var scrollToTopBtn = document.querySelector('.scroll-to-top-btn');
+          if (!scrollToTopBtn) return;
+          var shouldShow = window.scrollY > {{ section.settings.display_after }};
+          if (shouldShow) {
+            // Make element participate in layout then add visible class to trigger transition
+            if (!scrollToTopBtn.classList.contains('is-visible')) {
+              scrollToTopBtn.style.display = '';
+              // force reflow so the transition runs reliably
+              void scrollToTopBtn.offsetWidth;
+              scrollToTopBtn.classList.add('is-visible');
+            }
           } else {
-            scrollToTopBtn.style.display = 'none';
+            if (scrollToTopBtn.classList.contains('is-visible')) {
+              // remove class to start hide transition, then set display:none after transition
+              scrollToTopBtn.classList.remove('is-visible');
+              setTimeout(function () {
+                // only hide if still not visible
+                if (!scrollToTopBtn.classList.contains('is-visible')) {
+                  scrollToTopBtn.style.display = 'none';
+                }
+              }, TRANSITION_MS + 20);
+            }
           }
         }
-      }
-      checkBtnVisibility()
-    
-      window.addEventListener('scroll', checkBtnVisibility)
+
+        // initial state
+        document.addEventListener('DOMContentLoaded', function () {
+          var btn = document.querySelector('.scroll-to-top-btn');
+          if (!btn) return;
+          if (window.scrollY > {{ section.settings.display_after }}) {
+            btn.style.display = '';
+            void btn.offsetWidth;
+            btn.classList.add('is-visible');
+          } else {
+            btn.style.display = 'none';
+          }
+        });
+
+        window.addEventListener('scroll', checkBtnVisibility);
+      })();
     {% endunless %}
-  
+
     function handleScrollToTop() {
       window.scrollTo({
         top: 0,
@@ -57,7 +88,6 @@
       })
     }
   </script>
-
 {% endif %}
 
 {% schema %}

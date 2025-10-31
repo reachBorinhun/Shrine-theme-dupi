@@ -4,179 +4,428 @@
   data-section="{{ section.id }} "
 >
   {%- style -%}
-    .section-{{ section.id }}-padding {
-      padding-top: {{ section.settings.mobile_padding_top }}px;
-      padding-bottom: {{ section.settings.mobile_padding_bottom }}px;
-    }
-
-    @media screen and (min-width: 750px) {
       .section-{{ section.id }}-padding {
-        padding-top: {{ section.settings.desktop_padding_top }}px;
-        padding-bottom: {{ section.settings.desktop_padding_bottom }}px;
+        padding-top: {{ section.settings.mobile_padding_top }}px;
+        padding-bottom: {{ section.settings.mobile_padding_bottom }}px;
       }
-    }
 
-    /* ----- Product page: make variant pills look like homepage variant buttons ----- */
-    /* Scoped to this MainProduct section instance so it doesn't affect other pages */
-    /* Simpler, robust layout: keep the label container as a full-width block
-       and allow the pill labels to flow inline and wrap naturally beneath it.
-       This avoids overlapping multiple direct children into the same grid cell. */
-    #MainProduct-{{ section.id }} .product-form__input--pills {
-      display: block;
-      width: 100%;
-      max-width: 100%;
-    }
+      @media screen and (min-width: 750px) {
+        .section-{{ section.id }}-padding {
+          padding-top: {{ section.settings.desktop_padding_top }}px;
+          padding-bottom: {{ section.settings.desktop_padding_bottom }}px;
+        }
+      }
 
-    /* Ensure the option label container is a full-width block sitting above
-       the value controls. */
-    #MainProduct-{{ section.id }} .product-form__input--pills > .product-form__label-container {
-      display: block;
-      margin-bottom: 0.25rem;
-      font-weight: 600;
-      color: inherit;
-    }
+      /* ----- Product page: make variant pills look like homepage variant buttons ----- */
+      /* Scoped to this MainProduct section instance so it doesn't affect other pages */
+      /* Simpler, robust layout: keep the label container as a full-width block
+         and allow the pill labels to flow inline and wrap naturally beneath it.
+         This avoids overlapping multiple direct children into the same grid cell. */
+      #MainProduct-{{ section.id }} .product-form__input--pills {
+        display: block;
+        width: 100%;
+        max-width: 100%;
+      }
 
-    /* Make pill labels inline-flex so they sit on the same line and wrap to the
-       next line naturally. Inputs are visually hidden and won't affect flow. */
-    #MainProduct-{{ section.id }} .product-form__input--pills label[class*="accent-color-"] {
-      display: inline-flex;
-      margin-right: 0.5rem;
-      margin-bottom: 0.5rem;
-      vertical-align: middle;
-    }
+      /* Ensure the option label container is a full-width block sitting above
+         the value controls. */
+      #MainProduct-{{ section.id }} .product-form__input--pills > .product-form__label-container {
+        display: block;
+        margin-bottom: 0.25rem;
+        font-weight: 600;
+        color: inherit;
+      }
 
-    /* For other types that render a block container (swatches, selects, quantity-breaks),
-       ensure those containers occupy full width and keep expected layout. */
-    #MainProduct-{{ section.id }} .product-form__input--pills .color-swatches-container,
-    #MainProduct-{{ section.id }} .product-form__input--pills .quantity-breaks-container,
-    #MainProduct-{{ section.id }} .product-form__input--pills .select {
-      display: block;
-      width: 100%;
-    }
-
-    /* visually hide native radio but keep accessible */
-    #MainProduct-{{ section.id }} .product-form__input--pills input[type="radio"] {
-      position: absolute !important;
-      width: 1px !important;
-      height: 1px !important;
-      overflow: hidden !important;
-      clip: rect(0 0 0 0) !important;
-      white-space: nowrap !important;
-      border: 0 !important;
-      padding: 0 !important;
-      margin: -1px !important;
-    }
-
-    /* Pill appearance (matches card variant / size button visuals) */
-    #MainProduct-{{ section.id }} .product-form__input--pills label[class*="accent-color-"] {
-      min-width: max-content;
-      min-height: 34px;
-      height: 34px;
-      padding: 0 12px;
-      border: 2px solid #d1d5db;
-      background: #ffffff;
-      color: #1f2937;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 14px;
-      letter-spacing: 0;
-      text-align: center;
-      white-space: nowrap;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      z-index: 1;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-      transition: all 0.2s ease;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    /* Hover for available options */
-    #MainProduct-{{ section.id }} .product-form__input--pills input:not(:disabled) + label[class*="accent-color-"]:hover {
-      background: #f9fafb;
-      border-color: #9ca3af;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
-      transform: translateY(-1px);
-    }
-
-    /* Keyboard focus visible */
-    #MainProduct-{{ section.id }} .product-form__input--pills input:focus-visible + label[class*="accent-color-"] {
-      outline: 3px solid rgba(59, 130, 246, 0.5);
-      outline-offset: 2px;
-    }
-
-    /* Selected state */
-    #MainProduct-{{ section.id }} .product-form__input--pills input:checked + label[class*="accent-color-"],
-    #MainProduct-{{ section.id }} .product-form__input--pills label.is-selected[class*="accent-color-"] {
-      background: #2563eb;
-      color: #ffffff;
-      border-color: #2563eb;
-      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
-      font-weight: 700;
-    }
-
-    /* Keep selected visuals stable on hover */
-    #MainProduct-{{ section.id }} .product-form__input--pills input:checked + label[class*="accent-color-"]:hover {
-      transform: none;
-      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
-      background: #2563eb;
-      color: #ffffff;
-      border-color: #2563eb;
-    }
-
-    /* Disabled / unavailable */
-    #MainProduct-{{ section.id }} .product-form__input--pills input:disabled + label[class*="accent-color-"],
-    #MainProduct-{{ section.id }} .product-form__input--pills input[aria-disabled="true"] + label[class*="accent-color-"],
-    #MainProduct-{{ section.id }} .product-form__input--pills label.unavailable[class*="accent-color-"] {
-      opacity: 0.5;
-      cursor: not-allowed;
-      pointer-events: none;
-      background: #f9fafb;
-      border-color: #e5e7eb;
-      color: #6b7280;
-      text-decoration: line-through;
-      text-decoration-thickness: 2px;
-      text-decoration-color: #9ca3af;
-    }
-
-    @media (min-width: 750px) {
+      /* Make pill labels inline-flex so they sit on the same line and wrap to the
+         next line naturally. Inputs are visually hidden and won't affect flow. */
       #MainProduct-{{ section.id }} .product-form__input--pills label[class*="accent-color-"] {
-        min-height: 36px;
-        height: 36px;
-        padding: 0 16px;
-        font-size: 15px;
+        display: inline-flex;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+        vertical-align: middle;
       }
-    }
 
-    @media (min-width: 990px) {
+      /* For other types that render a block container (swatches, selects, quantity-breaks),
+         ensure those containers occupy full width and keep expected layout. */
+      #MainProduct-{{ section.id }} .product-form__input--pills .color-swatches-container,
+      #MainProduct-{{ section.id }} .product-form__input--pills .quantity-breaks-container,
+      #MainProduct-{{ section.id }} .product-form__input--pills .select {
+        display: block;
+        width: 100%;
+      }
+
+      /* visually hide native radio but keep accessible */
+      #MainProduct-{{ section.id }} .product-form__input--pills input[type="radio"] {
+        position: absolute !important;
+        width: 1px !important;
+        height: 1px !important;
+        overflow: hidden !important;
+        clip: rect(0 0 0 0) !important;
+        white-space: nowrap !important;
+        border: 0 !important;
+        padding: 0 !important;
+        margin: -1px !important;
+      }
+
+      /* Pill appearance (matches card variant / size button visuals) */
       #MainProduct-{{ section.id }} .product-form__input--pills label[class*="accent-color-"] {
-        min-height: 38px;
-        height: 38px;
-        padding: 0 18px;
-        font-size: 15px;
+        min-width: max-content;
+        min-height: 34px;
+        height: 34px;
+        padding: 0 12px;
+        border: 2px solid #d1d5db;
+        background: #ffffff;
+        color: #1f2937;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 14px;
+        letter-spacing: 0;
+        text-align: center;
+        white-space: nowrap;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        z-index: 1;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        transition: all 0.2s ease;
+        -webkit-tap-highlight-color: transparent;
       }
-    }
 
-    #MediaGallery-{{ section.id }},
-    #MediaGallery-{{ section.id }}-duplicate {
-      --desktop-thumbnails: {{ section.settings.desktop_thumbnails_count }};
-      --desktop-vertical-thumbnails-width: {{ section.settings.desktop_vertical_thumbnails_width }}%;
-      --mobile-thumbnails: {{ section.settings.mobile_thumbnails_count }};
-      --mobile-vertical-thumbnails-width: {{ section.settings.mobile_vertical_thumbnails_width }}%;
-    }
-    @media screen and (max-width: 749px) {
+      /* Hover for available options */
+      #MainProduct-{{ section.id }} .product-form__input--pills input:not(:disabled) + label[class*="accent-color-"]:hover {
+        background: #f9fafb;
+        border-color: #9ca3af;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+        transform: translateY(-1px);
+      }
+
+      /* Keyboard focus visible */
+      #MainProduct-{{ section.id }} .product-form__input--pills input:focus-visible + label[class*="accent-color-"] {
+        outline: 3px solid rgba(59, 130, 246, 0.5);
+        outline-offset: 2px;
+      }
+
+      /* Selected state */
+      #MainProduct-{{ section.id }} .product-form__input--pills input:checked + label[class*="accent-color-"],
+      #MainProduct-{{ section.id }} .product-form__input--pills label.is-selected[class*="accent-color-"] {
+        background: #2563eb;
+        color: #ffffff;
+        border-color: #2563eb;
+        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+        font-weight: 700;
+      }
+
+      /* Keep selected visuals stable on hover */
+      #MainProduct-{{ section.id }} .product-form__input--pills input:checked + label[class*="accent-color-"]:hover {
+        transform: none;
+        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+        background: #2563eb;
+        color: #ffffff;
+        border-color: #2563eb;
+      }
+
+      /* Disabled / unavailable */
+      #MainProduct-{{ section.id }} .product-form__input--pills input:disabled + label[class*="accent-color-"],
+      #MainProduct-{{ section.id }} .product-form__input--pills input[aria-disabled="true"] + label[class*="accent-color-"],
+      #MainProduct-{{ section.id }} .product-form__input--pills label.unavailable[class*="accent-color-"] {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+        background: #f9fafb;
+        border-color: #e5e7eb;
+        color: #6b7280;
+        text-decoration: line-through;
+        text-decoration-thickness: 2px;
+        text-decoration-color: #9ca3af;
+      }
+
+      @media (min-width: 750px) {
+        #MainProduct-{{ section.id }} .product-form__input--pills label[class*="accent-color-"] {
+          min-height: 36px;
+          height: 36px;
+          padding: 0 1px;
+          font-size: 15px;
+        }
+      }
+
+      @media (min-width: 990px) {
+        #MainProduct-{{ section.id }} .product-form__input--pills label[class*="accent-color-"] {
+          min-height: 38px;
+          height: 38px;
+          padding: 0 18px;
+          font-size: 15px;
+        }
+      }
+
       #MediaGallery-{{ section.id }},
       #MediaGallery-{{ section.id }}-duplicate {
-        --media-radius: {{ section.settings.mobile_media_corner_radius }}px;
-        --grid-mobile-horizontal-spacing: {{ section.settings.mobile_spacing_pixels }}px;
-        --mobile-scroll-padding: calc({{ section.settings.mobile_scroll_padding_percentage }}% + {{ section.settings.mobile_scroll_padding_pixels }}px);
-        --slide-container-percentage-width: {{ section.settings.mobile_slides_container_width }}%;
-        --slide-inner-percentage-width: {{ section.settings.mobile_slides_inner_width }}%;
+        --desktop-thumbnails: {{ section.settings.desktop_thumbnails_count }};
+        --desktop-vertical-thumbnails-width: {{ section.settings.desktop_vertical_thumbnails_width }}%;
+        --mobile-thumbnails: {{ section.settings.mobile_thumbnails_count }};
+        --mobile-vertical-thumbnails-width: {{ section.settings.mobile_vertical_thumbnails_width }}%;
       }
-    }
+      @media screen and (max-width: 749px) {
+        #MediaGallery-{{ section.id }},
+        #MediaGallery-{{ section.id }}-duplicate {
+          --media-radius: {{ section.settings.mobile_media_corner_radius }}px;
+          --grid-mobile-horizontal-spacing: {{ section.settings.mobile_spacing_pixels }}px;
+          --mobile-scroll-padding: calc({{ section.settings.mobile_scroll_padding_percentage }}% + {{ section.settings.mobile_scroll_padding_pixels }}px);
+          --slide-container-percentage-width: {{ section.settings.mobile_slides_container_width }}%;
+          --slide-inner-percentage-width: {{ section.settings.mobile_slides_inner_width }}%;
+        }
+        /* On mobile keep swipe/slide behavior but hide only the clickable
+           arrow buttons (prev & next); leave the slider dots/pagination visible. */
+        #MainProduct-{{ section.id }} .slider-button--prev,
+        #MainProduct-{{ section.id }} .slider-button--next {
+          display: none !important;
+          visibility: hidden !important;
+          pointer-events: none !important;
+        }
+
+        /* Normalize mobile spacing: remove any accidental asymmetric gutters
+           and enforce equal left/right padding so media is visually centered.
+           Use safe-area insets to account for notches while keeping a small
+           symmetric gutter for breathing room. */
+        #MainProduct-{{ section.id }} .product__media-wrapper,
+        #MainProduct-{{ section.id }} .product__media-list {
+          /* small symmetric horizontal padding + safe-area inset support */
+          padding-left: calc(1rem + env(safe-area-inset-left, 0px)) !important;
+          padding-right: calc(1rem + env(safe-area-inset-right, 0px)) !important;
+          /* vertical breathing room: 20px top & bottom (adjustable) */
+          padding-top: calc(46px + env(safe-area-inset-top, 0px)) !important;
+          padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px)) !important;
+          box-sizing: border-box !important;
+          margin-left: 0 !important;
+          margin-right: 0 !important;
+          width: 100% !important;
+          max-width: 100% !important;
+        }
+
+        /* Ensure each media item occupies the available width but keeps
+           equal spacing from both edges. Images/media should be block-level
+           and centered inside the padded container. */
+        #MainProduct-{{ section.id }} .product__media-list .product__media-item {
+          width: 100% !important;
+          margin: 0 auto 16px auto !important; /* 16px gap between items */
+          display: block !important;
+          padding: 0 !important;
+          box-sizing: border-box !important;
+        }
+
+        /* Remove extra gap after the final media item */
+        #MainProduct-{{ section.id }} .product__media-list .product__media-item:last-child {
+          margin-bottom: 0 !important;
+        }
+
+        #MainProduct-{{ section.id }} .product__media-item .media,
+        #MainProduct-{{ section.id }} .product__media-item img {
+          display: block !important;
+          margin-left: auto !important;
+          margin-right: auto !important;
+          /* Let images scale to the padded container, not flush to the viewport */
+          width: auto !important;
+          max-width: 100% !important;
+          box-sizing: border-box !important;
+        }
+
+        /* Also apply to card inner elements if the card markup exists */
+        #MainProduct-{{ section.id }} .product__media-item .card,
+        #MainProduct-{{ section.id }} .product__media-item .card__inner {
+          padding-left: 0 !important;
+          padding-right: 0 !important;
+          box-sizing: border-box !important;
+        }
+      }
+
+      /*
+        Desktop: stacked, scrollable media column + sticky product info
+        - Forces the gallery to render as a vertical stack on desktop (>=750px)
+        - Left column (.product__media-list) becomes a scroll container with its own
+          scrollbar and fixed max-height based on the viewport
+        - Right column (.product__info-wrapper.product__column-sticky) becomes sticky
+          and anchored to the top of the viewport (accounts for a header variable
+          if present: --header-bottom-position)
+        Notes:
+        - All rules are scoped to this section by #MainProduct-{{ section.id }} so
+          mobile and other pages are unaffected.
+        - We hide slider controls on desktop to avoid conflicting UI.
+      */
+      @media screen and (min-width: 750px) {
+        /* Each media item becomes full width and stacks vertically */
+        #MainProduct-{{ section.id }} .product__media-item {
+          display: block !important;
+          width: 100% !important;
+          margin: 0 0 1rem 0;
+          transform: none !important;
+          position: static !important;
+        }
+
+        /* Ensure images / videos expand to the column width */
+        #MainProduct-{{ section.id }} .product__media-item img,
+        #MainProduct-{{ section.id }} .product__media-item video,
+        #MainProduct-{{ section.id }} .product__media-item .media {
+          width: 100% !important;
+          height: auto !important;
+          max-width: 100%;
+          display: block;
+        }
+
+        /* Remove any card corner rounding specifically for this product section
+           to ensure media sits flush with the grid and no rounded corners are applied. */
+        #MainProduct-{{ section.id }} .product__media-item .card,
+        #MainProduct-{{ section.id }} .product__media-item .card__inner,
+        #MainProduct-{{ section.id }} .product__media-item .card__media,
+        #MainProduct-{{ section.id }} .product__media-item .card__media img,
+        #MainProduct-{{ section.id }} .product__media-item img {
+          border-radius: 0 !important;
+          overflow: visible !important;
+        }
+
+        /* Hide slider UI that conflicts with the stacked experience */
+        #MainProduct-{{ section.id }} .slider-buttons,
+        #MainProduct-{{ section.id }} .slider-button,
+        #MainProduct-{{ section.id }} .slider-counter,
+        #MainProduct-{{ section.id }} .thumbnail-slider,
+        #MainProduct-{{ section.id }} .thumbnail-list {
+          display: none !important;
+        }
+
+        #MainProduct-{{ section.id }} .product__media-wrapper {
+          align-self: start;
+          /* push the image column content further below the navbar
+             Add an extra 24px gap so the first media item doesn't sit flush
+             under the header. Respect measured header variables when present. */
+          padding-top: calc(var(--header-bottom-position, var(--ticker-and-header-height, 72px)) + var(--media-top-spacing, 0px) + 24px) !important;
+          box-sizing: border-box;
+        }
+
+        /* Make the media list behave like a simple vertical stack and scroll
+           - hide native scrollbars visually (but keep functionality)
+           - enable smooth scrolling and prevent scroll chaining to the page
+        */
+        #MainProduct-{{ section.id }} .product__media-list {
+          display: block !important; /* remove slider-list layout */
+          /* account for header bottom position and the media top spacing so the
+             list fits in the viewport while the wrapper provides top padding */
+    max-height: calc(100vh - (var(--header-bottom-position, var(--ticker-and-header-height, 72px)) + var(--media-top-spacing) + 1.5rem));
+          overflow-y: auto;
+          -webkit-overflow-scrolling: touch;
+          padding-right: 0; /* avoid inner spacing creating dual scrollbars */
+          /* Hide scrollbar visually */
+          scrollbar-width: none; /* Firefox */
+          -ms-overflow-style: none; /* IE 10+ */
+        scroll-behavior: smooth; /* smooth programmatic scrolling and flick */
+        /* Allow scroll chaining so when the media column reaches its end
+          the main page can continue scrolling. This keeps in-column scroll
+          isolated while allowing propagation at boundaries. */
+        overscroll-behavior: auto;
+        /* Touch-action: pan-y ensures vertical touch gestures target this
+          container (improves touch responsiveness on mobile/trackpads). */
+        touch-action: pan-y;
+        }
+        /* WebKit-based browsers: hide the scrollbar while keeping the track usable */
+        #MainProduct-{{ section.id }} .product__media-list::-webkit-scrollbar {
+          width: 0;
+          height: 0;
+        }
+        #MainProduct-{{ section.id }} .product__media-list::-webkit-scrollbar-thumb {
+          background: transparent;
+        }
+
+        /* Sticky product info column (leverages existing enable_sticky_info setting)
+           It will stick to the top of the viewport, offset by the header bottom
+           position variable if available. */
+        #MainProduct-{{ section.id }} .product__info-wrapper.product__column-sticky {
+          position: sticky;
+          top: calc(var(--header-bottom-position, var(--ticker-and-header-height, 72px)) + 1rem);
+          align-self: start;
+        }
+
+        /* Ensure the product info content doesn't unexpectedly overflow vertically */
+        #MainProduct-{{ section.id }} .product__info-container {
+          max-height: calc(100vh - (var(--header-bottom-position, var(--ticker-and-header-height, 72px)) + 2rem));
+          overflow: visible;
+        }
+      }
   {%- endstyle -%}
+
+  <!-- Disable slider arrow button clicks on small screens but keep pagination dots -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var selector = '#MainProduct-{{ section.id }} .slider-button';
+      var buttons = function () {
+        return Array.prototype.slice.call(document.querySelectorAll(selector));
+      };
+
+      function preventer(e) {
+        e.stopImmediatePropagation();
+        e.preventDefault();
+      }
+
+      function update() {
+        var disabled = window.innerWidth < 750;
+        buttons().forEach(function (btn) {
+          // remove any previous handler first to avoid duplicates
+          try {
+            btn.removeEventListener('click', preventer, true);
+          } catch (e) {}
+          if (disabled) {
+            btn.addEventListener('click', preventer, true);
+            // keep visible but mark as non-interactive for a11y
+            btn.setAttribute('aria-hidden', 'true');
+            btn.setAttribute('tabindex', '-1');
+          } else {
+            btn.removeEventListener('click', preventer, true);
+            btn.removeAttribute('aria-hidden');
+            btn.removeAttribute('tabindex');
+          }
+        });
+      }
+
+      update();
+      window.addEventListener('resize', update);
+    });
+  </script>
+
+  <!--
+    Ensure any HTML tables inside the rich text description become horizontally
+    scrollable on narrow viewports by wrapping them in a small overflow container.
+    This avoids tables being cut off on mobile while preserving normal table
+    layout on desktop. Scoped to this product section instance.
+  -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      function wrapRteTables() {
+        var selector =
+          '#MainProduct-{{ section.id }} .product__description.rte table, #MainProduct-{{ section.id }} .rte table';
+        var tables = Array.prototype.slice.call(document.querySelectorAll(selector));
+        tables.forEach(function (table) {
+          if (!table || !table.parentNode) return;
+          var parent = table.parentNode;
+          if (parent.classList && parent.classList.contains('rte-table-wrapper')) return;
+          var wrapper = document.createElement('div');
+          wrapper.className = 'rte-table-wrapper';
+          // preserve margin and let CSS handle scrolling
+          parent.insertBefore(wrapper, table);
+          wrapper.appendChild(table);
+        });
+      }
+
+      // Initial wrap on load
+      wrapRteTables();
+
+      // Observe for changes (theme editor, dynamic content) and re-run wrap
+      var target = document.querySelector('#MainProduct-{{ section.id }}');
+      if (target && window.MutationObserver) {
+        var observer = new MutationObserver(function () {
+          wrapRteTables();
+        });
+        observer.observe(target, { childList: true, subtree: true });
+      }
+    });
+  </script>
 
   {% if section.settings.image_zoom == 'hover' %}
     <script id="EnableZoomOnHover-main" src="{{ 'magnify.js' | asset_url }}" defer="defer"></script>

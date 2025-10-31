@@ -250,7 +250,7 @@
         "settings": {
           "enable_scroll_btn": true,
           "display_after": 400,
-          "color_scheme": "accent-1",
+          "color_scheme": "inverse",
           "position": "bottom-right",
           "offset_x": 20,
           "offset_y": 20
@@ -560,6 +560,14 @@
           "margin_top": 0,
           "padding_top": 32,
           "padding_bottom": 20
+        }
+      },
+      "full-screen-intro-gate": {
+        "type": "full-screen-intro-gate",
+        "settings": {
+          "background_image": "shopify://shop_images/FINAL_de4a3a3a-39a3-4d3f-b32c-4343cb02a671.jpg",
+          "logo_image": "shopify://shop_images/final_kdmv_logo.png",
+          "button_text": "Click to Start"
         }
       }
     },
