@@ -18,6 +18,27 @@
   {% render 'card-product', show_vendor: section.settings.show_vendor %}
 {% endcomment %}
 
+<style>
+  @font-face {
+    font-family: 'helvetica-webfont';
+    src: url('{{ "helvetica-webfont.woff2" | asset_url }}') format('woff2'),
+         url('{{ "helvetica-webfont.woff" | asset_url }}') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  /* Apply helvetica-webfont across this product card snippet */
+  .card-wrapper,
+  .card,
+  .card *,
+  .card__inner,
+  .card__content,
+  .card__heading {
+    font-family: 'helvetica-webfont', sans-serif !important;
+  }
+</style>
+
 {%- if card_product and card_product != empty -%}
   {%- liquid
     assign ratio = 1

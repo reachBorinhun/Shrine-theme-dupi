@@ -975,12 +975,16 @@
               doc.getElementById("CartDrawer-Form") ||
               doc.getElementById("CartDrawer");
             if (!frag) return false;
+            // Prefer the <cart-drawer> custom element when present so CSS selectors
+            // like `cart-drawer.is-empty` correctly match. Fall back to the
+            // inner #CartDrawer div only if the custom element is not available
+            // in the parsed fragment or current document.
             var serverCartRoot =
-              doc.getElementById("CartDrawer") ||
-              doc.querySelector("cart-drawer");
+              doc.querySelector("cart-drawer") ||
+              doc.getElementById("CartDrawer");
             var localCartRoot =
-              document.getElementById("CartDrawer") ||
-              document.querySelector("cart-drawer");
+              document.querySelector("cart-drawer") ||
+              document.getElementById("CartDrawer");
             if (serverCartRoot && localCartRoot && localCartRoot.parentNode) {
               try {
                 var replacement = serverCartRoot.cloneNode(true);
@@ -1047,11 +1051,11 @@
                 } catch (e) {}
               }
               var serverCartRoot =
-                doc.getElementById("CartDrawer") ||
-                doc.querySelector("cart-drawer");
+                doc.querySelector("cart-drawer") ||
+                doc.getElementById("CartDrawer");
               var localCartRoot =
-                document.getElementById("CartDrawer") ||
-                document.querySelector("cart-drawer");
+                document.querySelector("cart-drawer") ||
+                document.getElementById("CartDrawer");
               if (serverCartRoot && localCartRoot) {
                 try {
                   if (serverCartRoot.classList.contains("is-empty"))
@@ -1205,9 +1209,11 @@
         try {
           root.classList.remove("open");
         } catch (e) {}
-        try {
-          root.classList.remove("is-empty");
-        } catch (e) {}
+        // NOTE: Do NOT remove the "is-empty" class here. The empty-state
+        // should reflect the cart contents, and removing this class on close
+        // causes the drawer to render non-empty layout when reopened even
+        // though the cart remains empty. The empty state is updated elsewhere
+        // when the cart contents actually change.
       }
     } catch (e) {}
     try {

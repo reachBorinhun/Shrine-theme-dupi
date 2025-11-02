@@ -1,4 +1,12 @@
 <style>
+  @font-face {
+    font-family: 'helvetica-webfont';
+    src: url('{{ "helvetica-webfont.woff2" | asset_url }}') format('woff2'),
+         url('{{ "helvetica-webfont.woff" | asset_url }}') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+  }
   .drawer {
     visibility: hidden;
   }
@@ -17,6 +25,57 @@
       background: {{ section.settings.footer_bg_color }};
     }
   {% endif %}
+
+  /* Cart drawer: product title and price styling (scoped to .cart-drawer) */
+  .cart-drawer .cart-item__name {
+    font-weight: 600 !important; /* semi-bold */
+    font-size: 1.4rem !important; /* 14px */
+    line-height: 1.2 !important;
+    margin: 0.15rem 0 !important;
+  }
+
+  /* Main product price in the cart drawer (regular & discounted final price) */
+  .cart-drawer .cart-item__totals .price--end,
+  .cart-drawer .cart-item__final-price,
+  .cart-drawer .cart-item__price-wrapper .price--end,
+  .cart-drawer .regular-price,
+  .cart-drawer .price--end {
+    color: #333333 !important; /* dark gray */
+    font-weight: 600 !important; /* semi-bold */
+    font-size: 1.5rem !important; /* 15px */
+    line-height: 1.15 !important;
+  }
+
+  /* Compare / old price: lighter and smaller */
+  .cart-drawer .cart-item__old-price,
+  .cart-drawer s.cart-item__old-price,
+  .cart-drawer .cart-item__old-price.product-option {
+    color: #777777 !important; /* lighter than main price */
+    font-weight: 400 !important; /* normal */
+    font-size: 1.3rem !important; /* 13px */
+    line-height: 1.2 !important;
+  }
+  
+  /* Empty cart heading color (make it red) */
+  .cart__empty-text {
+    color: black !important;
+    font-weight: 500;
+    font-family: 'helvetica-webfont', sans-serif !important;
+  }
+  /* Continue shopping button in empty cart: black background (keep arrow/icon color as-is) */
+  .cart-drawer__empty-content a.button,
+  .cart-drawer__empty-content .button {
+    background-color: #000 !important;
+    border-color: #000 !important;
+    color: #fff !important; /* ensure readable text */
+  }
+  /* Apply the OCRAStd font to the entire cart drawer and its descendants */
+  .cart-drawer,
+  cart-drawer,
+  .cart-drawer *,
+  cart-drawer * {
+    font-family: 'helvetica-webfont', sans-serif !important;
+  }
 </style>
 
 <cart-drawer class="drawer{% if cart == empty %} is-empty{% endif %}{% if section.settings.test_mode %} active{% endif %} cart-drawer--desktop-width-{{ section.settings.desktop_width }} cart-drawer--mobile-width-{{ section.settings.mobile_width }}" data-type='modal'>
@@ -26,7 +85,7 @@
       class="drawer__inner"
       role="dialog"
       aria-modal="true"
-      aria-label="{{ 'sections.cart.title' | t }}"
+      aria-label="{{ 'sections.cart.title'  | t }}"
       tabindex="-1"
     >
       {%- if cart == empty -%}
@@ -411,10 +470,10 @@
                                           </s>
                                           <span class="visually-hidden">{{ 'products.product.price.sale_price' | t }}</span>
                                           <span class="price--end regular-price accent-color-{{ block.settings.price_color }}">
-                                            {% if block.settings.free_prices_text != blank and item.final_line_price == 0 %}
+                                            {% if block.settings.free_prices_text != blank and item.final_price == 0 %}
                                               {{ block.settings.free_prices_text }}
                                             {% else %}
-                                              {{ item.final_line_price | money }}
+                                              {{ item.final_price | money }}
                                             {% endif %}
                                           </span>
                                         </div>

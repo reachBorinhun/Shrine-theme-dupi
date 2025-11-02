@@ -17,6 +17,26 @@
   --menu-drawer-z-index: 99999;
 }
 
+/* Product pages: force price color to black (targets the main product section and common product body class)
+   Uses high-specificity selectors and !important to override accent-color rules. */
+[id^="MainProduct-"] .price .price-item,
+body.template-product .price .price-item,
+[id^="MainProduct-"] .price .price-item.price-item--regular,
+body.template-product .price .price-item.price-item--regular,
+[id^="MainProduct-"] .price .price-item.price-item--sale,
+body.template-product .price .price-item.price-item--sale {
+  color: #000 !important;
+}
+
+/* Override regular price appearance (strong specificity + !important to override earlier rules) */
+.price-item.price-item--regular,
+.price .price-item.price-item--regular,
+[id^="MainProduct-"] .price .price-item.price-item--regular,
+body.template-product .price .price-item.price-item--regular {
+  color: #333 !important; /* new color */
+  font-weight: 500 !important; /* new weight */
+}
+
 /* Ensure the menu drawer renders above the backdrop overlay we added earlier.
    The overlay uses z-index:1050; raise the drawer higher so it sits on top. */
 menu-drawer,
@@ -529,6 +549,56 @@ body.home-has-gap {
   }
 }
 
+/* Make active header links render as plain text (no pill/badge) across pages
+   Some page templates or color-scheme variants apply a background via
+   .header__active-menu-item-v2::before which produces a pill. Override it
+   here so the navbar label appears consistent (plain text) like the home
+   header design. */
+.header__active-menu-item-v2 {
+  font-weight: inherit !important;
+  padding: 0 !important;
+  color: inherit !important;
+}
+.header__active-menu-item-v2::before {
+  /* remove the background/badge used for the active state */
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  transform: none !important;
+  content: none !important;
+}
+
+/* Also neutralize any menu-item--active utility class the theme might use */
+.list-menu__item--active,
+.list-menu__item--active .header__active-menu-item-v2 {
+  background: transparent !important;
+  color: inherit !important;
+}
+
+/* Stronger overrides: some themes apply the accent background via higher-specificity
+   rules or on ancestor color utility classes. Use very-specific selectors and
+   !important to ensure no background/pill remains on active header labels. */
+.header .header__menu-item .header__active-menu-item-v2,
+.header__active-menu-item-v2,
+.header__active-menu-item-v2[class*="color-"],
+.header__active-menu-item-v2[class*="color-"] {
+  background: transparent !important;
+  color: inherit !important;
+  padding: 0 !important;
+  font-weight: inherit !important;
+  box-shadow: none !important;
+}
+.header .header__menu-item .header__active-menu-item-v2::before,
+.header__active-menu-item-v2::before,
+.header__active-menu-item-v2::after {
+  content: none !important;
+  display: none !important;
+  background: transparent !important;
+  width: 0 !important;
+  height: 0 !important;
+  box-shadow: none !important;
+}
+
 /* --- Redesigned Back to Top button (visual only) ---
    Visual treatment only: dark rectangular button with thin white border
    and uppercase label. Does NOT change behavior or visibility logic; the
@@ -859,10 +929,6 @@ body.home-has-gap {
     width: 0 !important;
     height: 0 !important;
   }
-  .menu-drawer__account-text {
-    font-weight: 500;
-    padding-left: 10px;
-  }
 }
 
 /* === Strong: hide every visible border/line inside the menu drawer ===
@@ -937,4 +1003,10 @@ body.home-has-gap {
     width: 0 !important;
     height: 0 !important;
   }
+}
+
+/* Ensure product card titles render at medium weight (500) */
+.card__heading a.full-unstyled-link,
+.card__heading a {
+  font-weight: 500 !important;
 }
