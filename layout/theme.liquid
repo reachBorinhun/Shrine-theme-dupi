@@ -58,6 +58,13 @@
       <meta name="description" content="{{ page_description | escape }}">
     {% endif %}
 
+    <style>
+      /* Keep symbol definitions hidden */
+      svg.hidden {
+        display: none !important;
+      }
+    </style>
+
     {% render 'meta-tags' %}
 
     {{ content_for_header }}
@@ -529,6 +536,15 @@
       }
     </script>
   </head>
+  <style>
+    /* Hide the skip-to-content link completely across the site (override focus reveal) */
+    .skip-to-content-link,
+    .skip-to-content-link:focus {
+      display: none !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+    }
+  </style>
 
   <body
     class="gradient link-btns--{{ settings.link_btn_hover }} action-btns--{{ settings.action_btn_hover }}{% if template == 'index' %} home-has-gap{% endif %}"
