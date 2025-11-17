@@ -1,0 +1,189 @@
+{% comment %}
+  Section: Full Screen Intro Gate
+  - A full-screen, fixed position section that acts as an entry gate to the site.
+  - Features a dynamic background image, logo, and customizable button text.
+  - On click, it smoothly transitions away to reveal the main page content.
+  - Styled with Tailwind CSS utility classes.
+{% endcomment %}
+
+{%- liquid
+  assign bg_image = section.settings.background_image
+  assign logo_image = section.settings.logo_image
+  assign button_text = section.settings.button_text | escape
+-%}
+
+<style>
+  /* Scoped styles for the intro gate + reveal animation
+     - Use transitions (transform + opacity) for compositor-friendly animation
+     - Duration: 1.2s, Easing: cubic-bezier(0.76, 0, 0.24, 1) */
+
+  #intro-gate-{{ section.id }} {
+    {% if bg_image != blank %}
+      background-image: url('{{ bg_image | image_url: width: 1920 }}');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    {% else %}
+      background-color: #000000;
+    {% endif %}
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  }
+
+  .intro-gate-content-{{ section.id }} { @apply text-white; text-shadow: 2px 2px 8px rgba(0,0,0,0.7); }
+
+  .shine-button { position: relative; overflow: hidden; }
+  .shine-button::after { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.35) 50%, rgba(255,255,255,0) 100%); transform: translateX(-100%); animation: shine-effect 3.5s infinite linear; }
+  @keyframes shine-effect { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+  /* Slightly off-white enter button color (not pure #fff) */
+  #enter-button-{{ section.id }} {
+    color: #f7f7f7;
+  }
+  #enter-button-{{ section.id }}:hover,
+  #enter-button-{{ section.id }}:focus {
+    color: #ffffff;
+  }
+
+  /* Prevent page scroll while intro gate exists */
+  body.intro-gate-active { overflow: hidden; }
+
+  /* Transitions applied to both gate and MainContent for synchronized reveal (transform only) */
+  #intro-gate-{{ section.id }}, #MainContent {
+    transition-property: transform;
+    transition-duration: 1.2s;
+    transition-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+  }
+
+  /* Initial MainContent state: start offscreen below the viewport so it can slide in */
+  body.intro-gate-active #MainContent {
+    transform: translate3d(0, 100vh, 0);
+    pointer-events: none;
+  }
+
+  /* Revealing state: gate slides up; main content follows immediately (no opacity changes) */
+  /* Use viewport units so the movement matches a full-page scroll/push */
+  body.intro-gate-revealing #intro-gate-{{ section.id }} {
+    transform: translate3d(0, -100vh, 0);
+  }
+
+  body.intro-gate-revealing #MainContent {
+    transform: translate3d(0, 0, 0);
+    pointer-events: auto;
+    transition-delay: 0s; /* ensure no delay: content follows immediately */
+  }
+</style>
+
+<div
+  id="intro-gate-{{ section.id }}"
+  class="fixed top-0 left-0 w-screen h-screen bg-cover bg-center z-[100] flex justify-center items-end transition-transform duration-[800ms] ease-[cubic-bezier(0.76,0,0.24,1)]"
+>
+  <div class="intro-gate-content-{{ section.id }} text-center text-white pb-[8vh]">
+    {% if logo_image != blank %}
+      {{
+        logo_image
+        | image_url: width: 240
+        | image_tag:
+          class: 'mx-auto w-[120px] h-auto mb-5 drop-shadow-lg',
+          loading: 'eager',
+          width: logo_image.width,
+          height: logo_image.height,
+          alt: logo_image.alt
+        | default: 'Logo'
+      }}
+    {% else %}
+      <div class="mx-auto w-[120px] h-[120px] mb-5 bg-white/10 rounded-full flex items-center justify-center border border-white/20">
+        <span class="text-xs uppercase">Logo</span>
+      </div>
+    {% endif %}
+
+    {% if button_text != blank %}
+      <button
+        id="enter-button-{{ section.id }}"
+        type="button"
+        class="text-xl font-medium text-gray-200 hover:text-white tracking-wider cursor-pointer shine-button animate-pulse px-4 py-2 focus:outline-none focus:ring-4 focus:ring-white/30"
+        aria-label="Enter site"
+      >
+        {{ button_text }}
+      </button>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const introGate = document.getElementById('intro-gate-{{ section.id }}');
+    const enterButton = document.getElementById('enter-button-{{ section.id }}');
+    const body = document.body;
+
+    if (!introGate || !enterButton) return;
+
+    // Prevent scrolling while gate is present
+    body.classList.add('intro-gate-active');
+
+    const reveal = () => {
+      // Trigger CSS transitions by toggling a class
+      body.classList.add('intro-gate-revealing');
+
+      // Remove gate from DOM after transition completes (clean exit)
+      let cleaned = false;
+      const cleanup = () => {
+        if (cleaned) return;
+        cleaned = true;
+        if (introGate.parentNode) introGate.parentNode.removeChild(introGate);
+        body.classList.remove('intro-gate-active', 'intro-gate-revealing');
+      };
+
+      introGate.addEventListener('transitionend', function handler(e) {
+        if (e.target !== introGate) return;
+        introGate.removeEventListener('transitionend', handler);
+        cleanup();
+      });
+
+      // Fallback: ensure cleanup happens even if transitionend doesn't fire
+      setTimeout(cleanup, 1400);
+    };
+
+    enterButton.addEventListener('click', reveal);
+    enterButton.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        reveal();
+      }
+    });
+  });
+</script>
+
+{% schema %}
+{
+  "name": "Full Screen Intro Gate",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background Image",
+      "info": "Choose a high-resolution background image for the intro gate."
+    },
+    {
+      "type": "image_picker",
+      "id": "logo_image",
+      "label": "Logo Image",
+      "info": "This logo will be displayed at the bottom-center of the screen."
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "\"Click to Start\" Text",
+      "default": "Click to Start"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Full Screen Intro Gate"
+    }
+  ],
+  "enabled_on": {
+    "templates": ["index"]
+  }
+}
+{% endschema %}

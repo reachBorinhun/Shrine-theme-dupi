@@ -1,0 +1,129 @@
+{%- comment -%}
+  Dynamic UI-only size selector snippet.
+  Expects `product` in the current scope (used on product page).
+  Renders buttons for the product's size option values, normalizes labels, and marks unavailable variants.
+{%- endcomment -%}
+
+{%- assign size_option_index = -1 -%}
+{%- for opt in product.options_with_values -%}
+  {%- assign lower = opt.name | downcase -%}
+  {%- if lower contains 'size' -%}
+    {%- assign size_option_index = forloop.index0 -%}
+    {%- break -%}
+  {%- endif -%}
+{%- endfor -%}
+
+{%- if size_option_index == -1 and product.options.size > 0 -%}
+  {%- comment -%} fallback: assume option 1 is size {%- endcomment -%}
+  {%- assign size_option_index = 0 -%}
+{%- endif -%}
+
+{%- if size_option_index != -1 -%}
+  <div class="size-selector-container" role="region" aria-label="Product sizes">
+    <div class="size-buttons-grid" role="radiogroup" aria-label="Sizes">
+      {%- assign values = product.options_with_values[size_option_index].values -%}
+
+      {%- for val in values -%}
+        {%- assign matched_variant = null -%}
+        {%- for v in product.variants -%}
+          {%- assign opt_value = v.options[size_option_index] -%}
+          {%- if opt_value == val -%}
+            {%- assign matched_variant = v -%}
+            {%- break -%}
+          {%- endif -%}
+        {%- endfor -%}
+
+        {%- assign original_label = val | strip -%}
+        {%- assign final_label = original_label -%}
+
+        {%- comment -%} Check if label contains parentheses with measurements {%- endcomment -%}
+        {%- if original_label contains '(' and original_label contains ')' -%}
+          {%- assign parts = original_label | split: '(' -%}
+          {%- assign size_word = parts[0] | strip | downcase -%}
+          {%- assign measurement_part = parts[1] | remove: ')' | strip -%}
+
+          {%- comment -%} Map size words to abbreviations (display only short_size) {%- endcomment -%}
+          {%- assign short_size = size_word -%}
+
+          {%- if size_word == 'xsmall' or size_word == 'x-small' or size_word == 'extra small' or size_word == 'xs' -%}
+            {%- assign short_size = 'XS' -%}
+          {%- elsif size_word == 'small' or size_word == 's' -%}
+            {%- assign short_size = 'S' -%}
+          {%- elsif size_word == 'medium' or size_word == 'm' -%}
+            {%- assign short_size = 'M' -%}
+          {%- elsif size_word == 'large' or size_word == 'l' -%}
+            {%- assign short_size = 'L' -%}
+          {%- elsif size_word == 'xlarge'
+            or size_word == 'x-large'
+            or size_word == 'extra large'
+            or size_word == 'xl'
+          -%}
+            {%- assign short_size = 'XL' -%}
+          {%- elsif size_word == '2xlarge' or size_word == '2xl' or size_word == 'xxl' or size_word == '2x' -%}
+            {%- assign short_size = '2XL' -%}
+          {%- elsif size_word == '3xlarge' or size_word == '3xl' or size_word == 'xxxl' or size_word == '3x' -%}
+            {%- assign short_size = '3XL' -%}
+          {%- endif -%}
+
+          {%- assign final_label = short_size | append: ' (' | append: measurement_part | append: ')' -%}
+
+        {%- else -%}
+          {%- comment -%} No measurements, just normalize the size word {%- endcomment -%}
+          {%- assign size_lower = original_label | downcase | strip -%}
+
+          {%- if size_lower == 'xsmall'
+            or size_lower == 'x-small'
+            or size_lower == 'extra small'
+            or size_lower == 'xs'
+          -%}
+            {%- assign final_label = 'XS' -%}
+          {%- elsif size_lower == 'small' or size_lower == 's' -%}
+            {%- assign final_label = 'S' -%}
+          {%- elsif size_lower == 'medium' or size_lower == 'm' -%}
+            {%- assign final_label = 'M' -%}
+          {%- elsif size_lower == 'large' or size_lower == 'l' -%}
+            {%- assign final_label = 'L' -%}
+          {%- elsif size_lower == 'xlarge'
+            or size_lower == 'x-large'
+            or size_lower == 'extra large'
+            or size_lower == 'xl'
+          -%}
+            {%- assign final_label = 'XL' -%}
+          {%- elsif size_lower == '2xlarge' or size_lower == '2xl' or size_lower == 'xxl' or size_lower == '2x' -%}
+            {%- assign final_label = '2XL' -%}
+          {%- elsif size_lower == '3xlarge' or size_lower == '3xl' or size_lower == 'xxxl' or size_lower == '3x' -%}
+            {%- assign final_label = '3XL' -%}
+          {%- endif -%}
+        {%- endif -%}
+
+        {%- assign is_selected = false -%}
+        {%- if matched_variant
+          and product.selected_or_first_available_variant
+          and matched_variant.id == product.selected_or_first_available_variant.id
+        -%}
+          {%- assign is_selected = true -%}
+        {%- endif -%}
+
+        <button
+          type="button"
+          role="radio"
+          aria-checked="{% if is_selected %}true{% else %}false{% endif %}"
+          class="size-btn{% if is_selected %} is-selected{% endif %}{% unless matched_variant and matched_variant.available %} size--unavailable{% endunless %}"
+          data-size="{{ original_label }}"
+          data-available="{% if matched_variant and matched_variant.available %}true{% else %}false{% endif %}"
+          data-variant-id="{% if matched_variant %}{{ matched_variant.id }}{% endif %}"
+          data-selected="{% if is_selected %}true{% else %}false{% endif %}"
+          tabindex="{% if is_selected %}0{% else %}-1{% endif %}"
+          {% unless matched_variant and matched_variant.available %}
+            aria-disabled="true" disabled
+          {% endunless %}
+        >
+          <span class="size-label-text">{{ final_label }}</span>
+          <span class="sr-only">
+            {%- if matched_variant and matched_variant.available %}Available{% else %}Unavailable{% endif -%}
+          </span>
+        </button>
+      {%- endfor -%}
+    </div>
+  </div>
+{%- endif -%}

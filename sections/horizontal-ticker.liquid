@@ -1,23 +1,43 @@
 {%- style -%}
+  /* Section padding (mobile default, overridden in media query) */
   .section-{{ section.id }}-padding {
     padding-top: {{ section.settings.mobile_padding_top }}px;
     padding-bottom: {{ section.settings.mobile_padding_bottom }}px;
   }
 
-  .horizontal-ticker-{{ section.id }} .horizontal-ticker__container {
-    animation: mobileHorTicker{{ section.id }} {{ 150 | divided_by: section.settings.speed }}s linear infinite {{ section.settings.direction }} forwards;
-    column-gap: {{ section.settings.mobile_spacing }}px;
+  /* Marquee structure: viewport -> track -> repeated groups. Track is animated using transform for performant motion */
+  .horizontal-ticker-{{ section.id }} .horizontal-ticker__viewport {
+    overflow: hidden;
+    width: 100%;
   }
 
-  {% if section.settings.stop_on_hover %}
-    .horizontal-ticker-{{ section.id }}:hover .horizontal-ticker__container {
-      animation-play-state: paused;
-    }
-  {% endif %}
+  .horizontal-ticker-{{ section.id }} .horizontal-ticker__track {
+    display: flex;
+    align-items: center;
+    /* animate the track (two identical groups inside) to create a seamless loop */
+  animation: marquee-{{ section.id }} {{ 100 | divided_by: section.settings.speed }}s linear infinite {{ section.settings.direction }};
+    will-change: transform;
+  }
+
+  .horizontal-ticker-{{ section.id }} .horizontal-ticker__group {
+    display: flex;
+    align-items: center;
+    gap: {{ section.settings.mobile_spacing }}px;
+    flex-shrink: 0;
+    /* add a trailing gap after each group so duplicated groups don't run together */
+    margin-inline-end: {{ section.settings.mobile_spacing }}px;
+  }
 
   .horizontal-ticker-{{ section.id }} .review-item {
     width: {{ section.settings.mobile_reviews_width }}px;
+    flex-shrink: 0;
   }
+
+  {% if section.settings.stop_on_hover %}
+    .horizontal-ticker-{{ section.id }}:hover .horizontal-ticker__track {
+      animation-play-state: paused;
+    }
+  {% endif %}
 
   @media screen and (min-width: 750px) {
     .section-{{ section.id }}-padding {
@@ -25,9 +45,9 @@
       padding-bottom: {{ section.settings.desktop_padding_bottom }}px;
     }
 
-    .horizontal-ticker-{{ section.id }} .horizontal-ticker__container {
-      column-gap: {{ section.settings.desktop_spacing }}px;
-      animation-name: desktopHorTicker{{ section.id }};
+    .horizontal-ticker-{{ section.id }} .horizontal-ticker__group {
+      gap: {{ section.settings.desktop_spacing }}px;
+      margin-inline-end: {{ section.settings.desktop_spacing }}px;
     }
 
     .horizontal-ticker-{{ section.id }} .review-item {
@@ -35,6 +55,7 @@
     }
   }
 
+  /* color custom vars preserved */
   .horizontal-ticker-{{ section.id }}.color-custom {
     --color-background: {{ section.settings.custom_colors_background.red }}, {{ section.settings.custom_colors_background.green }}, {{ section.settings.custom_colors_background.blue }};
     --gradient-background: {% if section.settings.custom_gradient_background != blank %}{{ section.settings.custom_gradient_background }}{% else %}{{ section.settings.custom_colors_background }}{% endif %};
@@ -52,14 +73,15 @@
       endif
     endif
   %}
-  @keyframes mobileHorTicker{{ section.id }} {
-    to {
-      transform: translateX(calc({% unless is_rtl %}-{% endunless %}50% {% if is_rtl %}+{% else %}-{% endif %} {{ section.settings.mobile_spacing | divided_by: 2.0}}px));
+
+  /* The track moves by 50% (the width of one group) to create seamless infinite scroll.
+     Two identical groups ensure continuous motion without gaps. */
+  @keyframes marquee-{{ section.id }} {
+    0% {
+      transform: translate3d(0, 0, 0);
     }
-  }
-  @keyframes desktopHorTicker{{ section.id }} {
-    to {
-      transform: translateX(calc({% unless is_rtl %}-{% endunless %}50% {% if is_rtl %}+{% else %}-{% endif %} {{ section.settings.desktop_spacing | divided_by: 2.0}}px));
+    100% {
+      transform: translate3d({% if is_rtl %}50{% else %}-50{% endif %}%, 0, 0);
     }
   }
 {%- endstyle -%}
@@ -101,113 +123,113 @@
     style="--mobile-text-size: {{ section.settings.mobile_text_size | divided_by: 10.0 }}rem;--desktop-text-size: {{ section.settings.desktop_text_size | divided_by: 10.0 }}rem;--mobile-image-height: {{ section.settings.mobile_image_height | divided_by: 10.0 }}rem;--desktop-image-height: {{ section.settings.desktop_image_height | divided_by: 10.0 }}rem;--mobile-video-height: {{ section.settings.mobile_video_height | divided_by: 10.0 }}rem;--desktop-video-height: {{ section.settings.desktop_video_height | divided_by: 10.0 }}rem;"
   >
     <div class="horizontal-ticker__container">
-      {% assign unique_blocks_total = section.blocks | size %}
-      {% assign target_multiply = 20 | divided_by: unique_blocks_total | floor %}
-      {% assign target_total = unique_blocks_total | times: target_multiply | times: 2 %}
-      {% assign block_counter = 0 %}
+      <div class="horizontal-ticker__viewport">
+        <div class="horizontal-ticker__track" role="presentation">
+          {% comment %} First group - render all blocks multiple times to ensure smooth scrolling {% endcomment %}
+          <div class="horizontal-ticker__group">
+            {% assign unique_blocks_total = section.blocks | size %}
+            {% assign target_multiply = 20 | divided_by: unique_blocks_total | floor %}
+            {% if target_multiply < 2 %}{% assign target_multiply = 2 %}{% endif %}
 
-      {%- for block in section.blocks -%}
-        {%- assign block_counter = block_counter | plus: 1 -%}
-        {% case block.type %}
-          {% when 'text' %}
-            <p class="custom-font-size horizontal-ticker__item{% if section.settings.italic_text %} horizontal-ticker__item--italic{% endif %}{% if section.settings.uppercase_text %} horizontal-ticker__item--uppercase{% endif %}{% if section.settings.bold_text %} horizontal-ticker__item--bold{% endif %}">
-              {{ block.settings.title }}
-            </p>
-          {% when 'image' %}
-            <div
-              class="horizontal-ticker__image media media--transparent media--fit-contain custom-image-height custom-image-width"
-              style="--mobile-width: {{ section.settings.mobile_image_height | times: block.settings.image.aspect_ratio | divided_by: 10.0 }}rem;--desktop-width: {{ section.settings.desktop_image_height | times: block.settings.image.aspect_ratio | divided_by: 10.0 }}rem;"
-            >
-              <img
-                src="{{ block.settings.image | image_url }}"
-                {% if block.settings.image.alt != blank %}
-                  alt="{{ block.settings.image.alt | escape }}"
-                {% else %}
-                  role="presentation"
-                {% endif %}
-                height="auto"
-                width="auto"
-                loading="lazy"
-              >
-            </div>
-          {% when 'video' %}
-            <div
-              class="horizontal-ticker__video media media--transparent media--fit-contain custom-image-height custom-image-width"
-              style="--mobile-width: {{ section.settings.mobile_video_height | times: block.settings.video.aspect_ratio | divided_by: 10.0 }}rem;--desktop-width: {{ section.settings.desktop_video_height | times: block.settings.video.aspect_ratio | divided_by: 10.0 }}rem;"
-            >
-              {% render 'video-player', block: block %}
-            </div>
-          {% when 'reviews' %}
-            {% liquid
-              assign force_padding = false
-              if section.settings.color_scheme != block.settings.color_scheme
-                assign force_padding = true
-              endif
-            %}
-            {%- render 'reviews', block: block, force_padding: force_padding -%}
-          {%- when 'text_with_icon' -%}
-            {% render 'text-with-icon-block', block: block, mobile_align: true %}
-          {% when 'icon_with_content' %}
-            {% render 'icon-with-content-block', block: block, mobile_align: true %}
-        {% endcase %}
-      {%- endfor -%}
+            {% for multiplier in (1..target_multiply) %}
+              {%- for block in section.blocks -%}
+                {% case block.type %}
+                  {% when 'text' %}
+                    <p class="custom-font-size horizontal-ticker__item{% if section.settings.italic_text %} horizontal-ticker__item--italic{% endif %}{% if section.settings.uppercase_text %} horizontal-ticker__item--uppercase{% endif %}{% if section.settings.bold_text %} horizontal-ticker__item--bold{% endif %}">
+                      {{ block.settings.title }}
+                    </p>
+                  {% when 'image' %}
+                    <div
+                      class="horizontal-ticker__image media media--transparent media--fit-contain custom-image-height custom-image-width"
+                      style="--mobile-width: {{ section.settings.mobile_image_height | times: block.settings.image.aspect_ratio | divided_by: 10.0 }}rem;--desktop-width: {{ section.settings.desktop_image_height | times: block.settings.image.aspect_ratio | divided_by: 10.0 }}rem;"
+                    >
+                      <img
+                        src="{{ block.settings.image | image_url }}"
+                        {% if block.settings.image.alt != blank %}
+                          alt="{{ block.settings.image.alt | escape }}"
+                        {% else %}
+                          role="presentation"
+                        {% endif %}
+                        height="auto"
+                        width="auto"
+                        loading="lazy"
+                      >
+                    </div>
+                  {% when 'video' %}
+                    <div
+                      class="horizontal-ticker__video media media--transparent media--fit-contain custom-image-height custom-image-width"
+                      style="--mobile-width: {{ section.settings.mobile_video_height | times: block.settings.video.aspect_ratio | divided_by: 10.0 }}rem;--desktop-width: {{ section.settings.desktop_video_height | times: block.settings.video.aspect_ratio | divided_by: 10.0 }}rem;"
+                    >
+                      {% render 'video-player', block: block %}
+                    </div>
+                  {% when 'reviews' %}
+                    {% liquid
+                      assign force_padding = false
+                      if section.settings.color_scheme != block.settings.color_scheme
+                        assign force_padding = true
+                      endif
+                    %}
+                    {%- render 'reviews', block: block, force_padding: force_padding -%}
+                  {%- when 'text_with_icon' -%}
+                    {% render 'text-with-icon-block', block: block, mobile_align: true %}
+                  {% when 'icon_with_content' %}
+                    {% render 'icon-with-content-block', block: block, mobile_align: true %}
+                {% endcase %}
+              {%- endfor -%}
+            {% endfor %}
+          </div>
 
-      {%- if block_counter < target_total -%}
-        {% for i in (1..15) %}
-          {% for block in section.blocks %}
-            {% case block.type %}
-              {% when 'text' %}
-                <p class="custom-font-size horizontal-ticker__item{% if section.settings.italic_text %} horizontal-ticker__item--italic{% endif %}{% if section.settings.uppercase_text %} horizontal-ticker__item--uppercase{% endif %}{% if section.settings.bold_text %} horizontal-ticker__item--bold{% endif %}">
-                  {{ block.settings.title }}
-                </p>
-              {% when 'image' %}
-                <div
-                  class="horizontal-ticker__image media media--transparent media--fit-contain custom-image-height custom-image-width"
-                  style="--mobile-width: {{ section.settings.mobile_image_height | times: block.settings.image.aspect_ratio | divided_by: 10.0 }}rem;--desktop-width: {{ section.settings.desktop_image_height | times: block.settings.image.aspect_ratio | divided_by: 10.0 }}rem;"
-                >
-                  <img
-                    src="{{ block.settings.image | image_url }}"
-                    {% if block.settings.image.alt != blank %}
-                      alt="{{ block.settings.image.alt | escape }}"
-                    {% else %}
-                      role="presentation"
-                    {% endif %}
-                    height="auto"
-                    width="auto"
-                    loading="lazy"
-                  >
-                </div>
-              {% when 'video' %}
-                <div
-                  class="horizontal-ticker__video media media--transparent media--fit-contain custom-image-height custom-image-width"
-                  style="--mobile-width: {{ section.settings.mobile_video_height | times: block.settings.video.aspect_ratio | divided_by: 10.0 }}rem;--desktop-width: {{ section.settings.desktop_video_height | times: block.settings.video.aspect_ratio | divided_by: 10.0 }}rem;"
-                >
-                  {% render 'video-player', block: block %}
-                </div>
-              {% when 'reviews' %}
-                {% liquid
-                  assign force_padding = false
-                  if section.settings.color_scheme != block.settings.color_scheme
-                    assign force_padding = true
-                  endif
-                %}
-                {%- render 'reviews', block: block, force_padding: force_padding -%}
-              {%- when 'text_with_icon' -%}
-                {% render 'text-with-icon-block', block: block, mobile_align: true %}
-              {% when 'icon_with_content' %}
-                {% render 'icon-with-content-block', block: block, mobile_align: true %}
-            {% endcase %}
-
-            {% assign block_counter = block_counter | plus: 1 %}
-            {% if block_counter >= target_total %}
-              {% break %}
-            {% endif %}
-          {% endfor %}
-          {% if block_counter >= target_total %}
-            {% break %}
-          {% endif %}
-        {% endfor %}
-      {%- endif -%}
+          {% comment %} Second group - exact duplicate for seamless looping {% endcomment %}
+          <div class="horizontal-ticker__group" aria-hidden="true">
+            {% for multiplier in (1..target_multiply) %}
+              {%- for block in section.blocks -%}
+                {% case block.type %}
+                  {% when 'text' %}
+                    <p class="custom-font-size horizontal-ticker__item{% if section.settings.italic_text %} horizontal-ticker__item--italic{% endif %}{% if section.settings.uppercase_text %} horizontal-ticker__item--uppercase{% endif %}{% if section.settings.bold_text %} horizontal-ticker__item--bold{% endif %}">
+                      {{ block.settings.title }}
+                    </p>
+                  {% when 'image' %}
+                    <div
+                      class="horizontal-ticker__image media media--transparent media--fit-contain custom-image-height custom-image-width"
+                      style="--mobile-width: {{ section.settings.mobile_image_height | times: block.settings.image.aspect_ratio | divided_by: 10.0 }}rem;--desktop-width: {{ section.settings.desktop_image_height | times: block.settings.image.aspect_ratio | divided_by: 10.0 }}rem;"
+                    >
+                      <img
+                        src="{{ block.settings.image | image_url }}"
+                        {% if block.settings.image.alt != blank %}
+                          alt="{{ block.settings.image.alt | escape }}"
+                        {% else %}
+                          role="presentation"
+                        {% endif %}
+                        height="auto"
+                        width="auto"
+                        loading="lazy"
+                      >
+                    </div>
+                  {% when 'video' %}
+                    <div
+                      class="horizontal-ticker__video media media--transparent media--fit-contain custom-image-height custom-image-width"
+                      style="--mobile-width: {{ section.settings.mobile_video_height | times: block.settings.video.aspect_ratio | divided_by: 10.0 }}rem;--desktop-width: {{ section.settings.desktop_video_height | times: block.settings.video.aspect_ratio | divided_by: 10.0 }}rem;"
+                    >
+                      {% render 'video-player', block: block %}
+                    </div>
+                  {% when 'reviews' %}
+                    {% liquid
+                      assign force_padding = false
+                      if section.settings.color_scheme != block.settings.color_scheme
+                        assign force_padding = true
+                      endif
+                    %}
+                    {%- render 'reviews', block: block, force_padding: force_padding -%}
+                  {%- when 'text_with_icon' -%}
+                    {% render 'text-with-icon-block', block: block, mobile_align: true %}
+                  {% when 'icon_with_content' %}
+                    {% render 'icon-with-content-block', block: block, mobile_align: true %}
+                {% endcase %}
+              {%- endfor -%}
+            {% endfor %}
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 {% endif %}

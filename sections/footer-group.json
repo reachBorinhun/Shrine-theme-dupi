@@ -13,6 +13,7 @@
   "sections": {
     "section_divider_eVcPCA": {
       "type": "section-divider",
+      "disabled": true,
       "name": "Section divider",
       "settings": {
         "visibility": "always-display",
@@ -22,7 +23,7 @@
         "shape_color": "accent-1",
         "custom_shape_color": "#dd1d1d",
         "background_color": "background-1",
-        "custom_background_color": "#FFFFFF",
+        "custom_background_color": "#ffffff",
         "padding_top": 0,
         "padding_bottom": 0
       }
@@ -68,6 +69,7 @@
         "text_KU3Twd",
         "1c647602-cc00-4009-a058-976435c8ee9e"
       ],
+      "disabled": true,
       "settings": {
         "color_scheme": "accent-1",
         "custom_colors_background": "#121212",

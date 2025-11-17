@@ -1,0 +1,1644 @@
+/* Use measured variables to position tickers and header reliably */
+:root {
+  /* sensible defaults to avoid layout jump before JS measures real heights */
+  --horizontal-ticker-height: 0px;
+  --header-height: 72px; /* reasonable default header height (overridden by measurement script) */
+  --ticker-and-header-height: calc(
+    var(--horizontal-ticker-height, 0px) + var(--header-height, 72px)
+  );
+  --nav-desktop-padding-inline: 48px; /* default desktop left/right padding for nav */
+  --nav-content-gap: 48px; /* extra vertical gap between nav and content on homepage */
+  /* Extra spacing to push collection content further below the header when needed.
+    Increase this if you want collection content to sit noticeably lower under the
+    navbar. Default is intentionally larger than the original to satisfy requests
+    to "come more below". */
+  --collection-top-offset: 40px;
+  /* Drawer z-index: very high so drawer sits above any other UI layer */
+  --menu-drawer-z-index: 99999;
+}
+
+/* Product pages: force price color to black (targets the main product section and common product body class)
+   Uses high-specificity selectors and !important to override accent-color rules. */
+[id^="MainProduct-"] .price .price-item,
+body.template-product .price .price-item,
+[id^="MainProduct-"] .price .price-item.price-item--regular,
+body.template-product .price .price-item.price-item--regular,
+[id^="MainProduct-"] .price .price-item.price-item--sale,
+body.template-product .price .price-item.price-item--sale {
+  color: #000 !important;
+}
+
+/* Override regular price appearance (strong specificity + !important to override earlier rules) */
+.price-item.price-item--regular,
+.price .price-item.price-item--regular,
+[id^="MainProduct-"] .price .price-item.price-item--regular,
+body.template-product .price .price-item.price-item--regular {
+  color: #333 !important; /* new color */
+  font-weight: 500 !important; /* new weight */
+}
+
+/* Ensure the menu drawer renders above the backdrop overlay we added earlier.
+   The overlay uses z-index:1050; raise the drawer higher so it sits on top. */
+menu-drawer,
+menu-drawer *,
+.menu-drawer,
+.menu-drawer__inner-container,
+.menu-drawer__menu,
+.menu-drawer__title-and-close-btn {
+  z-index: var(--menu-drawer-z-index) !important;
+}
+
+/* Larger gap on desktop */
+@media screen and (min-width: 990px) {
+  :root {
+    --nav-content-gap: 96px;
+  }
+}
+
+/* Make horizontal tickers fixed at top and stack if multiple exist */
+.horizontal-ticker,
+.horizontal-ticker-and-content {
+  position: fixed !important;
+  left: 0 !important;
+  right: 0 !important;
+  top: 0 !important;
+  width: 100% !important;
+  z-index: 2220 !important;
+}
+
+/* Allow multiple tickers to stack — each ticker's own height is handled by the measurement script
+   through the --horizontal-ticker-height total, header is placed below the tickers. */
+.header-wrapper,
+.header,
+.sticky-header,
+sticky-header {
+  position: fixed !important;
+  left: 0 !important;
+  right: 0 !important;
+  top: var(--horizontal-ticker-height, 0px) !important;
+  z-index: 2210 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  background: var(--header-background, #ffffff) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Ensure header wrapper is full-bleed even if inner page containers exist */
+.header-wrapper,
+.header-wrapper .header,
+.header-wrapper .page-width,
+.header .page-width {
+  max-width: 100% !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+@media screen and (min-width: 990px) {
+  /* Desktop: apply larger padding-inline for the navbar */
+  .header-wrapper,
+  .header,
+  .sticky-header,
+  sticky-header {
+    padding-inline-start: var(--nav-desktop-padding-inline) !important;
+    padding-inline-end: var(--nav-desktop-padding-inline) !important;
+  }
+
+  /* Also ensure the inner header content respects the padding */
+  .header-wrapper .header .page-width,
+  .header .page-width {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+}
+
+/* Push page content down by the combined height to avoid overlap */
+body {
+  padding-top: var(
+    --ticker-and-header-height,
+    calc(var(--horizontal-ticker-height, 0px) + var(--header-height, 0px))
+  ) !important;
+}
+
+#MainContent [class*="main-collection-product-grid"],
+#MainContent [class*="__main-collection-product-grid"],
+#MainContent
+  [class*="section-template--"][class*="main-collection-product-grid"] {
+  padding-top: calc(
+    var(
+        --ticker-and-header-height,
+        calc(var(--horizontal-ticker-height, 0px) + var(--header-height, 0px))
+      ) + var(--collection-top-offset, 40px)
+  ) !important;
+}
+
+/* Mobile: increase the extra offset so collection content moves further below the navbar */
+@media screen and (max-width: 749px) {
+  :root {
+    --collection-top-offset: 56px;
+  }
+}
+
+/* Homepage: add extra gap between the navbar and the main content */
+body.home-has-gap {
+  padding-top: calc(
+    var(--ticker-and-header-height, 0px) + var(--nav-content-gap, 24px)
+  ) !important;
+}
+
+/* Overrides to remove card shadow and border-radius, and center title/price */
+.card,
+.card__inner,
+.card__media,
+.card-wrapper,
+.collection-list__item {
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  overflow: visible !important;
+}
+
+.card__heading,
+.card-information,
+.card__information,
+.card__badge,
+.card__content {
+  text-align: center !important;
+}
+
+/* Ensure media images don't crop corners */
+.card__media img {
+  border-radius: 0 !important;
+}
+
+/* Remove any default card background rounding or outline */
+.card--card,
+.card--standard {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* If there's a separate shadow wrapper, remove it */
+.card .shadow,
+.card-shadow,
+.card__shadow {
+  display: none !important;
+}
+
+/* Remove shadows set via pseudo-elements (used in base.css) */
+.card--card:after,
+.card--standard .card__inner:after,
+.card--card .card__inner:after,
+.card--standard:after,
+.card:after,
+.card__inner:after {
+  box-shadow: none !important;
+  content: none !important;
+  background: transparent !important;
+}
+
+/* Fallback to remove any inline shadow properties set via variables */
+.card,
+.card--card,
+.card--standard,
+.card__inner {
+  box-shadow: none !important;
+}
+
+/* Reduce any extra spacing applied to list items or card wrappers */
+.collection-list__item,
+.splide__slide__container--card,
+.slider__slide,
+.product-grid > * {
+  margin: 0 !important;
+  /* keep 8px internal padding so content doesn't touch edges */
+  padding: 8px !important;
+}
+
+/* Ensure the media area fills the card and images cover the area for tighter look */
+.card__media,
+.card .media,
+.card__media .media,
+.card .card__media {
+  width: 100% !important;
+  height: 100% !important;
+  /* respect the outer 8px padding from the list item */
+  padding: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.card__media img,
+.card .media img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
+
+/* Increase product card image height to match reference visuals
+   - CSS-only change: adds a comfortable min-height for the media area
+   - Keeps object-fit: cover so images still crop consistently
+   - Values are conservative and responsive; adjust if you want taller/shorter. */
+.card__media .media,
+.card .card__media .media {
+  min-height: 420px !important; /* desktop default */
+}
+
+@media screen and (min-width: 750px) and (max-width: 989px) {
+  .card__media .media,
+  .card .card__media .media {
+    min-height: 380px !important; /* tablet */
+  }
+}
+
+@media screen and (max-width: 749px) {
+  .card__media .media,
+  .card .card__media .media {
+    min-height: 320px !important; /* mobile - still tall but fits two-column grid */
+  }
+}
+
+/* Mobile: 2 columns per row */
+@media screen and (max-width: 749px) {
+  .product-grid {
+    --columns-mobile: 2 !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 4px !important;
+    column-gap: 4px !important;
+    row-gap: 4px !important;
+  }
+
+  .splide__list,
+  .splide__slide {
+    gap: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  /* Reduce card inner padding on small screens */
+  .product-grid > * {
+    padding: 4px !important;
+  }
+}
+
+/* Tablet: 3 columns per row */
+@media screen and (min-width: 750px) and (max-width: 989px) {
+  .product-grid {
+    --columns-desktop: 3 !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 4px !important;
+    column-gap: 4px !important;
+    row-gap: 4px !important;
+  }
+
+  .splide__list,
+  .splide__slide {
+    gap: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  /* Slightly reduce card inner padding on tablet for tighter rows */
+  .product-grid > * {
+    padding: 6px !important;
+  }
+}
+
+/* Desktop: 4 columns per row (your original code) */
+@media screen and (min-width: 990px) {
+  .product-grid {
+    --columns-desktop: 4 !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 4px !important;
+    column-gap: 4px !important;
+    row-gap: 4px !important;
+  }
+
+  /* Also ensure splide list/gutters don't add extra spacing */
+  .splide__list,
+  .splide__slide {
+    gap: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}
+
+/* Reduce outer container padding for the featured collection so cards can be wider
+   Keep product gap (grid gap) unchanged — this only reduces the row's left/right inset */
+.featured-collection-wrapper .product-grid {
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+  box-sizing: border-box !important;
+}
+
+@media screen and (min-width: 750px) and (max-width: 989px) {
+  /* tablet: slightly smaller container padding */
+  .featured-collection-wrapper .product-grid {
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+  }
+}
+
+@media screen and (max-width: 749px) {
+  /* mobile: very small container padding to maximize card width */
+  .featured-collection-wrapper .product-grid {
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+  }
+}
+
+/* Aggressive: remove any ancestor padding for featured collection instances */
+.featured-collection-wrapper,
+.featured-collection-wrapper.page-width,
+.collection.featured-collection-wrapper {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  max-width: 100% !important;
+}
+
+.featured-collection-wrapper .page-width,
+.featured-collection-wrapper .collection {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  max-width: none !important;
+}
+
+/* Cart drawer mobile override: keep off-canvas slide-from-right but constrain panel width
+   Put this in overrides.css so it loads after base.css and survives snippet edits. */
+@media screen and (max-width: 500px) {
+  /* keep root full-bleed so overlay and focus trap behave normally */
+  .cart-drawer--mobile-width-full .cart-drawer {
+    width: 100% !important;
+    max-width: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+  }
+
+  /* constrain the sliding panel, anchor to right, and preserve slide transform */
+  .cart-drawer--mobile-width-full .drawer__inner {
+    position: absolute !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: min(420px, 92vw) !important;
+    max-width: 92vw !important;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15) !important;
+    border-radius: 8px 0 0 8px !important;
+    margin: 0 !important;
+    /* ensure it's positioned off-canvas before active state */
+    transform: translateX(100%) !important;
+    transition: transform var(--duration-default, 0.28s) ease !important;
+    will-change: transform !important;
+    backface-visibility: hidden !important;
+    transform-origin: center right !important;
+  }
+
+  /* when drawer becomes active, slide the constrained panel into view */
+  .drawer.active .cart-drawer--mobile-width-full .drawer__inner,
+  .cart-drawer--mobile-width-full .drawer.active .drawer__inner {
+    transform: translateX(0) !important;
+  }
+
+  .cart-drawer__overlay {
+    background: rgba(0, 0, 0, 0.5) !important;
+  }
+}
+
+/* Broader, high-specificity rules that target the actual CartDrawer instance so
+   the override works even if the snippet or mobile_width class changes. */
+@media screen and (max-width: 500px) {
+  /* Target the instance by ID (rendered in the snippet) */
+  #CartDrawer .drawer__inner,
+  .cart-drawer .drawer__inner {
+    position: absolute !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: min(420px, 92vw) !important;
+    max-width: 92vw !important;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15) !important;
+    border-radius: 8px 0 0 8px !important;
+    margin: 0 !important;
+    transform: translateX(100%) !important;
+    transition: transform var(--duration-default, 0.28s) ease !important;
+    will-change: transform !important;
+    backface-visibility: hidden !important;
+    transform-origin: center right !important;
+  }
+
+  /* Active state when the top-level drawer element becomes active */
+  .drawer.active #CartDrawer .drawer__inner,
+  .drawer.active .cart-drawer .drawer__inner {
+    transform: translateX(0) !important;
+  }
+}
+
+/* Remove top padding for any collection wrapper that uses the generated
+   section-<id>-padding class (examples: section-12345-padding).
+   This targets the markup: <div class="collection collection-{{ section.id }} section-{{ section.id }}-padding"> */
+.collection[class*="section-"][class*="-padding"] {
+  padding-top: 0 !important;
+}
+
+/* Make sold-out badge clearly red across the theme */
+.price--sold-out .price__badge-sold-out,
+.price__badge-sold-out {
+  background: transparent !important;
+  color: #ef4444 !important; /* red text */
+  border-color: transparent !important;
+}
+
+/* Tables in rich text (product descriptions, blog posts) should render
+   responsively without forcing a horizontal scrollbar. Instead we allow
+   the table to use auto layout and let cells wrap/break words on small
+   screens so content remains readable. The JS wrapper (if present)
+   will not force scrolling because the wrapper is visible by default. */
+.rte-table-wrapper {
+  /* Do not force a scrollable box here — keep wrapper present for structure
+     but allow visible overflow so tables can reflow rather than scroll. */
+  overflow-x: visible !important;
+  -webkit-overflow-scrolling: auto;
+  margin: 0 0 1rem 0;
+}
+
+.product__description.rte table,
+.rte table {
+  width: 100% !important;
+  border-collapse: collapse;
+  table-layout: auto !important; /* allow columns to size based on content */
+}
+
+/* Small screens: avoid horizontal scrolling. Let table cells wrap and
+   reduce paddings slightly for better fit. Hiding the thead is avoided
+   so the table retains header semantics; instead we focus on wrapping. */
+@media screen and (max-width: 830px) {
+  .product__description.rte table,
+  .rte table {
+    display: table;
+    width: 100%;
+    overflow: visible;
+  }
+
+  .product__description.rte table th,
+  .product__description.rte table td,
+  .rte table th,
+  .rte table td {
+    white-space: normal !important;
+    word-break: break-word !important;
+    padding: 0.4rem 0.6rem !important;
+    font-size: 0.95rem;
+  }
+
+  /* If a table is extremely wide with many columns, this helps prevent
+     overflow by allowing columns to shrink and break lines. */
+  .product__description.rte table td,
+  .product__description.rte table th,
+  .rte table td,
+  .rte table th {
+    min-width: 0;
+  }
+}
+
+/* Ensure product info top-padding only applies on tablet/desktop
+   The base stylesheet applies these on mobile; we want padding-top
+   only starting at min-width: 750px. Put overrides here so they load
+   after the main CSS and are easy to maintain. */
+@media screen and (max-width: 749px) {
+  /* remove any top padding applied on mobile */
+  .product__info-wrapper--top-padding,
+  .product__info-wrapper--top-padding-small {
+    padding-top: 0 !important;
+  }
+}
+
+@media screen and (min-width: 750px) {
+  /* restore intended top padding at >=750px */
+  .product__info-wrapper--top-padding {
+    padding-top: 14rem !important;
+  }
+
+  .product__info-wrapper--top-padding-small {
+    padding-top: 0.5rem !important;
+  }
+}
+
+/* Remove underline only for the header "MENU" toggle (keep other links intact) */
+.header .header__icon--menu,
+.header .header__icon--menu.summary,
+.header .header__icon--menu .header__menu-text {
+  text-decoration: none !important;
+  border-bottom: none !important;
+}
+
+/* Animated crossfade for navbar Menu -> Close label */
+.header__menu-text {
+  position: relative;
+  display: inline-block;
+  line-height: 1;
+  min-width: 3.2rem; /* avoid width jump—tweak if labels are longer */
+}
+.header__menu-text > span {
+  display: block;
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  transition: opacity 320ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    transform 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: opacity, transform;
+}
+.header__menu-text--menu {
+  opacity: 1;
+  transform: translateY(0);
+}
+.header__menu-text--close {
+  opacity: 0;
+  transform: translateY(6px);
+  transition-delay: 80ms;
+}
+.header__icon--menu.is-open .header__menu-text--menu {
+  opacity: 0;
+  transform: translateY(-6px);
+  transition-delay: 0ms;
+}
+.header__icon--menu.is-open .header__menu-text--close {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0ms;
+}
+
+/* Make sure the visible label remains accessible/centered on small screens */
+@media screen and (max-width: 749px) {
+  .header__menu-text {
+    min-width: 4.5rem;
+  }
+}
+
+/* Make active header links render as plain text (no pill/badge) across pages
+   Some page templates or color-scheme variants apply a background via
+   .header__active-menu-item-v2::before which produces a pill. Override it
+   here so the navbar label appears consistent (plain text) like the home
+   header design. */
+.header__active-menu-item-v2 {
+  font-weight: inherit !important;
+  padding: 0 !important;
+  color: inherit !important;
+}
+.header__active-menu-item-v2::before {
+  /* remove the background/badge used for the active state */
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  transform: none !important;
+  content: none !important;
+}
+
+/* Also neutralize any menu-item--active utility class the theme might use */
+.list-menu__item--active,
+.list-menu__item--active .header__active-menu-item-v2 {
+  background: transparent !important;
+  color: inherit !important;
+}
+
+/* Stronger overrides: some themes apply the accent background via higher-specificity
+   rules or on ancestor color utility classes. Use very-specific selectors and
+   !important to ensure no background/pill remains on active header labels. */
+.header .header__menu-item .header__active-menu-item-v2,
+.header__active-menu-item-v2,
+.header__active-menu-item-v2[class*="color-"],
+.header__active-menu-item-v2[class*="color-"] {
+  background: transparent !important;
+  color: inherit !important;
+  padding: 0 !important;
+  font-weight: inherit !important;
+  box-shadow: none !important;
+}
+.header .header__menu-item .header__active-menu-item-v2::before,
+.header__active-menu-item-v2::before,
+.header__active-menu-item-v2::after {
+  content: none !important;
+  display: none !important;
+  background: transparent !important;
+  width: 0 !important;
+  height: 0 !important;
+  box-shadow: none !important;
+}
+
+/* --- Redesigned Back to Top button (visual only) ---
+   Visual treatment only: dark rectangular button with thin white border
+   and uppercase label. Does NOT change behavior or visibility logic; the
+   JS that toggles inline `display:none` remains authoritative. */
+.scroll-to-top-btn {
+  /* let content size the button instead of forcing a circle */
+  width: auto !important;
+  height: auto !important;
+  min-width: 3.6rem !important; /* give a minimum width so label fits */
+  padding: 1rem 0.9rem !important;
+  border-radius: 4px !important; /* override earlier circular rule */
+  border: 1px solid rgba(255, 255, 255, 0.95) !important;
+  background: rgba(10, 10, 10, 0.96) !important; /* near-black background */
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35) !important;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: #ffffff; /* fallback color for text pseudoelement */
+  display: inline-flex; /* do NOT use !important so inline style display:none still hides it */
+}
+
+/* Hide the original SVG icon visually but keep it in the DOM for any scripts */
+.scroll-to-top-btn svg {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  visibility: hidden !important;
+}
+
+/* Smooth appear/disappear transitions (fade + slight lift) */
+.scroll-to-top-btn {
+  opacity: 0;
+  transform: translateY(8px) scale(0.995);
+  transition: opacity 220ms ease, transform 220ms ease;
+  pointer-events: none; /* prevent clicks while invisible */
+}
+.scroll-to-top-btn.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+/* Use a pseudo-element to render the label text so we don't change DOM/JS */
+.scroll-to-top-btn::after {
+  content: "BACK TO TOP";
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  display: block;
+  line-height: 1;
+}
+
+/* Positioning: respect existing offset variables used by the section */
+.scroll-to-top-btn-bottom-right {
+  right: var(--offset-x);
+  bottom: calc(var(--offset-y) + 0.25rem);
+}
+
+/* Slightly smaller on very small screens */
+@media screen and (max-width: 420px) {
+  .scroll-to-top-btn {
+    padding: 0.35rem 0.5rem;
+  }
+  .scroll-to-top-btn::after {
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+  }
+}
+
+/* Hide underline pseudo-elements if the theme uses them for links */
+
+/* Drawer: bottom account block padding and subtle top border */
+/* Drawer: bottom account block - make it sticky to the drawer floor
+   and give the inner container bottom padding so content doesn't sit under it. */
+.list-social__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.list-social__account .list-social__account-text {
+  display: inline-block;
+  margin-left: 0.25rem;
+  font-size: 0.95rem;
+}
+
+/* Make the drawer inner container a positioned parent so absolute bottom-left
+   elements can be positioned relative to it. */
+.menu-drawer__inner-container {
+  position: relative;
+}
+
+/* Drawer top padding variable and application — increase breathing room under the header on mobile */
+:root {
+  --menu-drawer-padding-top: 9.5rem;
+  /* Push the drawer further below the header/tickers by default.
+     You can tweak this value (px) to nudge the drawer down/up. */
+  --menu-drawer-offset: 24px;
+}
+
+/* Mobile-specific: increase the offset so the drawer sits further below stacked
+   tickers/navbar on small viewports (fixes visible cart/menu icons overlapping). */
+@media screen and (max-width: 749px) {
+  :root {
+    --menu-drawer-offset: 48px;
+  }
+}
+
+@media screen and (max-width: 749px) {
+  .menu-drawer__inner-container {
+    padding-top: var(--menu-drawer-padding-top, 2.5rem) !important;
+  }
+}
+
+/* Position the menu drawer below the measured header bottom (tickers + navbar).
+   Prefer the theme JS measurement `--header-bottom-position` when available.
+   Use `--menu-drawer-offset` for small manual tuning (defaults to 8px on mobile).
+   Also set a matching height so the drawer doesn't overlap the fixed header/icons. */
+#menu-drawer,
+.menu-drawer {
+  top: calc(
+    var(--header-bottom-position, var(--ticker-and-header-height, 72px)) +
+      var(--menu-drawer-offset, 8px)
+  ) !important;
+  height: calc(
+    var(--viewport-height, 100vh) -
+      (
+        var(--header-bottom-position, var(--ticker-and-header-height, 72px)) +
+          var(--menu-drawer-offset, 8px)
+      )
+  ) !important;
+  /* ensure the drawer sits above the backdrop pseudo-element */
+  z-index: var(--menu-drawer-z-index) !important;
+  overflow: visible !important;
+}
+
+/* Ensure mobile facets button sits beneath the menu drawer. Some themes render
+   the mobile facets button with a fixed position and its own z-index; to avoid
+   it appearing above the drawer we force its z-index to sit just below the
+   drawer's z-index variable. */
+.mobile-facets__open,
+.mobile-facets__open-wrapper,
+.mobile-facets__close,
+.mobile-facets__close-button {
+  z-index: calc(var(--menu-drawer-z-index, 99999) - 1) !important;
+}
+
+/* Safety: if the drawer still appears underneath due to stacking contexts,
+   force the drawer to be fixed and on top. The JS already applies inline
+   positioning on open, but this ensures CSS fallback covers cases where JS
+   hasn't run yet. */
+#menu-drawer,
+.menu-drawer {
+  position: fixed !important;
+  left: 0 !important;
+  right: 0 !important;
+}
+
+/* Bottom-left account block: keep it inset from the left, include safe-area inset,
+   and reserve space at the bottom of the navigation container so items don't hide. */
+.menu-drawer__account-bottom-left {
+  --account-bottom-left-height: calc(64px + env(safe-area-inset-bottom, 0px));
+  position: absolute;
+  left: 1.25rem;
+  bottom: -20px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.5rem 0.25rem 0;
+  z-index: 6;
+  background: inherit;
+  box-sizing: border-box;
+}
+
+/* Reserve more bottom space so the scrollable menu items don't get overlapped */
+.menu-drawer__navigation-container {
+  padding-bottom: calc(var(--account-bottom-left-height, 64px) + 1rem);
+}
+
+.header .header__icon--menu::after,
+.header .header__icon--menu::before,
+.header .header__icon--menu.summary::after,
+.header .header__icon--menu.summary::before {
+  display: none !important;
+  content: none !important;
+}
+
+/* Restore the menu-drawer backdrop only when the menu is open (expanded state).
+   Earlier we hid all pseudo-elements which also removed the intended backdrop.
+   This rule re-enables the overlay for the expanded menu without reintroducing
+   other pseudo-elements site-wide. */
+.header .header__icon--menu[aria-expanded="true"]::before {
+  content: "" !important;
+  display: block !important;
+  position: absolute !important;
+  top: 100% !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: calc(
+    var(--viewport-height, 100vh) - (var(--header-bottom-position, 100%))
+  ) !important;
+  background: rgba(var(--color-base-text), 0.5) !important;
+  z-index: 1050 !important; /* sits behind the drawer but above page content */
+}
+
+/* Hide the header search icon on narrow screens (we'll surface search inside the menu drawer) */
+@media screen and (max-width: 749px) {
+  .header__icon--search {
+    display: none !important;
+  }
+}
+
+/* Style the search trigger inside the menu drawer to match the account/login link */
+.menu-drawer__search-trigger {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.6rem !important;
+}
+.menu-drawer__search-trigger .icon,
+.menu-drawer__search-trigger svg {
+  width: 1.25rem !important;
+  height: 1.25rem !important;
+}
+.menu-drawer__search-text {
+  display: inline-block !important;
+}
+
+/* Mobile: make SEARCH match COLLECTIONS and remove collection borders */
+@media screen and (max-width: 749px) {
+  /* Remove divider/border under the menu title and between list items */
+  .menu-drawer__mobile-content,
+  .menu-drawer__menu .list-menu__item,
+  .menu-drawer__menu,
+  .menu-drawer__navigation-container {
+    border: none !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+    background-image: none !important;
+  }
+
+  /* Specifically remove any top/bottom borders on the title */
+  .menu-drawer__title {
+    border-bottom: none !important;
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+  }
+
+  /* Ensure all menu items have the same left inset and font-size */
+  .menu-drawer__navigation,
+  .menu-drawer__navigation .menu-drawer__menu,
+  .menu-drawer__navigation .menu-drawer__menu .menu-drawer__menu-item,
+  .menu-drawer__menu .list-menu__item a,
+  .menu-drawer__menu .list-menu__item {
+    padding-left: 1.25rem !important;
+    font-size: 13px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.9px !important;
+    color: #111 !important;
+  }
+
+  /* Hide the search icon so only the word appears, and make the word visually match 'COLLECTIONS' */
+  .menu-drawer__search-trigger svg,
+  .menu-drawer__search-trigger .icon {
+    display: none !important;
+  }
+  .menu-drawer__search-trigger .menu-drawer__search-text,
+  .menu-drawer__search-trigger {
+    font-size: 13px !important;
+    font-weight: 400 !important;
+    color: #111 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.9px !important;
+    padding: 15px 0 !important;
+    display: block !important;
+  }
+
+  /* Hide the top title row and the visible close (X) control on mobile
+     We keep the elements in the DOM for accessibility/script hooks but hide them visually. */
+  .menu-drawer__title-and-close-btn,
+  .menu-drawer__title,
+  .menu-drawer__close,
+  .menu-drawer__close-btn,
+  .menu-drawer__close-button,
+  .menu-drawer .icon--close,
+  .menu-drawer button[aria-label*="Close" i],
+  .menu-drawer button[aria-label*="close" i] {
+    display: none !important;
+    visibility: hidden !important;
+    width: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Remove any separators from list items that look like borders */
+  .menu-drawer__menu .list-menu__item::before,
+  .menu-drawer__menu .list-menu__item::after {
+    content: none !important;
+    display: none !important;
+  }
+
+  /* Style bottom-left account/login to match SEARCH/COLLECTIONS and hide icon on mobile */
+  .menu-drawer__account-bottom-left,
+  .menu-drawer__account-bottom-left .list-social__link,
+  .menu-drawer__account-bottom-left .list-social__account-text,
+  .menu-drawer__account-bottom-left .list-social__account {
+    font-size: 13px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.9px !important;
+    color: #111 !important;
+    padding: 15px 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    font-weight: 600 !important;
+  }
+
+  /* Hide the login/account icon or avatar so only the text remains */
+  .menu-drawer__account-bottom-left svg,
+  .menu-drawer__account-bottom-left .icon,
+  .menu-drawer__account-bottom-left img {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+}
+
+/* === Strong: hide every visible border/line inside the menu drawer ===
+   Some base styles add 1px dividers on the title container or list items.
+   This catch-all rule removes borders, box-shadows and pseudo-elements
+   for any descendants of .menu-drawer so the drawer shows no lines. */
+.menu-drawer,
+.menu-drawer *,
+.menu-drawer *::before,
+.menu-drawer *::after {
+  border: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+  /* keep background and gradients intact; only remove borders/shadows */
+}
+
+/* Remove border on the title/close row specifically (higher specificity in some themes) */
+.menu-drawer__title-and-close-btn,
+.menu-drawer__title-and-close-btn * {
+  border: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+
+/* Ensure list items don't have bottom borders */
+.menu-drawer__menu .list-menu__item,
+.menu-drawer__menu .list-menu__item a,
+.menu-drawer__menu .menu-drawer__menu-item {
+  border: none !important;
+  border-bottom: none !important;
+}
+
+/* Additional mobile polish: ensure the bottom-left login uses the same left inset
+   and text style as SEARCH / COLLECTIONS so it visually matches the menu items. */
+@media screen and (max-width: 749px) {
+  .menu-drawer__account-bottom-left {
+    left: 1.25rem !important; /* align with menu items */
+    padding-left: 1.25rem !important; /* match the left inset of list items */
+    padding-top: 0.25rem !important;
+    padding-bottom: 0.25rem !important;
+    padding-right: 0.5rem !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.9px !important;
+    color: #111 !important;
+    line-height: 1 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    background: inherit !important;
+  }
+
+  .menu-drawer__account-bottom-left .list-social__account-text,
+  .menu-drawer__account-bottom-left .list-social__link {
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.9px !important;
+    color: #111 !important;
+    line-height: 1 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* keep icon hidden (we already hide it, but repeat here to ensure specificity) */
+  .menu-drawer__account-bottom-left svg,
+  .menu-drawer__account-bottom-left .icon,
+  .menu-drawer__account-bottom-left img {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+}
+
+/* Ensure product card titles render at medium weight (500) */
+.card__heading a.full-unstyled-link,
+.card__heading a {
+  font-weight: 500 !important;
+}
+
+/* Ensure sale badge bottom-left inverse text is readable (force white text) */
+span.card__sale-badge.badge.badge--bottom-left.color-inverse,
+span.card__sale-badge.badge.badge--bottom-left.color-inverse * {
+  color: #ffffff !important;
+}
+
+/* Move sold-out / bottom-left badges into the top-left of the card image */
+.card__media .card__sale-badge.badge.badge--bottom-left,
+.card__media span.card__sale-badge.badge.badge--bottom-left,
+.card__media .card__sale-badge.badge.badge--bottom-left.color-inverse {
+  position: absolute !important;
+  top: 12px !important; /* distance from top of image */
+  left: 12px !important; /* align to left */
+  margin-top: 6px !important; /* extra visual offset as requested */
+  transform: none !important;
+  z-index: 1250 !important; /* above image + swatches */
+}
+
+@media (max-width: 749px) {
+  .card__media .card__sale-badge.badge.badge--bottom-left,
+  .card__media span.card__sale-badge.badge.badge--bottom-left {
+    top: 8px !important;
+    left: 8px !important;
+    margin-top: 4px !important;
+  }
+}
+
+/* Fallback: if the badge is rendered outside the media container, position it
+   relative to the card so it visually appears at the top-left of the image. */
+.card-wrapper .card {
+  position: relative; /* ensure card is the positioning context */
+}
+
+.card-wrapper .card .card__sale-badge.badge.badge--bottom-left,
+.card-wrapper .card span.card__sale-badge.badge.badge--bottom-left,
+.card-wrapper .card .badge.badge--bottom-left.card__sale-badge {
+  position: absolute !important;
+  top: 12px !important;
+  left: 12px !important;
+  bottom: auto !important;
+  right: auto !important;
+  margin-top: 6px !important;
+  transform: none !important;
+  z-index: 1350 !important; /* above image and swatches */
+}
+
+@media (max-width: 749px) {
+  .card-wrapper .card .card__sale-badge.badge.badge--bottom-left,
+  .card-wrapper .card span.card__sale-badge.badge.badge--bottom-left {
+    top: 8px !important;
+    left: 8px !important;
+    margin-top: 4px !important;
+  }
+}
+
+/* ==================================================
+   Product card layout tweaks
+   - Visually separate `.card-size-swatches` from `.card-information` by centering
+     the swatches and keeping the title + price grouped at the left with padding.
+   - CSS-only approach so templates don't need changing.
+================================================== */
+
+/* Target standard card blocks only to avoid unexpected layout changes elsewhere */
+.card--card .card__content {
+  /* ensure relative positioning for any abs children and consistent flow */
+  position: relative;
+}
+
+/* Make the card information use a column layout and left-align its primary content */
+.card--card .card-information {
+  display: flex !important;
+  flex-direction: column;
+  align-items: flex-start; /* keep text and price at the left */
+  width: 100%;
+}
+
+/* Keep the heading and price grouped at the left with a consistent parent padding */
+.card--card .card-information {
+  /* remove parent padding so title and price sit flush to the card's left edge
+     (matches design provided). Swatches will remain centered via their own rules. */
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* Remove any child-specific left padding so parent padding is the single source of truth */
+.card--card .card-information .card__heading,
+.card--card .card-information > .price {
+  text-align: left;
+  padding-left: 0 !important;
+  margin: 0 !important;
+}
+
+/* Position swatches as an overlay inside the card media. 
+   The container (.card__media) becomes the positioning context and
+   .card-size-swatches is absolutely positioned bottom-center. This
+   replaces previous centering rules that assumed the swatches lived
+   inside the information block. */
+.card__media {
+  position: relative; /* make this the positioning parent for absolute children */
+}
+
+.card__media .card-size-swatches,
+.card--card .card__media .card-size-swatches {
+  position: absolute !important;
+  bottom: 0 !important; /* flush to the bottom edge of the media */
+  left: 0 !important; /* span the full width */
+  right: 0 !important;
+  z-index: 1100 !important; /* sit above image and card-link overlays */
+  width: 100% !important; /* full width of the media container */
+  margin: 0 !important; /* remove any existing margins */
+  pointer-events: auto !important;
+  display: flex !important; /* allow centering of the buttons */
+  justify-content: center !important; /* center buttons horizontally */
+  box-sizing: border-box !important;
+  padding: 12px !important; /* comfortable horizontal padding */
+  gap: 0.375rem !important; /* spacing between buttons */
+
+  /* Visual styling to span full width and remain legible on images */
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
+  box-shadow: none !important; /* per design: no shadow */
+  border-radius: 0 !important; /* flush corners */
+}
+
+/* Size toggle button and slide-up animation for card size swatches */
+.size-toggle-btn {
+  position: absolute !important;
+  bottom: 12px !important;
+  right: 12px !important;
+  /* raise above card links/badges so the toggle remains clickable */
+  /* Keep this extremely high so site overlays (links/badges) don't intercept clicks */
+  z-index: 999999 !important;
+
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 50% !important;
+  border: none !important;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+
+  color: #1f2937 !important;
+  transition: all 0.25s ease !important;
+  pointer-events: auto !important;
+  will-change: transform, opacity !important;
+}
+
+.size-toggle-btn:hover {
+  /* No background on hover per design — keep subtle scale only if desired */
+  box-shadow: none !important;
+  transform: scale(1.05) !important;
+}
+
+.size-toggle-btn:active {
+  transform: scale(0.95) !important;
+}
+
+.size-toggle-btn[aria-expanded="true"] svg {
+  transform: rotate(45deg);
+  transition: transform 0.25s ease;
+}
+.size-toggle-btn svg {
+  transition: transform 0.25s ease;
+}
+
+/* Slide-up animation: start hidden below the image */
+.card__media .card-size-swatches {
+  transform: translateY(100%) !important;
+  opacity: 0 !important;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  pointer-events: none !important;
+}
+
+.card__media .card-size-swatches.is-visible {
+  transform: translateY(0) !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+/* When visible, visually fade the toggle but keep it clickable so keyboard users
+   and assistive tech can still access it and to avoid event races with overlays. */
+.card__media:has(.card-size-swatches.is-visible) .size-toggle-btn {
+  opacity: 0 !important; /* visually hidden but still present */
+  pointer-events: auto !important; /* must remain clickable */
+}
+
+@media (max-width: 749px) {
+  .size-toggle-btn {
+    bottom: 8px !important;
+    right: 8px !important;
+    width: 32px !important;
+    height: 32px !important;
+  }
+  .card__media .card-size-swatches {
+    padding: 8px 12px !important;
+    gap: 0.25rem !important;
+  }
+}
+
+@media (min-width: 750px) and (max-width: 989px) {
+  .card__media .card-size-swatches {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+}
+
+/* Small screens: keep the overlay centered and allow slight horizontal padding */
+@media (max-width: 749px) {
+  .card__media .card-size-swatches,
+  .card--card .card__media .card-size-swatches {
+    left: 0 !important;
+    right: 0 !important;
+    transform: none !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+}
+
+/* Tablet adjustments (750px - 989px) */
+@media (min-width: 750px) and (max-width: 989px) {
+  .card__media .card-size-swatches,
+  .card--card .card__media .card-size-swatches {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+}
+
+/* If a theme variant places swatches at the bottom using modifier classes, keep the centered behavior
+   and ensure the grouped title+price remain left-aligned inside the information column. */
+.card--has-swatches .card--card .card-information,
+.card--has-swatches.card--card .card-information {
+  align-items: flex-start;
+}
+
+/* Force product card titles to align left (override earlier global centering) */
+.card--card .card__heading,
+.card--card .card__heading a,
+.card--card .card__heading * {
+  text-align: left !important;
+  width: 100% !important;
+  padding-left: 0 !important; /* use parent padding instead */
+  margin: 0 !important;
+}
+
+/* ==================================================
+   Card size swatches - text-only redesign
+   - Visual-only: removes background, border and box-shadow on swatches
+   - Hover: bold + slight lift (translateY) for available swatches
+   - Selected: bold + slight lift to indicate active selection
+   - Disabled / unavailable states are NOT changed (they still use opacity/pointer-events)
+   This preserves all JS/data-driven behavior while changing only appearance.
+================================================== */
+.card-size-swatches
+  .variant-swatch:not([disabled]):not([aria-disabled="true"]):not(
+    .size--unavailable
+  ) {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  /* keep a small horizontal hit area while removing the visual box */
+  padding: 0 6px !important;
+  min-width: auto !important;
+  min-height: auto !important;
+  border-radius: 0 !important;
+  color: inherit !important; /* show natural text color */
+  font-weight: 600 !important; /* slightly strong by default */
+  transition: transform 160ms ease, font-weight 120ms ease, color 160ms ease;
+}
+
+/* Hover effect: scale up slightly and make text bolder (no vertical float) */
+.card-size-swatches
+  .variant-swatch:not([disabled]):not([aria-disabled="true"]):not(
+    .size--unavailable
+  ):hover {
+  transform: scale(1.06) !important;
+  transform-origin: center center !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+}
+
+/* Selected state: show as bold and slightly scaled (visual only). Keep selectors broad to cover common variants. */
+.card-size-swatches .variant-swatch.is-selected,
+.card-size-swatches .variant-swatch[data-selected="true"],
+.card-size-swatches .variant-swatch[aria-pressed="true"] {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #111827 !important; /* dark charcoal instead of pure black */
+  font-weight: 700 !important;
+  transform: scale(1.04) !important;
+  transform-origin: center center !important;
+}
+
+/* Ensure any nested spans inside a selected swatch also inherit the dark color (overrides earlier white rule) */
+.card-size-swatches .variant-swatch.is-selected span,
+.card-size-swatches .variant-swatch[data-selected="true"] span,
+.card-size-swatches .variant-swatch[aria-pressed="true"] span,
+.card-size-swatches .variant-swatch.is-selected *,
+.card-size-swatches .variant-swatch[data-selected="true"] *,
+.card-size-swatches .variant-swatch[aria-pressed="true"] * {
+  color: #111827 !important;
+}
+
+/* Disabled / unavailable: keep the strike-through and opacity but remove the visible border/box so it's text-only */
+.card-size-swatches .variant-swatch[disabled],
+.card-size-swatches .variant-swatch[aria-disabled="true"],
+.card-size-swatches .variant-swatch.size--unavailable {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  /* keep opacity and pointer-events from existing rules */
+}
+
+/* Highly-specific override for small selected swatches that are available.
+   This counters the theme's .card-size-swatches .variant-swatch.small.is-selected span
+   rule and ensures the active variant uses dark text + underline for a premium feel. */
+.card-size-swatches .variant-swatch.small.is-selected[data-available="true"],
+.card-size-swatches
+  .variant-swatch.small.is-selected[aria-pressed="true"][data-available="true"],
+.card-size-swatches
+  .variant-swatch.small.is-selected[data-available="true"]
+  span,
+.card-size-swatches
+  .variant-swatch.small.is-selected[aria-pressed="true"][data-available="true"]
+  span,
+.card-size-swatches .variant-swatch.small.is-selected[data-available="true"] * {
+  color: #111827 !important; /* dark charcoal */
+  text-decoration: underline !important;
+  text-underline-offset: 4px !important;
+  text-decoration-thickness: 2px !important;
+  font-weight: 700 !important;
+}
+
+/* Keep unavailable/disab led visuals intact — do not override opacity/pointer-events rules above.
+   If a theme uses additional utility classes for unavailable states, they will still apply. */
+
+/* Cover auto-selected small swatches that may not include data-available on initial render.
+   Exclude disabled/unavailable controls so we don't remove strike-through/opacity. */
+.card-size-swatches
+  .variant-swatch.small.is-selected:not([disabled]):not(
+    [aria-disabled="true"]
+  ):not(.size--unavailable),
+.card-size-swatches
+  .variant-swatch.small.is-selected[aria-pressed="true"]:not([disabled]):not(
+    [aria-disabled="true"]
+  ):not(.size--unavailable),
+.card-size-swatches
+  .variant-swatch.small.is-selected[data-selected="true"]:not([disabled]):not(
+    [aria-disabled="true"]
+  ):not(.size--unavailable) {
+  color: #111827 !important;
+}
+.card-size-swatches
+  .variant-swatch.small.is-selected:not([disabled]):not(
+    [aria-disabled="true"]
+  ):not(.size--unavailable)
+  span,
+.card-size-swatches
+  .variant-swatch.small.is-selected[aria-pressed="true"]:not([disabled]):not(
+    [aria-disabled="true"]
+  ):not(.size--unavailable)
+  span,
+.card-size-swatches
+  .variant-swatch.small.is-selected[data-selected="true"]:not([disabled]):not(
+    [aria-disabled="true"]
+  ):not(.size--unavailable)
+  span {
+  color: #111827 !important;
+}
+
+/* If a swatch is selected but explicitly marked unavailable (data-available="false"),
+   make sure it uses the muted disabled color instead of white so it matches other
+   sold-out labels in the UI. This targets both the element and any nested spans. */
+.card-size-swatches
+  .variant-swatch[data-selected="true"][data-available="false"],
+.card-size-swatches .variant-swatch.is-selected[data-available="false"],
+.card-size-swatches
+  .variant-swatch[aria-pressed="true"][data-available="false"] {
+  color: #6b7280 !important;
+}
+.card-size-swatches
+  .variant-swatch[data-selected="true"][data-available="false"]
+  span,
+.card-size-swatches .variant-swatch.is-selected[data-available="false"] span,
+.card-size-swatches
+  .variant-swatch[aria-pressed="true"][data-available="false"]
+  span,
+.card-size-swatches
+  .variant-swatch[data-selected="true"][data-available="false"]
+  *,
+.card-size-swatches .variant-swatch.is-selected[data-available="false"] *,
+.card-size-swatches
+  .variant-swatch[aria-pressed="true"][data-available="false"]
+  * {
+  color: #6b7280 !important;
+}
+
+/* Stronger, card-scoped override for selected-but-unavailable swatches inside product cards.
+   Some themes apply very specific selectors (small + span + !important); to ensure the
+   sold-out selected label is visible and matches other unavailable labels, use a
+   higher-specificity selector that includes the card container and attributes. */
+.card--card
+  .card-size-swatches
+  .variant-swatch.small[data-selected="true"][data-available="false"]
+  span,
+.card--card
+  .card-size-swatches
+  .variant-swatch.small.is-selected[data-available="false"]
+  span,
+.card--card
+  .card-size-swatches
+  .variant-swatch.small[aria-pressed="true"][data-available="false"]
+  span,
+.card--card
+  .card-size-swatches
+  .variant-swatch.small[data-selected="true"][data-available="false"]
+  *,
+.card--card
+  .card-size-swatches
+  .variant-swatch.small.is-selected[data-available="false"]
+  *,
+.card--card
+  .card-size-swatches
+  .variant-swatch.small[aria-pressed="true"][data-available="false"]
+  * {
+  color: #6b7280 !important;
+}
+
+/* ========= Accessibility/interaction fixes for swatches ========= */
+/* When swatches are open, ensure they are the topmost interactive layer inside the card.
+   This rule is scoped to the `.swatches-open` JS fallback so it only applies while the
+   user is actively interacting with the control. It disables pointer-events on full-card
+   links and common overlays so the swatches receive clicks. */
+.card__media.swatches-open .card-size-swatches.is-visible,
+.card__media.swatches-open .card-size-swatches.is-visible .variant-swatch,
+.card__media.swatches-open .size-toggle-btn {
+  z-index: 2147483646 !important;
+  pointer-events: auto !important;
+}
+
+.card__media.swatches-open a.full-width-link,
+.card__media.swatches-open a.full-unstyled-link,
+.card__media.swatches-open .card__badge,
+.card__media.swatches-open .badge,
+.card__media.swatches-open .card__media::before,
+.card__media.swatches-open .card__media::after {
+  pointer-events: none !important;
+}
+
+/* Defensive: sometimes theme badges or overlays include pseudo-elements that capture
+   pointer events; ensure they are not preventing interaction while swatches are open. */
+.card__media.swatches-open *::before,
+.card__media.swatches-open *::after {
+  pointer-events: none !important;
+}
+
+/* If a transform/opacity/filter on an ancestor creates a stacking context that still
+   prevents the swatches from receiving pointer events, we will fall back to a JS
+   strategy that moves the swatches element to document.body while open. See
+   `assets/size-toggle.js` for that implementation if needed. */
+
+/* ========= Visual tweaks: make swatches sit edge-to-edge on the image ========= */
+/* Keep rules scoped so we don't accidentally change other dropdowns. */
+.card__media .card-size-swatches,
+.card-size-swatches[data-__movedToBody="true"] {
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 10px 12px !important; /* internal padding for the swatches */
+  box-sizing: border-box !important;
+
+  /* Remove all chrome: border, shadow, and radius */
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  border-radius: 0 !important;
+  overflow: visible !important;
+
+  /* Prevent backdrop filters from creating visual blur behind the swatches */
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* When the swatches are inside the card media, ensure they sit flush to the
+   image edge and don't produce a rounded overlay. This preserves the "in-card"
+   appearance shown in the design attachment. */
+.card__media .card-size-swatches.is-visible {
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100% !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+/* When the swatches are moved into the card content, make sure the
+   card__content acts as a positioning container and the swatches fill it. */
+.card__content {
+  position: relative; /* necessary so absolute children align to its bottom */
+}
+
+.card__content .card-size-swatches {
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 10px 12px !important;
+  box-sizing: border-box !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  z-index: 2147483648 !important; /* sit above toggle */
+  pointer-events: auto !important;
+}
+
+/* Slide-up / slide-down animation for the swatches panel. Default state
+   positions the panel off-screen (translated down). When `.is-visible` is
+   applied the panel translates up into view. Transitions are smooth and
+   use transform for best performance. */
+.card-size-swatches {
+  will-change: transform, opacity;
+  transform: translateY(100%);
+  opacity: 0;
+  /* Use the same duration for open/close so hide feels as smooth as show */
+  transition: transform 260ms cubic-bezier(0.2, 0.9, 0.2, 1), opacity 260ms ease;
+  pointer-events: none; /* prevent interaction while hidden */
+}
+
+.card-size-swatches.is-visible {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Keep closing class but match the same duration so hide is not faster */
+.card-size-swatches.is-visible.closing {
+  transition-duration: 260ms;
+}
+
+/* When aligning to the toggle button, use a compact auto-width panel centered
+   on the toggle instead of full-width edge-to-edge. This class is added by JS. */
+.card__media .card-size-swatches.align-to-toggle,
+.card-size-swatches.align-to-toggle[data-__movedToBody="true"] {
+  left: auto !important;
+  right: auto !important;
+  bottom: 12px !important;
+  width: auto !important;
+  min-width: 120px !important;
+  max-width: 90% !important;
+  padding: 6px 10px !important;
+  /* Make the anchored panel visually overlay the + button: transparent, no radius/shadow */
+  background: transparent !important;
+  color: #111 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* If JS moves the element to body for stacking reasons, keep the visual
+   appearance consistent by ensuring the moved node also has no border/shadow.
+   Use the dataset attribute set by JS to match moved state. */
+.card-size-swatches[data-__movedToBody="true"].is-visible {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+/* Ensure the toggle button remains clickable and visually above any image overlays */
+.size-toggle-btn {
+  z-index: 2147483647 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Make the visible swatches panel background white for better contrast.
+   Also ensure swatch text is dark when the panel is white so labels remain readable. */
+.card-size-swatches.is-visible,
+.card__media .card-size-swatches.is-visible,
+.card__content .card-size-swatches.is-visible,
+.card-size-swatches[data-__movedToBody="true"].is-visible,
+.card-size-swatches[data-__movedToCardContent="true"].is-visible {
+  background: #ffffff !important;
+  color: #111827 !important;
+}
+
+.card-size-swatches.is-visible .variant-swatch,
+.card__content .card-size-swatches.is-visible .variant-swatch,
+.card-size-swatches[data-__movedToCardContent="true"].is-visible
+  .variant-swatch {
+  color: #111827 !important;
+}
