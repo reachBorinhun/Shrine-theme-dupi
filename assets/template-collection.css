@@ -82,3 +82,16 @@
 .collection__view-all a:not(.link) {
   margin-top: 2rem;
 }
+
+/* === Collection page: apply cart-drawer font and near-black text color === */
+/* Uses the 'helvetica-webfont' defined in `snippets/cart-drawer.liquid`. */
+.collection,
+.collection * {
+  font-family: "helvetica-webfont", sans-serif !important;
+  color: #222222 !important; /* near-black (not full #000) */
+}
+
+/* Keep links visually distinct but use the same near-black color by default; preserve hover color inheritance. */
+.collection a {
+  color: #222222 !important;
+}

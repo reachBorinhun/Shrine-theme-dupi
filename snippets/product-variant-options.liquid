@@ -44,6 +44,27 @@
 -%}
 
 {%- for value in option.values -%}
+  {%- comment -%}
+    Compute a short visible abbreviation for size-like options (Small → S, Medium → M, etc.)
+    This preserves the underlying input/option value (value attribute) and only
+    changes the displayed text when the option label (option.name) contains "size".
+  {%- endcomment -%}
+  {%- assign abbrev = value -%}
+  {%- assign option_name_lc = option.name | downcase -%}
+  {%- if option_name_lc contains 'size' -%}
+    {%- assign v = value | downcase | replace: ' ', '' | replace: '_', '' | replace: '-', '' -%}
+    {%- if v == 'small' or v == 's' or v == 'sm' -%}
+      {%- assign abbrev = 'S' -%}
+    {%- elsif v == 'medium' or v == 'm' or v == 'med' -%}
+      {%- assign abbrev = 'M' -%}
+    {%- elsif v == 'large' or v == 'l' -%}
+      {%- assign abbrev = 'L' -%}
+    {%- elsif v == 'xlarge' or v == 'xl' or v == 'xlarge' or v == 'xlarge' -%}
+      {%- assign abbrev = 'XL' -%}
+    {%- elsif v == '2xlarge' or v == '2xl' or v == 'xxl' -%}
+      {%- assign abbrev = '2XL' -%}
+    {%- endif -%}
+  {%- endif -%}
   {%- liquid
     assign option_class = ''
     assign option_disabled = true
@@ -86,8 +107,8 @@
         assign hidden = true
       endif
     endif
-     
-    assign currentVariant = nil
+
+    assign currentVariant = null
 
     for variant in product.variants
       case option.position
@@ -114,20 +135,20 @@
     {%- when 'swatches' -%}
       {% liquid
         assign hex_value = ''
-        
+
         for color in predefined_colors
           assign color_line = color | remove: '<p>' | remove: '</p>'
           assign color_parts = color_line | split: '='
           assign option_name = color_parts[0] | strip
           assign option_hex = color_parts[1] | strip
-      
+
           if value == option_name
             assign hex_value = option_hex
             assign current_option_name = option_name
             assign option_value_index = option_value_index | plus: 1
           endif
         endfor
-        
+
         if value.swatch.image
           assign image_url = value.swatch.image | image_url: width: 400
           assign swatch_value = 'no-repeat center / cover url(' | append: image_url | append: ')'
@@ -177,13 +198,13 @@
                     assign custom_color = swatch_value
                   else
                     assign custom_color = ''
-                    
+
                     for color in predefined_colors
                       assign color_line = color | remove: '<p>' | remove: '</p>'
                       assign color_parts = color_line | split: '='
                       assign option_name = color_parts[0] | strip
                       assign option_hex = color_parts[1] | strip
-                  
+
                       if value == option_name
                         assign custom_color = option_hex
                       endif
@@ -198,7 +219,7 @@
         </div>
         <label class="color-swatch_hidden-label" for="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}">
         </label>
-        <span class="color-swatch__label">{{ value }}</span>
+        <span class="color-swatch__label">{{ abbrev }}</span>
       </div>
     {%- when 'pills' -%}
       <input
@@ -212,8 +233,11 @@
         {% endif %}
         class="{{ option_class }}{% if option_disabled %} disabled{% endif %}"
       >
-      <label class="accent-color-{{ settings.variant_pills_accent_color }}{% if settings.variant_pills_bold_text %} variant-pills--bold{% endif %}" for="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}">
-        {{ value -}}
+      <label
+        class="accent-color-{{ settings.variant_pills_accent_color }}{% if settings.variant_pills_bold_text %} variant-pills--bold{% endif %}"
+        for="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
+      >
+        {{ abbrev -}}
         <span class="visually-hidden">{{ 'products.product.variant_sold_out_or_unavailable' | t }}</span>
       </label>
     {%- when 'dropdown' -%}
@@ -227,10 +251,10 @@
           disabled hidden
         {% endif %}
       >
-        {% if option_disabled -%}
-          {{- 'products.product.value_unavailable' | t: option_value: value -}}
+        {%- if option_disabled -%}
+          {{- 'products.product.value_unavailable' | t: option_value: abbrev -}}
         {%- else -%}
-          {{- value -}}
+          {{- abbrev -}}
         {%- endif %}
       </option>
     {% when 'quantity-breaks' %}
@@ -250,7 +274,7 @@
         assign compare_price = currentVariant.compare_at_price
         assign price_difference = compare_price | minus: price
         assign price_difference_rounded = price_difference | divided_by: 100.00 | round | times: 100
-        
+
         assign badge = badges[forloop.index0] | replace: '[empty]', '' | strip
         assign label = labels[forloop.index0] | replace: '[empty]', '' | strip
         assign benefit = benefits[forloop.index0] | replace: '[empty]', '' | strip
@@ -275,22 +299,22 @@
               %}
             </p>
           {% endif %}
-          <div class='quantity-break__image-and-content'>
+          <div class="quantity-break__image-and-content">
             {% liquid
               if block.settings.breaks_displayed_images == 'variant_images'
                 assign image_url = currentVariant.featured_image | image_url
-              else 
-               assign image_url = custom_images[forloop.index0]
+              else
+                assign image_url = custom_images[forloop.index0]
               endif
             %}
             {% if image_url != blank %}
-              <div class='quantity-break__image'>
-                <img 
-                  src='{{ image_url }}'
+              <div class="quantity-break__image">
+                <img
+                  src="{{ image_url }}"
                   alt="{{ value }}"
-                  width='auto'
-                  height='auto'
-                  loading='lazy'
+                  width="auto"
+                  height="auto"
+                  loading="lazy"
                 >
               </div>
             {% endif %}

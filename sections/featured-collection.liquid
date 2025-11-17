@@ -15,16 +15,6 @@
     --swatch-size: {{ section.settings.swatches_mobile_size | divided_by: 10.0 }}rem;
   }
 
-  @media screen and (min-width: 750px) {
-    .section-{{ section.id }}-padding {
-      padding-top: {{ section.settings.padding_top }}px;
-      padding-bottom: {{ section.settings.padding_bottom }}px;
-    }
-    .collection-{{ section.id }} .color-swatches-container {
-      --swatch-size: {{ section.settings.swatches_desktop_size | divided_by: 10.0 }}rem;
-    }
-  }
-
   .color-scheme-{{ section.id }}.color-custom {
     --color-background: {{ section.settings.custom_colors_background.red }}, {{ section.settings.custom_colors_background.green }}, {{ section.settings.custom_colors_background.blue }};
     --gradient-background: {% if section.settings.custom_gradient_background != blank %}{{ section.settings.custom_gradient_background }}{% else %}{{ section.settings.custom_colors_background }}{% endif %};
@@ -71,6 +61,9 @@
     assign has_desktop_slider = true
   endif
 
+  assign has_mobile_slider = false
+  assign has_desktop_slider = false
+
   assign side_padding_desktop = section.settings.desktop_side_padding
   if section.settings.enable_mobile_preview
     assign side_padding_mobile = 24
@@ -108,11 +101,14 @@
     <div class="featured-collection-wrapper page-width{% if section.settings.desktop_full_page %} desktop-full-page{% endif %}{% if has_mobile_slider %} mobile-full-page{% endif %}">
       <div
         class="product-grid contains-card contains-card--product{% if settings.card_style == 'standard' %} contains-card--standard{% endif %}{% if section.settings.stretch_cards %} grid--stretch{% endif %}"
-        style="--columns-desktop: {{ section.settings.columns_desktop }};--columns-mobile: {{ columns_mobile_int }};--gap-desktop:{{ section.settings.desktop_spacing }}px;--gap-mobile:1.5rem;--right-padding-desktop:{{ side_padding_desktop }}px;--left-padding-desktop:{% if section.settings.desktop_padding_calc %}{{ side_padding_desktop }}{% else %}0{% endif %}px;--side-padding-mobile:{{ side_padding_mobile }}px;"
+        style="--columns-desktop: 4;--columns-mobile: {{ columns_mobile_int }};--gap-desktop:4px;--gap-mobile:1.5rem;--right-padding-desktop:8px;--left-padding-desktop:8px;--side-padding-mobile:{{ side_padding_mobile }}px;--image-padding:8px;"
       >
         {% if has_mobile_slider or has_desktop_slider %}
           <splide-component
-            class="splide"
+            class="
+              spl
+              ide
+            "
             data-type="{{ section.settings.type }}"
             data-autoplay="{{ section.settings.autoplay }}"
             data-autoplay-speed="{{ section.settings.autoplay_speed }}"
@@ -212,7 +208,6 @@
     {%- endif -%}
   </div>
 </div>
-
 {% schema %}
 {
   "name": "t:sections.featured-collection.name",
@@ -1330,3 +1325,4 @@
   ]
 }
 {% endschema %}
+
