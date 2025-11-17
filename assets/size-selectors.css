@@ -208,6 +208,14 @@
   /* ensure the swatch container sits above underlying card link */
   position: relative;
   z-index: 1000;
+  pointer-events: auto; /* ensure clicks reach the buttons when overlayed */
+
+  /* subtle white panel to improve legibility when overlaying images */
+  background: rgba(255, 255, 255, 0.95);
+  padding: 8px 12px;
+  border-radius: 8px;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .card-size-swatches .variant-swatch {
@@ -226,6 +234,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  pointer-events: auto; /* make sure buttons are clickable above overlays */
   transition: all 0.15s ease;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
   white-space: nowrap;
