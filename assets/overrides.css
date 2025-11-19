@@ -210,7 +210,7 @@ body.home-has-gap {
 .product-grid > * {
   margin: 0 !important;
   /* keep 8px internal padding so content doesn't touch edges */
-  padding: 8px !important;
+  padding: 3px !important;
 }
 
 /* Ensure the media area fills the card and images cover the area for tighter look */
@@ -1027,66 +1027,21 @@ body.home-has-gap {
     height: 0 !important;
   }
 }
-
+/* Ensure sale badge bottom-left inverse text is readable (force white text) */
+span.card__sale-badge.badge.badge--bottom-left.color-inverse,
+span.card__sale-badge.badge.badge--bottom-left.color-inverse * {
+  color: #ffffff !important;
+}
 /* Ensure product card titles render at medium weight (500) */
 .card__heading a.full-unstyled-link,
 .card__heading a {
   font-weight: 500 !important;
 }
 
-/* Ensure sale badge bottom-left inverse text is readable (force white text) */
-span.card__sale-badge.badge.badge--bottom-left.color-inverse,
-span.card__sale-badge.badge.badge--bottom-left.color-inverse * {
-  color: #ffffff !important;
-}
-
-/* Move sold-out / bottom-left badges into the top-left of the card image */
-.card__media .card__sale-badge.badge.badge--bottom-left,
-.card__media span.card__sale-badge.badge.badge--bottom-left,
-.card__media .card__sale-badge.badge.badge--bottom-left.color-inverse {
-  position: absolute !important;
-  top: 12px !important; /* distance from top of image */
-  left: 12px !important; /* align to left */
-  margin-top: 6px !important; /* extra visual offset as requested */
-  transform: none !important;
-  z-index: 1250 !important; /* above image + swatches */
-}
-
-@media (max-width: 749px) {
-  .card__media .card__sale-badge.badge.badge--bottom-left,
-  .card__media span.card__sale-badge.badge.badge--bottom-left {
-    top: 8px !important;
-    left: 8px !important;
-    margin-top: 4px !important;
-  }
-}
-
 /* Fallback: if the badge is rendered outside the media container, position it
    relative to the card so it visually appears at the top-left of the image. */
 .card-wrapper .card {
   position: relative; /* ensure card is the positioning context */
-}
-
-.card-wrapper .card .card__sale-badge.badge.badge--bottom-left,
-.card-wrapper .card span.card__sale-badge.badge.badge--bottom-left,
-.card-wrapper .card .badge.badge--bottom-left.card__sale-badge {
-  position: absolute !important;
-  top: 12px !important;
-  left: 12px !important;
-  bottom: auto !important;
-  right: auto !important;
-  margin-top: 6px !important;
-  transform: none !important;
-  z-index: 1350 !important; /* above image and swatches */
-}
-
-@media (max-width: 749px) {
-  .card-wrapper .card .card__sale-badge.badge.badge--bottom-left,
-  .card-wrapper .card span.card__sale-badge.badge.badge--bottom-left {
-    top: 8px !important;
-    left: 8px !important;
-    margin-top: 4px !important;
-  }
 }
 
 /* ==================================================
@@ -1636,9 +1591,179 @@ span.card__sale-badge.badge.badge--bottom-left.color-inverse * {
   color: #111827 !important;
 }
 
+/* Enforce a maximum of 3 columns for viewports smaller than 1440px
+   without changing the mobile (<=749px) 2-column behavior. This targets
+   desktop widths from 990px up to 1439px and ensures the grid never shows 4 cards. */
+@media screen and (min-width: 990px) and (max-width: 1439px) {
+  .product-grid {
+    --columns-desktop: 3 !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px !important;
+    column-gap: 8px !important;
+    row-gap: 8px !important;
+  }
+}
+
+/* For screens smaller than 1087px enforce a 2-column grid so rows show only
+   2 cards per row from 1086px down to mobile. This overrides larger desktop
+   rules and keeps mobile (<=749px) behavior consistent. */
+@media screen and (max-width: 1086px) {
+  .product-grid {
+    --columns-desktop: 2 !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 6px !important;
+    column-gap: 6px !important;
+    row-gap: 6px !important;
+  }
+
+  /* Keep inner padding small so cards fill the column */
+  .product-grid > * {
+    padding: 4px !important;
+  }
+}
+
 .card-size-swatches.is-visible .variant-swatch,
 .card__content .card-size-swatches.is-visible .variant-swatch,
 .card-size-swatches[data-__movedToCardContent="true"].is-visible
   .variant-swatch {
   color: #111827 !important;
+}
+
+/* ==================================================
+   Product Card Mobile Layout Fix - Screens < 560px
+   Forces proper card stacking and prevents content overlap
+================================================== */
+@media screen and (max-width: 559px) {
+  /* Force card to use flexbox column layout so media and content stack properly */
+  .card-wrapper .card,
+  .card {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+
+  /* Remove height: 100% from card__inner so it doesn't collapse */
+  .card__inner {
+    height: auto !important;
+    flex-shrink: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Remove height: 100% constraint from card__media and force auto height */
+  .card__media,
+  .card .media,
+  .card__media .media,
+  .card .card__media {
+    height: auto !important;
+    width: 100% !important;
+  }
+
+  /* Ensure the inner media container maintains proper minimum height */
+  .card__media .media,
+  .card .card__media .media {
+    min-height: 280px !important;
+    height: auto !important;
+    max-height: 350px !important;
+  }
+
+  /* Force card__content to stay below card__inner with proper spacing */
+  .card__content {
+    position: relative !important;
+    margin-top: 8px !important;
+    width: 100% !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Reduce the overall card width slightly on very small screens for better fit */
+  .product-grid > * {
+    max-width: 100% !important;
+  }
+
+  /* Ensure size swatches stay at bottom of image (not floating in middle) */
+  .card__media .card-size-swatches {
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+  }
+}
+
+/* Extra small screens - further reduce image height for better proportions */
+@media screen and (max-width: 400px) {
+  .card__media .media,
+  .card .card__media .media {
+    min-height: 240px !important;
+    max-height: 280px !important;
+  }
+}
+
+/* Ultra-small screens - aggressive height reduction and width management */
+@media screen and (max-width: 476px) {
+  /* Further reduce image height to prevent content floating */
+  .card__media .media,
+  .card .card__media .media {
+    min-height: 200px !important;
+    max-height: 240px !important;
+  }
+
+  /* Ensure card maintains flexbox structure */
+  .card-wrapper .card,
+  .card {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  /* Add more spacing between image and content */
+  .card__content {
+    margin-top: 5px !important;
+  }
+
+  /* Reduce card wrapper padding for tighter fit */
+  .product-grid > * {
+    padding: 2px !important;
+  }
+}
+
+/* Absolute minimum screen size - 320px (iPhone SE and similar devices) */
+@media screen and (max-width: 344px) {
+  /* Drastically reduce image height for smallest devices */
+  .card__media .media,
+  .card .card__media .media {
+    min-height: 180px !important;
+    max-height: 200px !important;
+  }
+
+  /* Force card structure with minimal spacing */
+  .card-wrapper .card,
+  .card {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  /* Minimal spacing between image and content */
+  .card__content {
+    margin-top: 4px !important;
+  }
+
+  /* Absolute minimum padding */
+  .product-grid > * {
+    padding: 1px !important;
+  }
+
+  /* Reduce grid gap for tighter layout */
+  .product-grid {
+    gap: 2px !important;
+    column-gap: 2px !important;
+    row-gap: 2px !important;
+  }
+
+  /* Slightly smaller font for title and price to fit better */
+  .card__heading {
+    font-size: 1.3rem !important;
+    line-height: 1.5 !important;
+  }
+
+  .price {
+    font-size: 1rem !important;
+  }
 }
