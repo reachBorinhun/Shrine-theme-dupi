@@ -35,6 +35,47 @@ body.template-product .price .price-item.price-item--sale {
 body.template-product .price .price-item.price-item--regular {
   color: #333 !important; /* new color */
   font-weight: 500 !important; /* new weight */
+  font-size: 1.8rem !important; /* custom size for main product page */
+}
+
+/* ========================================
+   Add to Cart Button Redesign
+   Clean rectangular button design
+======================================== */
+.atc-button.product-form__submit.button,
+button.atc-button.main-product-atc,
+.main-product-atc.button,
+[id^="MainProduct-"] .product-form__submit.button {
+  /* Shape and borders */
+  border-radius: 0 !important; /* Sharp corners */
+  border: none !important;
+  
+  /* Typography */
+  text-transform: uppercase !important;
+  letter-spacing: 0.12em !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  font-family: inherit !important;
+  
+  /* Spacing */
+  padding: 14px 32px !important;
+  min-height: 48px !important;
+  
+  /* Remove effects */
+  box-shadow: none !important;
+  background-image: none !important;
+  
+  /* Smooth transitions */
+  transition: all 0.2s ease !important;
+}
+
+/* Ensure button text styling */
+.atc-button.product-form__submit.button span,
+button.atc-button.main-product-atc span,
+.main-product-atc.button span,
+[id^="MainProduct-"] .product-form__submit.button span {
+  text-transform: uppercase !important;
+  letter-spacing: 0.12em !important;
 }
 
 /* Ensure the menu drawer renders above the backdrop overlay we added earlier.

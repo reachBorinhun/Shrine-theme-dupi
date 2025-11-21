@@ -15,7 +15,7 @@
 <style>
   #intro-gate-{{ section.id }} {
     overflow: hidden;
-    
+
     {% if bg_video == blank and bg_image != blank %}
       background-image: url('{{ bg_image | image_url: width: 1920 }}');
       background-size: cover;
@@ -64,7 +64,7 @@
     position: relative;
     overflow: hidden;
   }
-  
+
   .shine-button::after {
     content: '';
     position: absolute;
@@ -76,7 +76,7 @@
     transform: translateX(-100%);
     animation: shine-effect 3.5s infinite linear;
   }
-  
+
   @keyframes shine-effect {
     0% { transform: translateX(-100%); }
     100% { transform: translateX(100%); }
@@ -85,7 +85,7 @@
   #enter-button-{{ section.id }} {
     color: #f7f7f7;
   }
-  
+
   #enter-button-{{ section.id }}:hover,
   #enter-button-{{ section.id }}:focus {
     color: #ffffff;
@@ -114,6 +114,14 @@
     transform: translate3d(0, 0, 0);
     pointer-events: auto;
     transition-delay: 0s;
+  }
+
+  /* Make logo image bigger on desktop screens */
+  @media (min-width: 1090px) {
+    .intro-gate-content-{{ section.id }} img {
+      width: 180px !important;
+      max-width: none;
+    }
   }
 </style>
 
@@ -151,7 +159,8 @@
           loading: 'eager',
           width: logo_image.width,
           height: logo_image.height,
-          alt: logo_image.alt | default: 'Logo'
+          alt: logo_image.alt
+        | default: 'Logo'
       }}
     {% else %}
       <div class="mx-auto w-[120px] h-[120px] mb-5 bg-white/10 rounded-full flex items-center justify-center border border-white/20">
