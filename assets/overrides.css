@@ -1767,3 +1767,39 @@ span.card__sale-badge.badge.badge--bottom-left.color-inverse * {
     font-size: 1rem !important;
   }
 }
+
+.size-btn.is-loading,
+.size-btn.is-loading .size-label-text,
+.size-btn.is-loading.is-selected,
+.size-btn.is-loading.is-selected .size-label-text,
+.size-btn[aria-busy="true"],
+.variant-swatch.is-loading,
+.variant-swatch.is-loading span,
+.variant-swatch.is-loading.is-selected,
+.variant-swatch.is-loading.is-selected span,
+.variant-swatch[aria-busy="true"],
+.card-size-swatches.is-loading,
+.card-size-swatches .variant-swatch.is-loading {
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  color: inherit !important;
+  border-color: transparent !important;
+}
+
+.size-btn.is-loading::before,
+.size-btn.is-loading::after,
+.variant-swatch.is-loading::before,
+.variant-swatch.is-loading::after,
+.card-size-swatches.is-loading::before,
+.card-size-swatches.is-loading::after {
+  background: transparent !important;
+  box-shadow: none !important;
+  content: none !important;
+}
+
+/* Extra selector: when the loading label is injected into a span inside the button */
+.size-btn.is-loading span,
+.variant-swatch.is-loading span {
+  background: transparent !important;
+}
