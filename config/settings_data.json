@@ -565,7 +565,7 @@
       "full-screen-intro-gate": {
         "type": "full-screen-intro-gate",
         "settings": {
-          "background_image": "shopify://shop_images/FINAL_de4a3a3a-39a3-4d3f-b32c-4343cb02a671.jpg",
+          "background_video": "shopify://files/videos/KDMV-intro-gate (1).mp4",
           "logo_image": "shopify://shop_images/final_kdmv_logo.png",
           "button_text": "Click to Start"
         }
