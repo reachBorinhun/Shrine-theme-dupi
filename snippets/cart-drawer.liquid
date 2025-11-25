@@ -62,13 +62,6 @@
     font-weight: 500;
     font-family: 'helvetica-webfont', sans-serif !important;
   }
-  /* Continue shopping button in empty cart: black background (keep arrow/icon color as-is) */
-  .cart-drawer__empty-content a.button,
-  .cart-drawer__empty-content .button {
-    background-color: #000 !important;
-    border-color: #000 !important;
-    color: #fff !important; /* ensure readable text */
-  }
   /* Apply the OCRAStd font to the entire cart drawer and its descendants */
   .cart-drawer,
   cart-drawer,
@@ -685,28 +678,18 @@
                 {% endif %}
                 #CartDrawer-Checkout { --icon-scale: {{ block.settings.icon_scale | divided_by: 100.0 }}em; --icon-spacing: {{ block.settings.icon_spacing }}px; }
 
-                /* Base: underlying background is white, overlay creates the black appearance before hover */
+                /* Base: use default Shopify theme colors */
                 #CartDrawer-Checkout {
                   position: relative;
-                  background: #fff;                 /* underlying color revealed on hover */
-                  color: #fff;                      /* text white before hover */
-                  border: 1px solid #000;
                   overflow: hidden;
                   -webkit-appearance: none;
                   appearance: none;
-                  transition: color 240ms ease;
+                  transition: all 240ms ease;
                 }
 
-                /* Black overlay that covers the button initially */
+                /* Disable the black overlay (not needed with solid black background) */
                 #CartDrawer-Checkout::before {
-                  content: "";
-                  position: absolute;
-                  inset: 0;
-                  background: #000;                /* visible black before hover */
-                  z-index: 1;
-                  clip-path: inset(0 0 0 0);       /* full cover */
-                  transition: clip-path 420ms cubic-bezier(.2,.8,.2,1);
-                  pointer-events: none;
+                  display: none !important;
                 }
 
                 /* Ensure label/text is above the overlay */

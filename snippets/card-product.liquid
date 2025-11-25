@@ -720,3 +720,56 @@
     </div>
   </div>
 {%- endif -%}
+
+<script>
+  // ============================================================
+  // PRODUCT CARD CLICK NAVIGATION
+  // ============================================================
+  // Make product cards clickable to navigate to product page
+  // while preventing navigation when size selector is open or
+  // when clicking on interactive elements
+
+  (function () {
+    // Only add event listeners once
+    if (window.productCardNavigationInitialized) return;
+    window.productCardNavigationInitialized = true;
+
+    document.addEventListener('click', function (e) {
+      // Find the closest card wrapper
+      const cardWrapper = e.target.closest('.card-wrapper');
+      if (!cardWrapper) return;
+
+      // Don't navigate if clicking on already interactive elements
+      if (
+        e.target.closest('a') || // Don't interfere with existing links
+        e.target.closest('button') || // Don't interfere with buttons
+        e.target.closest('.size-toggle-btn') || // Don't navigate when clicking + button
+        e.target.closest('.card-size-swatches') || // Don't navigate when clicking size selector
+        e.target.closest('.variant-swatch') || // Don't navigate when clicking size options
+        e.target.closest('input') || // Don't interfere with form inputs
+        e.target.closest('select') || // Don't interfere with selects
+        e.target.closest('.quick-add') || // Don't interfere with quick add
+        e.target.closest('.color-swatch') // Don't interfere with color swatches
+      ) {
+        return;
+      }
+
+      // Check if any size selector is currently open
+      const openSelector = cardWrapper.querySelector('.card-size-swatches.is-visible');
+      if (openSelector) {
+        // Size selector is open, don't navigate to prevent accidents
+        return;
+      }
+
+      // Find the product link within the card
+      const productLink = cardWrapper.querySelector('a[href*="/products/"]');
+      if (!productLink) return;
+
+      const productUrl = productLink.getAttribute('href');
+      if (!productUrl) return;
+
+      // Navigate to the product page
+      window.location.href = productUrl;
+    });
+  })();
+</script>

@@ -402,6 +402,14 @@ body.home-has-gap {
   max-width: none !important;
 }
 
+/* Cart drawer overlay - Backdrop filters only (colors removed) */
+#CartDrawer-Overlay,
+.cart-drawer__overlay {
+  background-color: transparent;
+  backdrop-filter: blur(12px) saturate(150%) !important; /* Strong blur for glass effect */
+  -webkit-backdrop-filter: blur(12px) saturate(150%) !important; /* For Safari */
+}
+
 /* Cart drawer mobile override: keep off-canvas slide-from-right but constrain panel width
    Put this in overrides.css so it loads after base.css and survives snippet edits. */
 @media screen and (max-width: 500px) {
@@ -438,9 +446,6 @@ body.home-has-gap {
     transform: translateX(0) !important;
   }
 
-  .cart-drawer__overlay {
-    background: rgba(0, 0, 0, 0.5) !important;
-  }
 }
 
 /* Broader, high-specificity rules that target the actual CartDrawer instance so
@@ -537,6 +542,57 @@ body.home-has-gap {
     min-width: 0;
   }
 }
+
+/* FORCE ALL TABLE TEXT TO WHITE - Maximum specificity override */
+.product__description.rte.quick-add-hidden table,
+.product__description.rte.quick-add-hidden table *,
+.product__description.rte.quick-add-hidden table tbody,
+.product__description.rte.quick-add-hidden table tbody tr,
+.product__description.rte.quick-add-hidden table tbody tr td,
+.product__description.rte.quick-add-hidden table tbody tr td div,
+.product__description.rte table,
+.product__description.rte table *,
+.product__description table *,
+.rte-table-wrapper table,
+.rte-table-wrapper table *,
+.rte table,
+.rte table * {
+  color: #FFFFFF !important;
+  -webkit-text-fill-color: #FFFFFF !important;
+}
+
+/* Make table borders white and visible */
+.product__description.rte.quick-add-hidden table,
+.product__description.rte table,
+.product__description table,
+.rte-table-wrapper table,
+.rte table {
+  border: 1px solid #FFFFFF !important;
+  border-collapse: collapse !important;
+}
+
+.product__description.rte.quick-add-hidden table tbody tr td,
+.product__description.rte.quick-add-hidden table tbody tr th,
+.product__description.rte table td,
+.product__description.rte table th,
+.product__description table td,
+.product__description table th,
+.rte-table-wrapper table td,
+.rte-table-wrapper table th,
+.rte table td,
+.rte table th {
+  border: 1px solid #FFFFFF !important;
+}
+
+
+
+.slider__dots .slider-button,
+.slider__dots .dot {
+  background-color: #FFFFFF !important;
+}
+
+
+
 
 /* Ensure product info top-padding only applies on tablet/desktop
    The base stylesheet applies these on mobile; we want padding-top
@@ -798,6 +854,44 @@ body.home-has-gap {
           var(--menu-drawer-offset, 8px)
       )
   ) !important;
+}
+
+/* Offcanvas Menu (Menu Drawer) Text Color */
+.menu-drawer,
+.menu-drawer__menu-item,
+.menu-drawer__utility-links,
+.menu-drawer .list-menu__item,
+.menu-drawer .header__menu-item,
+.menu-drawer__account,
+.menu-drawer input,
+.menu-drawer .search__input,
+.menu-drawer .field__label,
+.menu-drawer .list-social__link,
+.menu-drawer .list-social__item,
+/* Specific classes provided by user */
+.menu-drawer__menu-item.list-menu__item.link.link--text.focus-inset,
+.menu-drawer__menu-item.list-menu__item.link.link--text.focus-inset.menu-drawer__search-trigger,
+.menu-drawer__menu-item.list-menu__item.link.link--text.focus-inset.menu-drawer__search-trigger .menu-drawer__search-text,
+.menu-drawer__menu-item.link,
+.menu-drawer .link--text,
+.menu-drawer__search-text,
+.menu-drawer__menu .list-menu__item,
+.menu-drawer__menu .link,
+.menu-drawer__menu .menu-drawer__menu-item {
+  color: #FFFFFF !important;
+}
+
+/* Ensure search input placeholder and icon are also visible/white */
+.menu-drawer .search__input::placeholder {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+.menu-drawer .icon,
+.menu-drawer .icon-search {
+  color: #FFFFFF !important;
+  fill: #FFFFFF !important;
+}
+.menu-drawer .field__input {
+  color: #FFFFFF !important;
   /* ensure the drawer sits above the backdrop pseudo-element */
   z-index: var(--menu-drawer-z-index) !important;
   overflow: visible !important;
@@ -1068,9 +1162,10 @@ body.home-has-gap {
     height: 0 !important;
   }
 }
-/* Ensure sale badge bottom-left inverse text is readable (force white text) */
+/* Sold-out badge: dark background matching site theme */
 span.card__sale-badge.badge.badge--bottom-left.color-inverse,
 span.card__sale-badge.badge.badge--bottom-left.color-inverse * {
+  background: #232325 !important;
   color: #ffffff !important;
 }
 /* Ensure product card titles render at medium weight (500) */
@@ -2042,9 +2137,6 @@ h3.card__heading a {
 ======================================== */
 
 /* Cart drawer background */
-.drawer,
-.cart-drawer,
-#CartDrawer,
 .drawer__inner,
 .cart-drawer__inner,
 .drawer__contents {
@@ -2087,6 +2179,46 @@ h3.card__heading a {
   color: #FFFFFF !important;
   fill: #FFFFFF !important;
   stroke: #FFFFFF !important;
+}
+
+/* Cart drawer price elements */
+.cart-item__price-wrapper .price--end.regular-price.accent-color-accent-1,
+.cart-item__price-wrapper .price--end,
+.price--end.regular-price.accent-color-accent-1 {
+  color: #FFFFFF !important;
+}
+
+/* Cart drawer totals row - all spans */
+.cart-drawer__totals__row.cart-drawer__totals__row--spaced.text-color-text span,
+.cart-drawer__totals__row span {
+  color: #FFFFFF !important;
+}
+
+/* Cart empty text */
+.cart-drawer__empty-content .cart__empty-text,
+.cart__empty-text {
+  color: #FFFFFF !important;
+}
+
+/* Cart login paragraph link */
+.cart__login-paragraph .link.underlined-link {
+  color: #6ca5d8 !important;
+}
+
+/* Continue shopping button in empty cart */
+.cart-drawer__empty-content .button{
+  background-color: #6ca5d8 !important; /* Custom blue color */
+  border-radius: 5px !important; /* Remove rounded corners */
+  border: none !important;
+  box-shadow: none !important; /* Remove any shadow borders */
+  outline: none !important;
+  color: #ffffff !important; /* Ensure text is white for contrast */
+}
+
+/* Ensure pseudo-elements don't create a separate layer with border, but keep content (arrow icon) */
+.cart-drawer__empty-content .button::after,
+.cart-drawer__empty-content .button::before {
+  box-shadow: none !important; /* Remove shadow border only */
 }
 
 /* ========================================
@@ -2227,8 +2359,28 @@ textarea::placeholder {
   border-color: rgba(255, 255, 255, 0.2) !important;
 }
 
-/* Dividers and borders */
 hr,
 .divider {
   border-color: rgba(255, 255, 255, 0.1) !important;
 }
+
+/* ==================================================
+   Product Card Click Navigation
+   - Make cards show pointer cursor to indicate they're clickable
+   - This works with the JS in size-toggle.js that handles navigation
+================================================== */
+.card-wrapper {
+  cursor: pointer !important;
+}
+
+/* Keep default cursor on interactive elements inside the card */
+.card-wrapper a,
+.card-wrapper button,
+.card-wrapper input,
+.card-wrapper select,
+.card-wrapper .size-toggle-btn,
+.card-wrapper .card-size-swatches,
+.card-wrapper .variant-swatch {
+  cursor: pointer !important; /* explicitly maintain pointer on these elements */
+}
+
