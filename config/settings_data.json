@@ -11,10 +11,11 @@
   "current": {
     "animations_type": "zAe8jHnG9RMnB/DOM303KYQjtev06bUFWdDzuqGBerxd0CmZ8XaxlqPdW4Ccnuew+pWWtR3CAdBpicj/1tRpRGnA4eGv7ZApQ42n43akNyA5Zw3cHWYhY4gXeGoQlEumq0B3BHYWVbLEzNt345SiNLhp9SrMQYcXC0XHZ4jxvBe1+fNXoQ9BZ5kiIOxECszTmrQULG39inQtFgotAngjoZz6HUVL2QSjBNRKGh1El5FvRudk8lX0HHmE6FVa52tmeFiloZvBfm8L7z9nometP4aePMSk+3scLkiKaL/+3xxP+8ED3s78mDTg+EcAENT7uBu6dCt1jgAfmo5iHlmu6ngFvtGoC5118CN+hmgauwIVsYeuC4Gh9ejHfuSnB4oPhqZ1iqKuiXXlj2/inxEUQQ==",
     "disable_inspect": true,
+    "logo": "shopify://shop_images/final_kdmv_logo.png",
     "logo_width": 200,
     "mobile_logo_width": 130,
     "colors_solid_button_labels": "#ffffff",
-    "colors_accent_1": "#6d388b",
+    "colors_accent_1": "#6ca5d8",
     "gradient_accent_1": "",
     "colors_accent_2": "#6d388b",
     "gradient_accent_2": "linear-gradient(54deg, rgba(109, 56, 139, 1) 14%, rgba(105, 14, 14, 1) 85%)",
@@ -565,7 +566,7 @@
       "full-screen-intro-gate": {
         "type": "full-screen-intro-gate",
         "settings": {
-          "background_video": "shopify://files/videos/KDMV-intro-gate (1).mp4",
+          "background_video": "shopify://files/videos/1119(8).mp4",
           "logo_image": "shopify://shop_images/final_kdmv_logo.png",
           "button_text": "Click to Start"
         }

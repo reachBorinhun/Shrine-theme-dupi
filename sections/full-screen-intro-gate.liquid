@@ -1,8 +1,7 @@
 {% comment %}
-  Section: Full Screen Intro Gate (FIXED VIDEO VERSION)
-  - A full-screen, fixed position section that acts as an entry gate to the site.
-  - Features a dynamic background video/image, logo, and customizable button text.
-  - On click, it smoothly transitions away to reveal the main page content.
+  Section: Full Screen Intro Gate (HIGH QUALITY DIRECT LINK VERSION)
+  - Features a dynamic background video (Direct MP4 Link for best mobile quality), logo, and button.
+  - Falls back to standard video picker or image if no link is provided.
 {% endcomment %}
 
 {%- liquid
@@ -10,18 +9,19 @@
   assign logo_image = section.settings.logo_image
   assign button_text = section.settings.button_text | escape
   assign bg_video = section.settings.background_video
+  assign mp4_url = section.settings.mp4_video_link
 -%}
 
 <style>
   #intro-gate-{{ section.id }} {
     overflow: hidden;
 
-    {% if bg_video == blank and bg_image != blank %}
+    {% if mp4_url == blank and bg_video == blank and bg_image != blank %}
       background-image: url('{{ bg_image | image_url: width: 1920 }}');
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
-    {% elsif bg_video == blank and bg_image == blank %}
+    {% elsif mp4_url == blank and bg_video == blank and bg_image == blank %}
       background-color: #000000;
     {% endif %}
 
@@ -125,7 +125,6 @@
     transition-delay: 0s;
   }
 
-  /* Make logo image bigger on desktop screens */
   @media (min-width: 1090px) {
     .intro-gate-content-{{ section.id }} img {
       width: 180px !important;
@@ -138,8 +137,27 @@
   id="intro-gate-{{ section.id }}"
   class="fixed top-0 left-0 w-screen h-screen bg-cover bg-center z-[100] flex justify-center items-end"
 >
-  {%- if bg_video != blank -%}
-    {%- comment -%} Use Shopify's sources array for video URLs {%- endcomment -%}
+  {%- comment -%}
+    VIDEO LOGIC:
+    1. Check for Direct MP4 Link (Highest Quality)
+    2. Fallback to Standard Video Picker
+  {%- endcomment -%}
+
+  {%- if mp4_url != blank -%}
+    <video
+      class="intro-gate-video-{{ section.id }}"
+      src="{{ mp4_url }}"
+      autoplay
+      loop
+      muted
+      playsinline
+      {% if bg_image != blank %}
+        poster="{{ bg_image | image_url: width: 1920 }}"
+      {% endif %}
+    ></video>
+    <div class="intro-gate-overlay-{{ section.id }}"></div>
+
+  {%- elsif bg_video != blank -%}
     <video
       class="intro-gate-video-{{ section.id }}"
       autoplay
@@ -196,7 +214,7 @@
     const enterButton = document.getElementById('enter-button-{{ section.id }}');
     const body = document.body;
 
-    if (!introGate || !enterButton) return;
+    if (!introGate) return;
 
     // Prevent scrolling while gate is present
     body.classList.add('intro-gate-active');
@@ -221,13 +239,18 @@
       setTimeout(cleanup, 1400);
     };
 
-    enterButton.addEventListener('click', reveal);
-    enterButton.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault();
-        reveal();
-      }
-    });
+    // Make the entire intro gate clickable
+    introGate.addEventListener('click', reveal);
+
+    // Keep button functionality (for keyboard users and clarity)
+    if (enterButton) {
+      enterButton.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          reveal();
+        }
+      });
+    }
   });
 </script>
 
@@ -236,22 +259,28 @@
   "name": "Full Screen Intro Gate",
   "settings": [
     {
+      "type": "text",
+      "id": "mp4_video_link",
+      "label": "Direct MP4 Video Link",
+      "info": "Paste the direct link from Content > Files here for best mobile quality. This overrides the 'Background Video' setting below."
+    },
+    {
       "type": "video",
       "id": "background_video",
-      "label": "Background Video",
-      "info": "Upload an .mp4 video. This will autoplay on loop and mute."
+      "label": "Background Video (Fallback)",
+      "info": "Standard Shopify upload. Will be used if no Direct Link is provided."
     },
     {
       "type": "image_picker",
       "id": "background_image",
-      "label": "Background Image (Fallback/Poster)",
-      "info": "This image shows while video loads or if video fails to play."
+      "label": "Background Image (Poster)",
+      "info": "Shows while video loads."
     },
     {
       "type": "image_picker",
       "id": "logo_image",
       "label": "Logo Image",
-      "info": "This logo will be displayed at the bottom-center of the screen."
+      "info": "Displayed at the bottom-center."
     },
     {
       "type": "text",

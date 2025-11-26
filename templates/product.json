@@ -291,7 +291,7 @@
             "price_position": "left",
             "price_separator": "•",
             "enable_custom_color": true,
-            "custom_color": "#2e2a39",
+            "custom_color": "#6ca5d8",
             "custom_text_color": "#ffffff",
             "enable_secondary_btn": false,
             "secondary_btn_label": "Buy It Now",
