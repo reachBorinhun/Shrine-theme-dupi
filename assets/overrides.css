@@ -404,6 +404,21 @@ body.home-has-gap {
   max-width: none !important;
 }
 
+/* Make product option dropdowns that use the theme's select classes fill their container.
+   Targets selects with the class list reported by the store: 
+   "select no-background color-background-1 accent-color-accent-1 accent-2-color-text".
+   Uses high specificity and !important to override competing rules. */
+select.select.no-background.color-background-1.accent-color-accent-1.accent-2-color-text,
+.select.no-background.color-background-1.accent-color-accent-1.accent-2-color-text {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  border: 0 !important;
+}
+
+
+
 /* Cart drawer overlay - Backdrop filters only (colors removed) */
 #CartDrawer-Overlay,
 .cart-drawer__overlay {

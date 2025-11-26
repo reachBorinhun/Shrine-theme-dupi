@@ -566,7 +566,9 @@
       "full-screen-intro-gate": {
         "type": "full-screen-intro-gate",
         "settings": {
+          "mp4_video_link": "",
           "background_video": "shopify://files/videos/1119(8).mp4",
+          "background_image": "shopify://shop_images/vlcsnap-2025-11-06-01h15m31s677.png",
           "logo_image": "shopify://shop_images/final_kdmv_logo.png",
           "button_text": "Click to Start"
         }
