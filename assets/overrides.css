@@ -32,10 +32,12 @@ body.template-product .price .price-item.price-item--sale {
 .price-item.price-item--regular,
 .price .price-item.price-item--regular,
 [id^="MainProduct-"] .price .price-item.price-item--regular,
-body.template-product .price .price-item.price-item--regular {
+body.template-product .price .price-item.price-item--regular,
+.price-item.price-item--regular.main-price {
   color: #FFFFFF !important; /* WHITE for dark mode */
   font-weight: 500 !important; /* new weight */
-  font-size: 1.8rem !important; /* custom size for main product page */
+  font-size: 1.3rem !important; /* custom size for main product page */
+  font-family: Helvetica, Arial, sans-serif !important;
 }
 
 /* ========================================
@@ -1860,6 +1862,33 @@ span.card__sale-badge.badge.badge--bottom-left.color-inverse * {
   }
 }
 
+/* Specific fix for 411px - 476px range: Fix image cropping/cutting issue */
+@media screen and (min-width: 411px) and (max-width: 476px) {
+  .card__media .media,
+  .card .card__media .media {
+    min-height: unset !important;
+    max-height: unset !important;
+    height: auto !important;
+    aspect-ratio: auto !important; /* Let image define its own ratio */
+    padding-bottom: 0 !important; /* Remove any padding hacks */
+  }
+
+  .card__media .media img,
+  .card .card__media .media img {
+    object-fit: contain !important; /* Ensure full image is visible, no cutting */
+    width: 100% !important;
+    height: auto !important;
+    position: relative !important; /* Reset absolute positioning if used */
+  }
+
+  /* CRITICAL: Force column layout to prevent content floating over image */
+  .card-wrapper .card,
+  .card {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+}
+
 /* Absolute minimum screen size - 320px (iPhone SE and similar devices) */
 @media screen and (max-width: 344px) {
   /* Drastically reduce image height for smallest devices */
@@ -2384,3 +2413,180 @@ hr,
   cursor: pointer !important; /* explicitly maintain pointer on these elements */
 }
 
+
+/* ==================================================
+   Header Logo Width Customization
+   - Desktop: 180px width for prominent branding
+   - Responsive: scales down on smaller screens
+================================================== */
+.header__heading-logo {
+  width: 180px !important;
+  max-width: 180px !important;
+  height: auto !important;
+}
+
+/* Tablet: slightly smaller but still prominent */
+@media screen and (max-width: 989px) and (min-width: 750px) {
+  .header__heading-logo {
+    width: 140px !important;
+    max-width: 140px !important;
+  }
+}
+
+/* Mobile: adapt to screen size */
+@media screen and (max-width: 749px) {
+  .header__heading-logo {
+    width: 100px !important;
+    max-width: 100px !important;
+  }
+}
+
+/* Very small screens: extra compact */
+@media screen and (max-width: 480px) {
+  .header__heading-logo {
+    width: 85px !important;
+    max-width: 85px !important;
+  }
+}
+
+/* ==================================================
+   Product Card Titles - Uppercase
+   Makes all product names on cards appear in capitals
+================================================== */
+.card__information h3,
+.card__information h3 a,
+.card__heading,
+.card__heading a {
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important; /* slight spacing for better readability */
+}
+
+/* ==================================================
+   Product Card Content - Remove Left Offset
+   Ensures content is perfectly centered without left padding/margin
+================================================== */
+.card__content {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* ==================================================
+   Product Card - Consistent Title & Price Size
+   Make product title and price same size (13px = 1.3rem)
+   Using high-specificity selectors to override defaults
+================================================== */
+.card__content .card__heading, 
+.card__content .card__heading a,
+.card__information h3.card__heading,
+.card__information .card__heading a {
+  font-size: 1.2rem !important;
+  line-height: 1.8 !important;
+  font-family: Helvetica, Arial, sans-serif !important;
+}
+
+/* Price elements - need very specific selectors */
+.card .price .price-item,
+.card .price .price-item.price-item--regular,
+.card .price .price-item.price-item--sale,
+.card__content .price-item, 
+.card__content .price-item.price-item--regular,
+.card__content .price-item.price-item--sale,
+.card__content .price span, 
+.card__content .price__regular,
+.card__content .price__sale,
+.card-information .price .price-item,
+.card-information .price .price-item.price-item--regular,
+.card__information .price .price-item,
+.card__information .price .price-item.price-item--regular {
+  font-size: 1.1rem !important;
+  line-height: 1.3 !important;
+}
+
+
+/* ==================================================
+   Header Logo - Perfect Center Position
+   Centers the logo image itself in the header
+================================================== */
+.header__heading-logo,
+.header__heading-logo--main,
+.header__heading-logo--main-desktop {
+  position: relative !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+}
+
+/* ==================================================
+   Sold Out Badge Customization
+   - Transparent background & no border
+   - Red text, larger font
+   - Centered in the card media
+================================================== */
+.card__badge .badge,
+.card__sale-badge.badge,
+.badge--bottom-left.color-inverse,
+.card__badge .badge span,
+.card__sale-badge.badge span,
+span.card__sale-badge.badge.badge--bottom-left.color-inverse,
+span.card__sale-badge.badge.badge--bottom-left.color-inverse * {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #FF0000 !important; /* Red text */
+  font-size: 3rem !important; /* Much larger text */
+  font-weight: 900 !important; /* Extra bold */
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  
+  /* Center positioning */
+  position: absolute !important;
+  top: 85% !important;
+  left: 50% !important;
+  bottom: auto !important;
+  right: auto !important;
+  transform: translate(-50%, -50%) !important;
+  width: max-content !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Remove any background from pseudo-elements */
+.card__badge .badge::before,
+.card__badge .badge::after,
+.card__sale-badge.badge::before,
+.card__sale-badge.badge::after {
+  content: none !important;
+  display: none !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* ==================================================
+   Main Product Page - Title Styling
+   - Uppercase, Bold, Helvetica font
+================================================== */
+.product__title h1,
+.product__title {
+  text-transform: uppercase !important;
+  font-weight: bold !important;
+  font-family: Helvetica, Arial, sans-serif !important;
+  font-size: 3rem !important;
+}
+
+/* ==================================================
+   Product Description Styling
+   - Helvetica font, 1.5rem size, Uppercase
+================================================== */
+.product__description,
+.product__description p,
+.product__description li,
+.product__description * {
+  font-family: Helvetica, Arial, sans-serif !important;
+  font-size: 1.2rem !important;
+  text-transform: uppercase !important;
+}
