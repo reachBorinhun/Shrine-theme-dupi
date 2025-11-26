@@ -52,8 +52,8 @@
         "displayed_products": "",
         "mobile_padding_top": 12,
         "mobile_padding_bottom": 12,
-        "desktop_padding_top": 16,
-        "desktop_padding_bottom": 16
+        "desktop_padding_top": 12,
+        "desktop_padding_bottom": 12
       }
     },
     "fe1c8c67-b84c-4466-a515-70df3134c1c0": {

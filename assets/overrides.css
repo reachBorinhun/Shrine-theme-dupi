@@ -2168,6 +2168,21 @@ span.card__sale-badge.badge.badge--bottom-left.color-inverse * {
   margin: 0 !important;
 }
 
+/* Responsive: reduce card sold-out badge font on small screens so it doesn't overflow */
+@media screen and (max-width: 749px) {
+  .card__badge .badge,
+  .card__sale-badge.badge,
+  .badge--bottom-left.color-inverse,
+  .card__badge .badge span,
+  .card__sale-badge.badge span,
+  span.card__sale-badge.badge.badge--bottom-left.color-inverse,
+  span.card__sale-badge.badge.badge--bottom-left.color-inverse * {
+    font-size: 2.5rem !important;
+    top: 85% !important;
+    padding: 0 !important;
+  }
+}
+
 /* Remove any background from pseudo-elements */
 .card__badge .badge::before,
 .card__badge .badge::after,
