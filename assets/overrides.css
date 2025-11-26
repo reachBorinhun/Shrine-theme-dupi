@@ -615,11 +615,38 @@ select.select.no-background.color-background-1.accent-color-accent-1.accent-2-co
   body.template-product .price .price-item.price-item--sale {
     color: #000 !important;
   }
+
+  /* Also ensure menu drawer navigation links use black text when present.
+     These selectors target the utility/link classes used inside the
+     `.menu-drawer__navigation-container` so drawer menu items remain readable. */
+  .menu-drawer__navigation-container
+    .menu-drawer__menu-item.list-menu__item.link.link--text.focus-inset,
+  .menu-drawer__navigation-container
+    .menu-drawer__menu-item.list-menu__item.link.link--text.focus-inset.menu-drawer__search-trigger
+    .menu-drawer__search-text {
+    color: #000 !important;
+  }
 }
 
 .slider__dots .slider-button,
 .slider__dots .dot {
   background-color: #ffffff !important;
+}
+
+/* User-requested: force `.dot.color-inverse` inside the mobile overlay
+   slider container to be black. Narrow selector so other sliders aren't
+   affected. */
+.slider__dots.flex-center.desktop-hidden.slider-mobile-buttons-overlay
+  .dot.color-inverse,
+.slider__dots.flex-center.desktop-hidden.slider-mobile-buttons-overlay
+  .slider-button.color-inverse,
+.slider__dots.flex-center.desktop-hidden.slider-mobile-buttons-overlay
+  .dot.color-inverse::before,
+.slider__dots.flex-center.desktop-hidden.slider-mobile-buttons-overlay
+  .slider-button.color-inverse::before {
+  background-color: #000 !important;
+  border-color: #000 !important;
+  color: #fff !important;
 }
 
 /* Ensure product info top-padding only applies on tablet/desktop
@@ -2218,4 +2245,14 @@ span.card__sale-badge.badge.badge--bottom-left.color-inverse * {
   font-family: Helvetica, Arial, sans-serif !important;
   font-size: 1.2rem !important;
   text-transform: uppercase !important;
+}
+
+/* Custom Product Dropdown Styling (moved here as a safe override)
+   Appended per user request. This mirrors the requested rules that were
+   intended for assets/base.css but putting them in overrides.css is safer
+   and ensures the styles load after base.css. */
+.product-form__input .select__select {
+  border-radius: 0 !important;
+  border: 1px solid #000 !important;
+  background-color: transparent !important;
 }
