@@ -25,7 +25,7 @@ body.template-product .price .price-item,
 body.template-product .price .price-item.price-item--regular,
 [id^="MainProduct-"] .price .price-item.price-item--sale,
 body.template-product .price .price-item.price-item--sale {
-  color: #ffffff !important;
+  color: #000 !important;
 }
 
 /* Override regular price appearance (strong specificity + !important to override earlier rules) */
@@ -34,7 +34,7 @@ body.template-product .price .price-item.price-item--sale {
 [id^="MainProduct-"] .price .price-item.price-item--regular,
 body.template-product .price .price-item.price-item--regular,
 .price-item.price-item--regular.main-price {
-  color: #ffffff !important; /* WHITE for dark mode */
+  color: #333 !important; /* new color */
   font-weight: 500 !important; /* new weight */
   font-size: 1.3rem !important; /* custom size for main product page */
   font-family: Helvetica, Arial, sans-serif !important;
@@ -417,20 +417,6 @@ select.select.no-background.color-background-1.accent-color-accent-1.accent-2-co
   border: 0 !important;
 }
 
-/* Explicit color and border for the theme select you asked about.
-   Removes the theme's color influence by forcing the text color, a white border,
-   and a transparent background on the select element and on the inner .select__select. */
-select.select.no-background.color-background-1.accent-color-accent-1.accent-2-color-text,
-.select.no-background.color-background-1.accent-color-accent-1.accent-2-color-text,
-select.select.no-background.color-background-1.accent-color-accent-1.accent-2-color-text
-  .select__select,
-.select.no-background.color-background-1.accent-color-accent-1.accent-2-color-text
-  .select__select,
-.select__select.select.no-background.color-background-1.accent-color-accent-1.accent-2-color-text {
-  color: white !important; /* desired text color */
-  background-color: transparent !important; /* ensure no theme background applies */
-}
-
 /* Cart drawer overlay - Backdrop filters only (colors removed) */
 #CartDrawer-Overlay,
 .cart-drawer__overlay {
@@ -571,7 +557,10 @@ select.select.no-background.color-background-1.accent-color-accent-1.accent-2-co
   }
 }
 
-/* FORCE ALL TABLE TEXT TO WHITE - Maximum specificity override */
+/* Tables: prefer inherited/text driven colors so content follows surrounding
+   context (e.g., same color as title on product pages). This removes the
+   previous hardcoded white rule and falls back to inherited color while still
+   using high specificity to avoid unexpected overrides. */
 .product__description.rte.quick-add-hidden table,
 .product__description.rte.quick-add-hidden table *,
 .product__description.rte.quick-add-hidden table tbody,
@@ -585,17 +574,19 @@ select.select.no-background.color-background-1.accent-color-accent-1.accent-2-co
 .rte-table-wrapper table *,
 .rte table,
 .rte table * {
-  color: #ffffff !important;
-  -webkit-text-fill-color: #ffffff !important;
+  color: inherit !important;
+  -webkit-text-fill-color: inherit !important;
 }
 
-/* Make table borders white and visible */
+/* Table borders: use the theme foreground variable with low alpha so borders
+   remain visible but don't force a color. This restores editor control and
+   adapts to light/dark schemes. */
 .product__description.rte.quick-add-hidden table,
 .product__description.rte table,
 .product__description table,
 .rte-table-wrapper table,
 .rte table {
-  border: 1px solid #ffffff !important;
+  border: 1px solid rgba(var(--color-foreground), 0.12) !important;
   border-collapse: collapse !important;
 }
 
@@ -609,7 +600,21 @@ select.select.no-background.color-background-1.accent-color-accent-1.accent-2-co
 .rte-table-wrapper table th,
 .rte table td,
 .rte table th {
-  border: 1px solid #ffffff !important;
+  border: 1px solid rgba(var(--color-foreground), 0.12) !important;
+}
+
+/* Product page: if you prefer table text to be black (matching price/title),
+   apply a narrow-scope rule for the main product context. This follows the
+   selector you provided — adjust or remove if you want a different color. */
+@media all {
+  [id^="MainProduct-"] .price .price-item,
+  body.template-product .price .price-item,
+  [id^="MainProduct-"] .price .price-item.price-item--regular,
+  body.template-product .price .price-item.price-item--regular,
+  [id^="MainProduct-"] .price .price-item.price-item--sale,
+  body.template-product .price .price-item.price-item--sale {
+    color: #000 !important;
+  }
 }
 
 .slider__dots .slider-button,
@@ -1997,430 +2002,6 @@ span.card__sale-badge.badge.badge--bottom-left.color-inverse * {
 .size-btn.is-loading span,
 .variant-swatch.is-loading span {
   background: transparent !important;
-}
-
-/* ========================================
-   DARK MODE RE-SKIN
-   Global dark theme implementation
-======================================== */
-
-/* Override ALL Shopify color schemes to use dark mode */
-[class*="color-"],
-.color-scheme-1,
-.color-scheme-2,
-.color-background-1,
-.color-background-2,
-.color-inverse,
-.gradient {
-  --color-background: #232325 !important;
-  --color-foreground: #ffffff !important;
-  --gradient-background: #232325 !important;
-  --gradient-base-background-1: #232325 !important;
-  --gradient-base-background-2: #232325 !important;
-}
-
-/* Override CSS variables for dark mode */
-:root {
-  --color-background: #232325;
-  --color-foreground: #ffffff;
-  --gradient-base-background-1: #232325;
-  --gradient-base-background-2: #232325;
-}
-
-/* Global background and text color */
-body,
-#MainContent,
-.section,
-main,
-#shopify-section-template,
-[id^="shopify-section-"],
-.color-scheme-1,
-.color-background-1,
-.gradient,
-.shopify-section {
-  background-color: #232325 !important;
-  background: #232325 !important;
-  color: #ffffff !important;
-}
-
-/* Ensure featured collection and product grid sections are dark */
-.featured-collection,
-.collection,
-.product-grid-container,
-section[id*="featured"],
-section[id*="collection"],
-.shopify-section-group-footer-group {
-  background-color: #232325 !important;
-  background: #232325 !important;
-}
-
-/* Page width container - keep dark but transparent for flexibility */
-.page-width {
-  background-color: #232325 !important;
-}
-
-/* ========================================
-   1. NAVBAR (Header)
-======================================== */
-
-/* Header background */
-.header-wrapper,
-.header,
-.sticky-header,
-sticky-header,
-.shopify-section-header,
-.shopify-section-group-header-group {
-  background: #232325 !important;
-  background-color: #232325 !important;
-  border-bottom-color: rgba(255, 255, 255, 0.1) !important;
-}
-
-/* Navigation links - force white */
-.header__menu-item,
-.header__menu-item a,
-.header__active-menu-item,
-.header__active-menu-item-v2,
-.list-menu__item,
-.list-menu__item a,
-.header .list-menu a,
-.header nav a,
-.header__heading-link,
-.header__heading a {
-  color: #ffffff !important;
-}
-
-/* Logo - white text (target all nested elements with high specificity) */
-.header__heading,
-.header__heading a,
-.header__heading a span,
-.header__heading a .h2,
-.header__heading span.h2,
-.header .header__heading,
-.header .header__heading a,
-.header .header__heading a span {
-  color: #ffffff !important;
-}
-
-/* Icons - cart, search, account (but not product images) */
-.header__icon svg,
-.header__icon--cart svg,
-.header__icon--search svg,
-.header__icon--account svg {
-  color: #ffffff !important;
-  fill: #ffffff !important;
-  stroke: #ffffff !important;
-}
-
-/* Mobile menu toggle - "MENU" and "CLOSE" text */
-.header__icon--menu,
-.header__menu-text,
-.header__menu-text span,
-.header__menu-text--menu,
-.header__menu-text--close {
-  color: #ffffff !important;
-}
-
-/* Mobile hamburger icon */
-.icon-hamburger,
-.header .icon-close {
-  color: #ffffff !important;
-  fill: #ffffff !important;
-  stroke: #ffffff !important;
-}
-
-/* Offcanvas Menu Drawer */
-.menu-drawer,
-.menu-drawer__inner-container,
-.menu-drawer__navigation,
-.menu-drawer__menu,
-#menu-drawer {
-  background: #232325 !important;
-  background-color: #232325 !important;
-  color: #ffffff !important;
-}
-
-.menu-drawer__menu-item,
-.menu-drawer a,
-.menu-drawer .list-menu__item,
-.menu-drawer .list-menu a {
-  color: #ffffff !important;
-}
-
-/* Drawer close button */
-.menu-drawer__close-button svg,
-.menu-drawer .icon-close {
-  color: #ffffff !important;
-  fill: #ffffff !important;
-  stroke: #ffffff !important;
-}
-
-/* ========================================
-   2. PRODUCT CARD (Card Product)
-======================================== */
-
-/* DO NOT set background colors on cards - let images show naturally */
-/* Only focus on text colors for title and price */
-
-/* Product title - white text */
-.card__heading,
-.card__heading a,
-.card__heading .h3,
-.card-information .card__heading,
-.card-information .card__heading a,
-.card__information .card__heading,
-.card__information .card__heading a,
-.card .card__heading,
-.card .card__heading a,
-h3.card__heading,
-h3.card__heading a {
-  color: #ffffff !important;
-}
-
-/* Product price - white text */
-.card .price,
-.card .price-item,
-.card-information .price,
-.card-information .price-item,
-.card__information .price,
-.card__information .price-item,
-.price.price--on-sale .price-item,
-.price .price-item.price-item--regular,
-.price .price-item.price-item--sale,
-.card .price .price-item,
-.card-information .price .price-item {
-  color: #ffffff !important;
-}
-
-/* ========================================
-   3. CART DRAWER
-======================================== */
-
-/* Cart drawer background */
-.drawer__inner,
-.cart-drawer__inner,
-.drawer__contents {
-  background: #232325 !important;
-  background-color: #232325 !important;
-  color: #ffffff !important;
-}
-
-/* Cart drawer header */
-.drawer__header,
-.cart-drawer__header,
-.drawer__heading {
-  background: #232325 !important;
-  color: #ffffff !important;
-}
-
-/* Cart item names and text */
-.cart-item,
-.cart-item__name,
-.cart-item__details,
-.cart-drawer__item,
-.product-option {
-  color: #ffffff !important;
-}
-
-/* Subtotal and totals */
-.totals,
-.cart-drawer__footer,
-.totals__subtotal,
-.totals__subtotal-value,
-.totals__total,
-.totals__total-value {
-  background: #232325 !important;
-  color: #ffffff !important;
-}
-
-/* Cart close button */
-.drawer__close svg,
-.cart-drawer__close svg {
-  color: #ffffff !important;
-  fill: #ffffff !important;
-  stroke: #ffffff !important;
-}
-
-/* Cart drawer price elements */
-.cart-item__price-wrapper .price--end.regular-price.accent-color-accent-1,
-.cart-item__price-wrapper .price--end,
-.price--end.regular-price.accent-color-accent-1 {
-  color: #ffffff !important;
-}
-
-/* Cart drawer totals row - all spans */
-.cart-drawer__totals__row.cart-drawer__totals__row--spaced.text-color-text span,
-.cart-drawer__totals__row span {
-  color: #ffffff !important;
-}
-
-/* Cart empty text */
-.cart-drawer__empty-content .cart__empty-text,
-.cart__empty-text {
-  color: #ffffff !important;
-}
-
-/* Cart login paragraph link */
-.cart__login-paragraph .link.underlined-link {
-  color: #6ca5d8 !important;
-}
-
-/* Continue shopping button in empty cart */
-.cart-drawer__empty-content .button {
-  background-color: #6ca5d8 !important; /* Custom blue color */
-  border-radius: 5px !important; /* Remove rounded corners */
-  border: none !important;
-  box-shadow: none !important; /* Remove any shadow borders */
-  outline: none !important;
-  color: #ffffff !important; /* Ensure text is white for contrast */
-}
-
-/* Ensure pseudo-elements don't create a separate layer with border, but keep content (arrow icon) */
-.cart-drawer__empty-content .button::after,
-.cart-drawer__empty-content .button::before {
-  box-shadow: none !important; /* Remove shadow border only */
-}
-
-/* ========================================
-   4. MAIN PRODUCT PAGE
-======================================== */
-
-/* Product section background */
-#MainProduct,
-[id^="MainProduct-"],
-.main-product-section,
-.product,
-.product__info-container,
-.product__info-wrapper {
-  background: #232325 !important;
-  background-color: #232325 !important;
-  color: #ffffff !important;
-}
-
-/* Product title - white text */
-.product__title,
-.product-title,
-h1.product__title,
-[class*="product__title"] {
-  color: #ffffff !important;
-}
-
-/* Product price - white text */
-.price-item,
-.price-item--regular,
-.main-price,
-.product__info-container .price-item,
-.product__info-container .price-item--regular,
-#MainProduct .price-item,
-#MainProduct .price-item--regular {
-  color: #ffffff !important;
-}
-
-/* Product description */
-.product__description,
-.product__text,
-.product__description.rte,
-.product__description p {
-  color: #ffffff !important;
-}
-
-/* Collapsible rows / accordions */
-.accordion,
-.collapsible-content,
-.collapsible-row,
-.accordion__title,
-.accordion summary,
-summary.accordion__title {
-  background: #232325 !important;
-  color: #ffffff !important;
-}
-
-.accordion__content,
-.collapsible-content__wrapper {
-  background: #232325 !important;
-  color: #ffffff !important;
-}
-
-/* Product form elements */
-.product-form,
-.product-form__input,
-.product-form__label,
-label.form__label {
-  color: #ffffff !important;
-}
-
-/* Variant selector labels */
-.variant-picker__label,
-.product-form__input label,
-fieldset legend {
-  color: #ffffff !important;
-}
-
-/* ========================================
-   ADDITIONAL COMPONENTS
-======================================== */
-
-/* Search drawer/modal */
-.search-modal,
-.predictive-search,
-.search-modal__content {
-  background: #232325 !important;
-  color: #ffffff !important;
-}
-
-/* Footer (if applicable) */
-.footer,
-.shopify-section-footer {
-  background: #232325 !important;
-  color: #ffffff !important;
-}
-
-.footer a,
-.footer__content a {
-  color: #ffffff !important;
-}
-
-/* Modal overlays */
-.modal__content,
-.modal-dialog,
-.product-popup-modal__content {
-  background: #232325 !important;
-  color: #ffffff !important;
-}
-
-/* Input fields dark mode */
-input:not([type="image"]),
-textarea,
-select {
-  background: #1a1a1c !important;
-  color: #ffffff !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-}
-
-input::placeholder,
-textarea::placeholder {
-  color: rgba(255, 255, 255, 0.5) !important;
-}
-
-/* No badge overrides - let theme handle all badges */
-
-/* Ensure header/navigation icons are white (specific to nav, not product images) */
-.header svg:not(.card svg):not(.card__media svg),
-.header .icon:not(.card .icon) {
-  color: #ffffff !important;
-  fill: #ffffff !important;
-}
-
-/* Table styles for product descriptions */
-.rte table,
-.rte table th,
-.rte table td {
-  color: #ffffff !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-}
-
-hr,
-.divider {
-  border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 /* ==================================================
