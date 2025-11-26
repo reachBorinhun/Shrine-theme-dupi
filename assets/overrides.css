@@ -417,7 +417,19 @@ select.select.no-background.color-background-1.accent-color-accent-1.accent-2-co
   border: 0 !important;
 }
 
-
+/* Explicit color and border for the theme select you asked about.
+   Removes the theme's color influence by forcing the text color, a white border,
+   and a transparent background on the select element and on the inner .select__select. */
+select.select.no-background.color-background-1.accent-color-accent-1.accent-2-color-text,
+.select.no-background.color-background-1.accent-color-accent-1.accent-2-color-text,
+select.select.no-background.color-background-1.accent-color-accent-1.accent-2-color-text
+  .select__select,
+.select.no-background.color-background-1.accent-color-accent-1.accent-2-color-text
+  .select__select,
+.select__select.select.no-background.color-background-1.accent-color-accent-1.accent-2-color-text {
+  color: white !important; /* desired text color */
+  background-color: transparent !important; /* ensure no theme background applies */
+}
 
 /* Cart drawer overlay - Backdrop filters only (colors removed) */
 #CartDrawer-Overlay,
@@ -2553,8 +2565,13 @@ span.card__sale-badge.badge.badge--bottom-left.color-inverse * {
   border: none !important;
   box-shadow: none !important;
   color: #ff0000 !important; /* Red text */
-  font-size: 3rem !important; /* Much larger text */
+  font-size: 3.5rem !important; /* Much larger text */
   font-weight: 900 !important; /* Extra bold */
+  /* Stronger visual weight fallback when the 900 font file is not available.
+    Increase stroke + layered shadows and prefer bold-capable system fonts. */
+  -webkit-text-stroke: 1px rgba(0, 0, 0, 0.08) !important;
+  /* Prefer a bold-capable UI/system font if available for a genuine heavy weight */
+  font-family: "Arial Black", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
   text-transform: uppercase !important;
   letter-spacing: 1px !important;
 

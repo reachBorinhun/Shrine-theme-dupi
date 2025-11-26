@@ -64,6 +64,14 @@
           },
           "blocks": {}
         },
+        "description": {
+          "type": "product_description",
+          "settings": {
+            "margin_top": 24,
+            "margin_bottom": 24
+          },
+          "blocks": {}
+        },
         "5fcc0428-e768-4cb7-bea3-eb0274198dd1": {
           "type": "product_product-variant-picker-block",
           "settings": {
@@ -370,14 +378,6 @@
           },
           "blocks": {}
         },
-        "description": {
-          "type": "product_description",
-          "settings": {
-            "margin_top": 24,
-            "margin_bottom": 24
-          },
-          "blocks": {}
-        },
         "reviews_8UgFbe": {
           "type": "reviews",
           "disabled": true,
@@ -463,12 +463,12 @@
         "title",
         "a6eb81db-40e4-43e0-972f-32db010a4a56",
         "price",
+        "description",
         "5fcc0428-e768-4cb7-bea3-eb0274198dd1",
         "quantity_selector_4KXChJ",
         "buy_buttons",
         "e0a0b690-50df-4ca4-acfd-ce2980696cce",
         "e7a28cbe-03cb-4c9d-a2c4-0e3e76ffb3e5",
-        "description",
         "reviews_8UgFbe",
         "de158e68-5d0d-4819-a625-e2dabdff87d1"
       ],
