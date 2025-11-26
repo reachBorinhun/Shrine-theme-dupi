@@ -25,7 +25,7 @@ body.template-product .price .price-item,
 body.template-product .price .price-item.price-item--regular,
 [id^="MainProduct-"] .price .price-item.price-item--sale,
 body.template-product .price .price-item.price-item--sale {
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 /* Override regular price appearance (strong specificity + !important to override earlier rules) */
@@ -34,7 +34,7 @@ body.template-product .price .price-item.price-item--sale {
 [id^="MainProduct-"] .price .price-item.price-item--regular,
 body.template-product .price .price-item.price-item--regular,
 .price-item.price-item--regular.main-price {
-  color: #FFFFFF !important; /* WHITE for dark mode */
+  color: #ffffff !important; /* WHITE for dark mode */
   font-weight: 500 !important; /* new weight */
   font-size: 1.3rem !important; /* custom size for main product page */
   font-family: Helvetica, Arial, sans-serif !important;
@@ -51,22 +51,22 @@ button.atc-button.main-product-atc,
   /* Shape and borders */
   border-radius: 0 !important; /* Sharp corners */
   border: none !important;
-  
+
   /* Typography */
   text-transform: uppercase !important;
   letter-spacing: 0.12em !important;
   font-size: 13px !important;
   font-weight: 500 !important;
   font-family: inherit !important;
-  
+
   /* Spacing */
   padding: 14px 32px !important;
   min-height: 48px !important;
-  
+
   /* Remove effects */
   box-shadow: none !important;
   background-image: none !important;
-  
+
   /* Smooth transitions */
   transition: all 0.2s ease !important;
 }
@@ -447,7 +447,6 @@ body.home-has-gap {
   .cart-drawer--mobile-width-full .drawer.active .drawer__inner {
     transform: translateX(0) !important;
   }
-
 }
 
 /* Broader, high-specificity rules that target the actual CartDrawer instance so
@@ -559,8 +558,8 @@ body.home-has-gap {
 .rte-table-wrapper table *,
 .rte table,
 .rte table * {
-  color: #FFFFFF !important;
-  -webkit-text-fill-color: #FFFFFF !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
 }
 
 /* Make table borders white and visible */
@@ -569,7 +568,7 @@ body.home-has-gap {
 .product__description table,
 .rte-table-wrapper table,
 .rte table {
-  border: 1px solid #FFFFFF !important;
+  border: 1px solid #ffffff !important;
   border-collapse: collapse !important;
 }
 
@@ -583,18 +582,13 @@ body.home-has-gap {
 .rte-table-wrapper table th,
 .rte table td,
 .rte table th {
-  border: 1px solid #FFFFFF !important;
+  border: 1px solid #ffffff !important;
 }
-
-
 
 .slider__dots .slider-button,
 .slider__dots .dot {
-  background-color: #FFFFFF !important;
+  background-color: #ffffff !important;
 }
-
-
-
 
 /* Ensure product info top-padding only applies on tablet/desktop
    The base stylesheet applies these on mobile; we want padding-top
@@ -616,6 +610,15 @@ body.home-has-gap {
 
   .product__info-wrapper--top-padding-small {
     padding-top: 0.5rem !important;
+  }
+}
+
+/* Specific increase for sticky product info column on larger screens
+   Target the full set of classes to avoid changing other instances. Increase
+   the top padding at >=750px so sticky column sits lower under the header. */
+@media screen and (min-width: 750px) {
+  .product__info-wrapper.grid__item.product__column-sticky.product__info-wrapper--top-padding {
+    padding-top: 26rem !important; /* increased from 14rem */
   }
 }
 
@@ -880,7 +883,7 @@ body.home-has-gap {
 .menu-drawer__menu .list-menu__item,
 .menu-drawer__menu .link,
 .menu-drawer__menu .menu-drawer__menu-item {
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 /* Ensure search input placeholder and icon are also visible/white */
@@ -889,11 +892,11 @@ body.home-has-gap {
 }
 .menu-drawer .icon,
 .menu-drawer .icon-search {
-  color: #FFFFFF !important;
-  fill: #FFFFFF !important;
+  color: #ffffff !important;
+  fill: #ffffff !important;
 }
 .menu-drawer .field__input {
-  color: #FFFFFF !important;
+  color: #ffffff !important;
   /* ensure the drawer sits above the backdrop pseudo-element */
   z-index: var(--menu-drawer-z-index) !important;
   overflow: visible !important;
@@ -1983,7 +1986,7 @@ span.card__sale-badge.badge.badge--bottom-left.color-inverse * {
 .color-inverse,
 .gradient {
   --color-background: #232325 !important;
-  --color-foreground: #FFFFFF !important;
+  --color-foreground: #ffffff !important;
   --gradient-background: #232325 !important;
   --gradient-base-background-1: #232325 !important;
   --gradient-base-background-2: #232325 !important;
@@ -1992,7 +1995,7 @@ span.card__sale-badge.badge.badge--bottom-left.color-inverse * {
 /* Override CSS variables for dark mode */
 :root {
   --color-background: #232325;
-  --color-foreground: #FFFFFF;
+  --color-foreground: #ffffff;
   --gradient-base-background-1: #232325;
   --gradient-base-background-2: #232325;
 }
@@ -2010,7 +2013,7 @@ main,
 .shopify-section {
   background-color: #232325 !important;
   background: #232325 !important;
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 /* Ensure featured collection and product grid sections are dark */
@@ -2056,7 +2059,7 @@ sticky-header,
 .header nav a,
 .header__heading-link,
 .header__heading a {
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 /* Logo - white text (target all nested elements with high specificity) */
@@ -2068,7 +2071,7 @@ sticky-header,
 .header .header__heading,
 .header .header__heading a,
 .header .header__heading a span {
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 /* Icons - cart, search, account (but not product images) */
@@ -2076,9 +2079,9 @@ sticky-header,
 .header__icon--cart svg,
 .header__icon--search svg,
 .header__icon--account svg {
-  color: #FFFFFF !important;
-  fill: #FFFFFF !important;
-  stroke: #FFFFFF !important;
+  color: #ffffff !important;
+  fill: #ffffff !important;
+  stroke: #ffffff !important;
 }
 
 /* Mobile menu toggle - "MENU" and "CLOSE" text */
@@ -2087,15 +2090,15 @@ sticky-header,
 .header__menu-text span,
 .header__menu-text--menu,
 .header__menu-text--close {
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 /* Mobile hamburger icon */
 .icon-hamburger,
 .header .icon-close {
-  color: #FFFFFF !important;
-  fill: #FFFFFF !important;
-  stroke: #FFFFFF !important;
+  color: #ffffff !important;
+  fill: #ffffff !important;
+  stroke: #ffffff !important;
 }
 
 /* Offcanvas Menu Drawer */
@@ -2106,22 +2109,22 @@ sticky-header,
 #menu-drawer {
   background: #232325 !important;
   background-color: #232325 !important;
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 .menu-drawer__menu-item,
 .menu-drawer a,
 .menu-drawer .list-menu__item,
 .menu-drawer .list-menu a {
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 /* Drawer close button */
 .menu-drawer__close-button svg,
 .menu-drawer .icon-close {
-  color: #FFFFFF !important;
-  fill: #FFFFFF !important;
-  stroke: #FFFFFF !important;
+  color: #ffffff !important;
+  fill: #ffffff !important;
+  stroke: #ffffff !important;
 }
 
 /* ========================================
@@ -2143,7 +2146,7 @@ sticky-header,
 .card .card__heading a,
 h3.card__heading,
 h3.card__heading a {
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 /* Product price - white text */
@@ -2158,7 +2161,7 @@ h3.card__heading a {
 .price .price-item.price-item--sale,
 .card .price .price-item,
 .card-information .price .price-item {
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 /* ========================================
@@ -2171,7 +2174,7 @@ h3.card__heading a {
 .drawer__contents {
   background: #232325 !important;
   background-color: #232325 !important;
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 /* Cart drawer header */
@@ -2179,7 +2182,7 @@ h3.card__heading a {
 .cart-drawer__header,
 .drawer__heading {
   background: #232325 !important;
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 /* Cart item names and text */
@@ -2188,7 +2191,7 @@ h3.card__heading a {
 .cart-item__details,
 .cart-drawer__item,
 .product-option {
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 /* Subtotal and totals */
@@ -2199,34 +2202,34 @@ h3.card__heading a {
 .totals__total,
 .totals__total-value {
   background: #232325 !important;
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 /* Cart close button */
 .drawer__close svg,
 .cart-drawer__close svg {
-  color: #FFFFFF !important;
-  fill: #FFFFFF !important;
-  stroke: #FFFFFF !important;
+  color: #ffffff !important;
+  fill: #ffffff !important;
+  stroke: #ffffff !important;
 }
 
 /* Cart drawer price elements */
 .cart-item__price-wrapper .price--end.regular-price.accent-color-accent-1,
 .cart-item__price-wrapper .price--end,
 .price--end.regular-price.accent-color-accent-1 {
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 /* Cart drawer totals row - all spans */
 .cart-drawer__totals__row.cart-drawer__totals__row--spaced.text-color-text span,
 .cart-drawer__totals__row span {
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 /* Cart empty text */
 .cart-drawer__empty-content .cart__empty-text,
 .cart__empty-text {
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 /* Cart login paragraph link */
@@ -2235,7 +2238,7 @@ h3.card__heading a {
 }
 
 /* Continue shopping button in empty cart */
-.cart-drawer__empty-content .button{
+.cart-drawer__empty-content .button {
   background-color: #6ca5d8 !important; /* Custom blue color */
   border-radius: 5px !important; /* Remove rounded corners */
   border: none !important;
@@ -2263,7 +2266,7 @@ h3.card__heading a {
 .product__info-wrapper {
   background: #232325 !important;
   background-color: #232325 !important;
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 /* Product title - white text */
@@ -2271,7 +2274,7 @@ h3.card__heading a {
 .product-title,
 h1.product__title,
 [class*="product__title"] {
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 /* Product price - white text */
@@ -2282,7 +2285,7 @@ h1.product__title,
 .product__info-container .price-item--regular,
 #MainProduct .price-item,
 #MainProduct .price-item--regular {
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 /* Product description */
@@ -2290,7 +2293,7 @@ h1.product__title,
 .product__text,
 .product__description.rte,
 .product__description p {
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 /* Collapsible rows / accordions */
@@ -2301,13 +2304,13 @@ h1.product__title,
 .accordion summary,
 summary.accordion__title {
   background: #232325 !important;
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 .accordion__content,
 .collapsible-content__wrapper {
   background: #232325 !important;
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 /* Product form elements */
@@ -2315,14 +2318,14 @@ summary.accordion__title {
 .product-form__input,
 .product-form__label,
 label.form__label {
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 /* Variant selector labels */
 .variant-picker__label,
 .product-form__input label,
 fieldset legend {
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 /* ========================================
@@ -2334,19 +2337,19 @@ fieldset legend {
 .predictive-search,
 .search-modal__content {
   background: #232325 !important;
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 /* Footer (if applicable) */
 .footer,
 .shopify-section-footer {
   background: #232325 !important;
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 .footer a,
 .footer__content a {
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 /* Modal overlays */
@@ -2354,7 +2357,7 @@ fieldset legend {
 .modal-dialog,
 .product-popup-modal__content {
   background: #232325 !important;
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 /* Input fields dark mode */
@@ -2362,7 +2365,7 @@ input:not([type="image"]),
 textarea,
 select {
   background: #1a1a1c !important;
-  color: #FFFFFF !important;
+  color: #ffffff !important;
   border-color: rgba(255, 255, 255, 0.2) !important;
 }
 
@@ -2376,15 +2379,15 @@ textarea::placeholder {
 /* Ensure header/navigation icons are white (specific to nav, not product images) */
 .header svg:not(.card svg):not(.card__media svg),
 .header .icon:not(.card .icon) {
-  color: #FFFFFF !important;
-  fill: #FFFFFF !important;
+  color: #ffffff !important;
+  fill: #ffffff !important;
 }
 
 /* Table styles for product descriptions */
 .rte table,
 .rte table th,
 .rte table td {
-  color: #FFFFFF !important;
+  color: #ffffff !important;
   border-color: rgba(255, 255, 255, 0.2) !important;
 }
 
@@ -2412,7 +2415,6 @@ hr,
 .card-wrapper .variant-swatch {
   cursor: pointer !important; /* explicitly maintain pointer on these elements */
 }
-
 
 /* ==================================================
    Header Logo Width Customization
@@ -2479,7 +2481,7 @@ hr,
    Make product title and price same size (13px = 1.3rem)
    Using high-specificity selectors to override defaults
 ================================================== */
-.card__content .card__heading, 
+.card__content .card__heading,
 .card__content .card__heading a,
 .card__information h3.card__heading,
 .card__information .card__heading a {
@@ -2492,10 +2494,10 @@ hr,
 .card .price .price-item,
 .card .price .price-item.price-item--regular,
 .card .price .price-item.price-item--sale,
-.card__content .price-item, 
+.card__content .price-item,
 .card__content .price-item.price-item--regular,
 .card__content .price-item.price-item--sale,
-.card__content .price span, 
+.card__content .price span,
 .card__content .price__regular,
 .card__content .price__sale,
 .card-information .price .price-item,
@@ -2505,7 +2507,6 @@ hr,
   font-size: 1.1rem !important;
   line-height: 1.3 !important;
 }
-
 
 /* ==================================================
    Header Logo - Perfect Center Position
@@ -2536,12 +2537,12 @@ span.card__sale-badge.badge.badge--bottom-left.color-inverse * {
   background-color: transparent !important;
   border: none !important;
   box-shadow: none !important;
-  color: #FF0000 !important; /* Red text */
+  color: #ff0000 !important; /* Red text */
   font-size: 3rem !important; /* Much larger text */
   font-weight: 900 !important; /* Extra bold */
   text-transform: uppercase !important;
   letter-spacing: 1px !important;
-  
+
   /* Center positioning */
   position: absolute !important;
   top: 85% !important;
