@@ -2340,6 +2340,7 @@ span.card__sale-badge.badge.badge--bottom-left.color-inverse * {
   background: transparent !important;
   background-color: transparent !important;
   border: none !important;
+  display: none;
   box-shadow: none !important;
   color: #ff0000 !important; /* Red text */
   font-size: 3.5rem !important; /* Much larger text */
