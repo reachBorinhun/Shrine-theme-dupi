@@ -2228,6 +2228,7 @@ span.card__sale-badge.badge.badge--bottom-left.color-inverse * {
   width: 180px !important;
   max-width: 180px !important;
   height: auto !important;
+  padding-bottom: 8px;
 }
 
 /* Tablet: slightly smaller but still prominent */
