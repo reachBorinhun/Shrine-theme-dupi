@@ -15,6 +15,9 @@
   --collection-top-offset: 40px;
   /* Drawer z-index: very high so drawer sits above any other UI layer */
   --menu-drawer-z-index: 99999;
+  /* nav color */
+  --nav-ui: #c8c8cc;
+  --header-ui: #232325;
 }
 
 /* Product pages: force price color to WHITE for dark mode (targets the main product section and common product body class)
@@ -108,9 +111,12 @@ menu-drawer *,
   width: 100% !important;
   z-index: 2220 !important;
 }
+/*
+==============================================================
+HEADER COLOR
+==============================================================
+*/
 
-/* Allow multiple tickers to stack — each ticker's own height is handled by the measurement script
-   through the --horizontal-ticker-height total, header is placed below the tickers. */
 .header-wrapper,
 .header,
 .sticky-header,
@@ -122,9 +128,47 @@ sticky-header {
   z-index: 2210 !important;
   width: 100% !important;
   max-width: 100% !important;
-  background: var(--header-background, #ffffff) !important;
+  background: var(--header-ui);
   border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
 }
+
+/*
+==============================================================
+Icon color in header 
+==============================================================
+*/
+
+.header .icon,
+.header__icon,
+.header .header__icon,
+.header a,
+.header .header__menu-text,
+.header__icon--menu,
+.header__icon--search,
+.header .header__icon *,
+.header .icon * {
+  color: var(--nav-ui) !important;
+  /* icon bg */
+  /* fill: #ff0000 !important; */
+  stroke: var(--nav-ui) !important;
+}
+/*
+==============================================================
+Menu drawer 
+==============================================================
+*/
+.menu-drawer__navigation-container
+  .menu-drawer__menu-item.list-menu__item.link.link--text.focus-inset,
+.menu-drawer__navigation-container
+  .menu-drawer__menu-item.list-menu__item.link.link--text.focus-inset.menu-drawer__search-trigger
+  .menu-drawer__search-text {
+  color: var(--nav-ui) !important;
+}
+/*
+==============================================================
+END HEADER COLOR
+==============================================================
+*/
 
 /* Ensure header wrapper is full-bleed even if inner page containers exist */
 .header-wrapper,
@@ -602,32 +646,6 @@ select.select.no-background.color-background-1.accent-color-accent-1.accent-2-co
 .rte table th {
   border: 1px solid rgba(var(--color-foreground), 0.12) !important;
 }
-
-/* Product page: if you prefer table text to be black (matching price/title),
-   apply a narrow-scope rule for the main product context. This follows the
-   selector you provided — adjust or remove if you want a different color. */
-@media all {
-  [id^="MainProduct-"] .price .price-item,
-  body.template-product .price .price-item,
-  [id^="MainProduct-"] .price .price-item.price-item--regular,
-  body.template-product .price .price-item.price-item--regular,
-  [id^="MainProduct-"] .price .price-item.price-item--sale,
-  body.template-product .price .price-item.price-item--sale {
-    color: #000 !important;
-  }
-
-  /* Also ensure menu drawer navigation links use black text when present.
-     These selectors target the utility/link classes used inside the
-     `.menu-drawer__navigation-container` so drawer menu items remain readable. */
-  .menu-drawer__navigation-container
-    .menu-drawer__menu-item.list-menu__item.link.link--text.focus-inset,
-  .menu-drawer__navigation-container
-    .menu-drawer__menu-item.list-menu__item.link.link--text.focus-inset.menu-drawer__search-trigger
-    .menu-drawer__search-text {
-    color: #000 !important;
-  }
-}
-
 .slider__dots .slider-button,
 .slider__dots .dot {
   background-color: #ffffff !important;
@@ -919,48 +937,6 @@ select.select.no-background.color-background-1.accent-color-accent-1.accent-2-co
       )
   ) !important;
 }
-
-/* Offcanvas Menu (Menu Drawer) Text Color */
-.menu-drawer,
-.menu-drawer__menu-item,
-.menu-drawer__utility-links,
-.menu-drawer .list-menu__item,
-.menu-drawer .header__menu-item,
-.menu-drawer__account,
-.menu-drawer input,
-.menu-drawer .search__input,
-.menu-drawer .field__label,
-.menu-drawer .list-social__link,
-.menu-drawer .list-social__item,
-/* Specific classes provided by user */
-.menu-drawer__menu-item.list-menu__item.link.link--text.focus-inset,
-.menu-drawer__menu-item.list-menu__item.link.link--text.focus-inset.menu-drawer__search-trigger,
-.menu-drawer__menu-item.list-menu__item.link.link--text.focus-inset.menu-drawer__search-trigger .menu-drawer__search-text,
-.menu-drawer__menu-item.link,
-.menu-drawer .link--text,
-.menu-drawer__search-text,
-.menu-drawer__menu .list-menu__item,
-.menu-drawer__menu .link,
-.menu-drawer__menu .menu-drawer__menu-item {
-  color: #ffffff !important;
-}
-
-/* Ensure search input placeholder and icon are also visible/white */
-.menu-drawer .search__input::placeholder {
-  color: rgba(255, 255, 255, 0.7) !important;
-}
-.menu-drawer .icon,
-.menu-drawer .icon-search {
-  color: #ffffff !important;
-  fill: #ffffff !important;
-}
-.menu-drawer .field__input {
-  color: #ffffff !important;
-  /* ensure the drawer sits above the backdrop pseudo-element */
-  z-index: var(--menu-drawer-z-index) !important;
-  overflow: visible !important;
-}
-
 /* Ensure mobile facets button sits beneath the menu drawer. Some themes render
    the mobile facets button with a fixed position and its own z-index; to avoid
    it appearing above the drawer we force its z-index to sit just below the
@@ -981,6 +957,12 @@ select.select.no-background.color-background-1.accent-color-accent-1.accent-2-co
   position: fixed !important;
   left: 0 !important;
   right: 0 !important;
+  /* Ensure the panel has a solid background and fills the viewport so the
+     page below doesn't show through when the drawer is open. */
+  background-color: var(--header-ui) !important;
+  background-image: none !important;
+  min-height: calc(100vh - var(--menu-drawer-offset, 0px)) !important;
+  box-sizing: border-box !important;
 }
 
 /* Bottom-left account block: keep it inset from the left, include safe-area inset,
@@ -1004,6 +986,194 @@ select.select.no-background.color-background-1.accent-color-accent-1.accent-2-co
   padding-bottom: calc(var(--account-bottom-left-height, 64px) + 1rem);
 }
 
+/* Ensure primary inner containers use the header background so scrolling
+   content can't reveal the page background. Keep this limited to background
+   properties to avoid changing text/icon colors. */
+.menu-drawer__inner-container,
+.menu-drawer__menu,
+.menu-drawer__navigation-container,
+.drawer__inner {
+  background-color: var(--header-ui) !important;
+  background-image: none !important;
+}
+
+/* Make descendants inherit the panel background where appropriate. This
+   prevents isolated transparent children from letting the page show through. */
+#menu-drawer *,
+.menu-drawer * {
+  background-color: inherit !important;
+}
+
+/* Drawer: panel background and menu/icon color (don't change button colors) */
+.drawer__inner {
+  background-color: var(--header-ui) !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+/* Empty drawer panel: match header background and nav text color (exclude buttons)
+   This styles the panel shown when a drawer (cart/menu) is empty so it doesn't
+   reveal the page background and it matches the rest of the drawer UI. */
+.drawer__inner-empty,
+.cart-drawer .drawer__inner-empty,
+#CartDrawer .drawer__inner-empty {
+  background-color: var(--header-ui) !important;
+  background-image: none !important;
+}
+.drawer__inner-empty,
+.drawer__inner-empty .drawer__empty-content,
+.cart-drawer .drawer__inner-empty,
+#CartDrawer .drawer__inner-empty {
+  color: var(--nav-ui) !important;
+}
+.drawer__inner-empty button,
+.drawer__inner-empty .button,
+.cart-drawer .drawer__inner-empty button,
+#CartDrawer .drawer__inner-empty .button {
+  color: inherit !important; /* keep CTA/button colors unchanged */
+}
+
+/* Apply nav color to menu labels and links, but explicitly exclude buttons */
+.drawer__inner .menu-drawer__menu-item,
+.drawer__inner .list-menu__item,
+.drawer__inner .menu-drawer__menu-item a:not(.button),
+.drawer__inner .menu-drawer__menu-item a:not([role="button"]),
+.drawer__inner a.link--text:not(.button),
+.drawer__inner .menu-drawer__search-text,
+.drawer__inner .menu-drawer__title-and-close-btn,
+.drawer__inner .header__menu-text {
+  color: var(--nav-ui) !important;
+}
+
+/* Icons inside the drawer should follow the nav color. Exclude buttons so
+   button icons keep their original treatment. */
+.drawer__inner .icon,
+.drawer__inner .icon * {
+  color: var(--nav-ui) !important;
+  fill: currentColor !important;
+  stroke: currentColor !important;
+}
+
+/* Keep actual button colors untouched: reset any accidental inheritance on
+   button elements or elements with .button inside the drawer. */
+.drawer__inner button,
+.drawer__inner .button,
+.drawer__inner .field__button,
+.drawer__inner .search__button,
+.drawer__inner .reset__button {
+  color: inherit !important;
+}
+
+/* Apply nav color to common text and headings inside the drawer, but
+   explicitly exclude buttons and price elements so those keep their own styling. */
+.drawer__inner,
+.drawer__inner p,
+.drawer__inner span,
+.drawer__inner a:not(.button),
+.drawer__inner li,
+.drawer__inner h1,
+.drawer__inner h2,
+.drawer__inner h3,
+.drawer__inner h4,
+.drawer__inner h5,
+.drawer__inner h6,
+.drawer__inner .cart-item__name,
+.drawer__inner .cart-item__details,
+.drawer__inner .cart-item__media,
+.drawer__inner .drawer__heading,
+.drawer__inner .cart-drawer__body,
+.drawer__inner .cart-drawer__header,
+.drawer__inner .cart-drawer__warnings,
+.drawer__inner .cart-drawer__collection {
+  color: var(--nav-ui) !important;
+}
+
+/* Icons inside the drawer should follow the nav color (still exclude button icons if needed) */
+.drawer__inner .icon,
+.drawer__inner .icon * {
+  color: var(--nav-ui) !important;
+  fill: currentColor !important;
+  stroke: currentColor !important;
+}
+
+/* Re-assert the cart-drawer price colors so they remain readable and don't
+   get overridden by the generic drawer text rule above. These match the
+   theme snippet defaults (dark gray / lighter gray). */
+.cart-drawer .cart-item__final-price,
+.cart-drawer .cart-item__price-wrapper .price--end,
+.cart-drawer .cart-item__totals .price--end,
+.cart-drawer .regular-price,
+.cart-drawer .price--end {
+  color: #333333 !important;
+}
+.cart-drawer .cart-item__old-price,
+.cart-drawer s.cart-item__old-price,
+.cart-drawer .cart-item__old-price.product-option {
+  color: #777777 !important;
+}
+
+/* Specific override: ensure spans with combined classes show nav color inside drawers */
+.drawer__inner .price--end.regular-price.accent-color-accent-1,
+.cart-drawer .price--end.regular-price.accent-color-accent-1,
+#CartDrawer .price--end.regular-price.accent-color-accent-1 {
+  color: var(--nav-ui) !important;
+}
+
+/* cart-timer color-inverse: only set the panel background here. Text and
+   icon color rules removed per request so the timer inherits normal theme
+   text coloring. */
+.cart-timer.color-inverse {
+  background-color: var(--header-ui) !important;
+  background-image: none !important;
+}
+
+/* Drawer header: use header background and nav color for header text/icons
+   Buttons are explicitly excluded so button colors remain as configured. */
+.drawer__header {
+  background-color: var(--header-ui) !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+.drawer__header,
+.drawer__header .drawer__heading,
+.drawer__header .drawer__heading *,
+.drawer__header .drawer__close,
+.drawer__header .drawer__close * {
+  color: var(--nav-ui) !important;
+  fill: currentColor !important;
+  stroke: currentColor !important;
+}
+.drawer__header button,
+.drawer__header .button {
+  color: inherit !important; /* keep button colors unchanged */
+}
+
+/* Cart totals (right): apply nav color to price text inside the totals area
+   while leaving price-specific classes elsewhere unchanged. */
+.cart-item__totals.right .price--end,
+.cart-item__totals.right .regular-price,
+.cart-item__totals.right .accent-color-accent-1,
+.cart-item__totals.right .cart-item__final-price {
+  color: var(--nav-ui) !important;
+}
+
+/* Drawer footer: same background as header and nav color for text/icons.
+   Exclude buttons so CTA styles remain intact. */
+.drawer__footer {
+  background-color: var(--header-ui) !important;
+  background-image: none !important;
+}
+.drawer__footer,
+.drawer__footer * {
+  color: var(--nav-ui) !important;
+  fill: currentColor !important;
+  stroke: currentColor !important;
+}
+.drawer__footer button,
+.drawer__footer .button {
+  color: inherit !important; /* keep footer button colors unchanged */
+}
+
 .header .header__icon--menu::after,
 .header .header__icon--menu::before,
 .header .header__icon--menu.summary::after,
@@ -1012,10 +1182,9 @@ select.select.no-background.color-background-1.accent-color-accent-1.accent-2-co
   content: none !important;
 }
 
-/* Restore the menu-drawer backdrop only when the menu is open (expanded state).
-   Earlier we hid all pseudo-elements which also removed the intended backdrop.
-   This rule re-enables the overlay for the expanded menu without reintroducing
-   other pseudo-elements site-wide. */
+/* ========================================
+  It's bg color is for backdrop menu 
+======================================== */
 .header .header__icon--menu[aria-expanded="true"]::before {
   content: "" !important;
   display: block !important;
@@ -1082,7 +1251,6 @@ select.select.no-background.color-background-1.accent-color-accent-1.accent-2-co
     font-size: 13px !important;
     text-transform: uppercase !important;
     letter-spacing: 0.9px !important;
-    color: #111 !important;
   }
 
   /* Hide the search icon so only the word appears, and make the word visually match 'COLLECTIONS' */
