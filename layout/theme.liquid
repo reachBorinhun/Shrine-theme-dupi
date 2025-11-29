@@ -1,6 +1,44 @@
 <!doctype html>
 <html class="no-js" lang="{{ request.locale.iso_code }}">
   <head>
+    <style>
+      html,
+      body {
+        background: #232325 !important;
+        overflow: hidden;
+      }
+
+      /* Critical Intro Gate Styles: Hide EVERYTHING except the gate */
+      body.intro-gate-active > *:not(.intro-gate-wrapper):not(script):not(style) {
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+      }
+
+      /* Ensure the wrapper is visible and on top */
+      .intro-gate-wrapper {
+        position: fixed !important;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 2147483647 !important;
+        background: #232325; /* Match theme dark bg to prevent white flash */
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+      }
+
+      /* REVEAL STATE: Show content behind the gate */
+      body.intro-gate-active.intro-gate-revealing > *:not(.intro-gate-wrapper):not(script):not(style) {
+        visibility: visible !important;
+        opacity: 1 !important;
+      }
+      /* Make wrapper transparent during reveal so inner animation is visible */
+      body.intro-gate-active.intro-gate-revealing .intro-gate-wrapper {
+        background: transparent !important;
+      }
+    </style>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -548,7 +586,7 @@
   </style>
 
   <body
-    class="gradient link-btns--{{ settings.link_btn_hover }} action-btns--{{ settings.action_btn_hover }}{% if template == 'index' %} home-has-gap{% endif %}"
+    class="gradient link-btns--{{ settings.link_btn_hover }} action-btns--{{ settings.action_btn_hover }}{% if template == 'index' %} home-has-gap intro-gate-active{% endif %}"
     {% if is_rtl %}
       data-rtl="true"
     {% endif %}
@@ -557,10 +595,12 @@
       {{ 'accessibility.skip_to_text' | t }}
     </a>
 
-    {% sections 'header-group' %}
     {%- if template == 'index' -%}
-      {% section 'full-screen-intro-gate' %}
+      <div class="intro-gate-wrapper">
+        {% section 'full-screen-intro-gate' %}
+      </div>
     {%- endif -%}
+    {% sections 'header-group' %}
 
     {%- if settings.cart_type == 'drawer' -%}
       {%- section 'cart-drawer' -%}

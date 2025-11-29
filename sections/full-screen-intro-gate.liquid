@@ -1,20 +1,70 @@
 {% comment %}
-  Section: Full Screen Intro Gate (HIGH QUALITY DIRECT LINK VERSION)
-  - Features a dynamic background video (Direct MP4 Link for best mobile quality), logo, and button.
-  - Falls back to standard video picker or image if no link is provided.
+  Section: Full Screen Intro Gate (RESTORED ANIMATION + FLASH FIX)
+  - Animation: Original slide-up (translate3d) restored.
+  - Protection: Compatible with theme.liquid fix.
+  - Logic: Auto-detects Store Logo.
 {% endcomment %}
 
 {%- liquid
+  # --- LOGO LOGIC: Auto-detect Store Logo ---
+  assign logo_image = section.settings.logo_image | default: settings.logo
+
   assign bg_image = section.settings.background_image
-  assign logo_image = section.settings.logo_image
   assign button_text = section.settings.button_text | escape
   assign bg_video = section.settings.background_video
   assign mp4_url = section.settings.mp4_video_link
+
+  assign loader_logo_id = 'loader-logo-' | append: section.id
 -%}
 
+{%- comment -%} LOADING SCREEN (The Black Overlay) {%- endcomment -%}
+<div
+  id="intro-gate-loader-{{ section.id }}"
+  style="position:fixed;top:0;left:0;width:100%;height:100%;background:#232325;z-index:2147483647;display:flex;align-items:center;justify-content:center;transition:opacity 0.8s ease;"
+>
+  <div style="text-align:center;">
+    {% if logo_image != blank %}
+      {{
+        logo_image
+        | image_url: width: 300
+        | image_tag:
+          id: loader_logo_id,
+          style: 'width:120px;height:auto;animation:pulse-logo 2s ease-in-out infinite;',
+          loading: 'eager',
+          alt: 'Loading...'
+      }}
+    {% else %}
+      <!-- Fallback Spinner if NO logo exists -->
+      <div
+        style="width:50px;height:50px;border:4px solid rgba(255,255,255,0.2);border-top-color:#fff;border-radius:50%;animation:spin-loader 1s linear infinite;"
+      ></div>
+    {% endif %}
+  </div>
+</div>
+
 <style>
+  /* --- ANIMATIONS --- */
+  @keyframes pulse-logo {
+    0%, 100% { opacity: 0.6; transform: scale(0.98); }
+    50% { opacity: 1; transform: scale(1.02); }
+  }
+  @keyframes spin-loader {
+    to { transform: rotate(360deg); }
+  }
+
+  /* --- ORIGINAL GATE STYLES RESTORED --- */
   #intro-gate-{{ section.id }} {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
     overflow: hidden;
+    z-index: 2147483646; /* Just below loader */
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    background-color: #232325; /* Ensure background exists when wrapper becomes transparent */
 
     {% if mp4_url == blank and bg_video == blank and bg_image != blank %}
       background-image: url('{{ bg_image | image_url: width: 1920 }}');
@@ -35,6 +85,8 @@
     color: white;
     text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
     font-family: Helvetica, Arial, sans-serif;
+    padding-bottom: 8vh;
+    text-align: center;
   }
 
   .intro-gate-video-{{ section.id }} {
@@ -50,7 +102,6 @@
     z-index: 0;
   }
 
-  /* Video overlay to darken if needed */
   .intro-gate-overlay-{{ section.id }} {
     position: absolute;
     top: 0;
@@ -63,14 +114,7 @@
 
   .shine-button {
     position: relative;
-    background: linear-gradient(
-      110deg,
-      #444 0%,
-      #444 40%,
-      #fff 50%,
-      #444 60%,
-      #444 100%
-    );
+    background: linear-gradient(110deg, #444 0%, #444 40%, #fff 50%, #444 60%, #444 100%);
     background-size: 200% auto;
     background-clip: text;
     -webkit-background-clip: text;
@@ -80,12 +124,8 @@
   }
 
   @keyframes shine-text {
-    0% {
-      background-position: 0% center;
-    }
-    100% {
-      background-position: 200% center;
-    }
+    0% { background-position: 0% center; }
+    100% { background-position: 200% center; }
   }
 
   #enter-button-{{ section.id }} {
@@ -93,6 +133,7 @@
     font-size: 1.7rem;
     font-weight: 600;
     font-family: Helvetica, Arial, sans-serif;
+    cursor: pointer;
   }
 
   #enter-button-{{ section.id }}:hover,
@@ -100,6 +141,7 @@
     color: #ffffff;
   }
 
+  /* --- REVEAL ANIMATION LOGIC (FROM YOUR OLD CODE) --- */
   body.intro-gate-active {
     overflow: hidden;
   }
@@ -113,6 +155,8 @@
   body.intro-gate-active #MainContent {
     transform: translate3d(0, 100vh, 0);
     pointer-events: none;
+    opacity: 1 !important; /* Force opacity back to 1 for the reveal */
+    visibility: visible !important;
   }
 
   body.intro-gate-revealing #intro-gate-{{ section.id }} {
@@ -133,37 +177,31 @@
   }
 </style>
 
-<div
-  id="intro-gate-{{ section.id }}"
-  class="fixed top-0 left-0 w-screen h-screen bg-cover bg-center z-[100] flex justify-center items-end"
->
-  {%- comment -%}
-    VIDEO LOGIC:
-    1. Check for Direct MP4 Link (Highest Quality)
-    2. Fallback to Standard Video Picker
-  {%- endcomment -%}
-
+<div id="intro-gate-{{ section.id }}">
   {%- if mp4_url != blank -%}
     <video
+      id="intro-video-{{ section.id }}"
       class="intro-gate-video-{{ section.id }}"
       src="{{ mp4_url }}"
       autoplay
       loop
       muted
       playsinline
+      preload="auto"
       {% if bg_image != blank %}
         poster="{{ bg_image | image_url: width: 1920 }}"
       {% endif %}
     ></video>
     <div class="intro-gate-overlay-{{ section.id }}"></div>
-
   {%- elsif bg_video != blank -%}
     <video
+      id="intro-video-{{ section.id }}"
       class="intro-gate-video-{{ section.id }}"
       autoplay
       loop
       muted
       playsinline
+      preload="auto"
       {% if bg_image != blank %}
         poster="{{ bg_image | image_url: width: 1920 }}"
       {% endif %}
@@ -171,22 +209,16 @@
       {%- for source in bg_video.sources -%}
         <source src="{{ source.url }}" type="{{ source.mime_type }}">
       {%- endfor -%}
-      Your browser does not support the video tag.
     </video>
     <div class="intro-gate-overlay-{{ section.id }}"></div>
   {%- endif -%}
 
-  <div class="intro-gate-content-{{ section.id }} text-center pb-[8vh]">
+  <div class="intro-gate-content-{{ section.id }}">
     {% if logo_image != blank %}
       {{
         logo_image
-        | image_url: width: 240
-        | image_tag:
-          class: 'mx-auto w-[120px] h-auto mb-5 drop-shadow-lg',
-          loading: 'eager',
-          width: logo_image.width,
-          height: logo_image.height,
-          alt: logo_image.alt
+        | image_url: width: 300
+        | image_tag: class: 'mx-auto w-[120px] h-auto mb-5 drop-shadow-lg', loading: 'eager', alt: logo_image.alt
         | default: 'Logo'
       }}
     {% else %}
@@ -209,26 +241,84 @@
 </div>
 
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
+  (function() {
+    const loader = document.getElementById('intro-gate-loader-{{ section.id }}');
     const introGate = document.getElementById('intro-gate-{{ section.id }}');
     const enterButton = document.getElementById('enter-button-{{ section.id }}');
     const body = document.body;
 
-    if (!introGate) return;
+    if (!introGate || !loader) return;
 
-    // Prevent scrolling while gate is present
-    body.classList.add('intro-gate-active');
+    // 1. LOADING LOGIC
+    let resourcesLoaded = 0;
+    const requiredResources = {% if mp4_url != blank or bg_video != blank %}2{% else %}1{% endif %};
+    const startTime = Date.now();
+
+    function hideLoader() {
+      const elapsed = Date.now() - startTime;
+      const minTime = 1000; // Minimum 1s load time for smoothness
+      const delay = Math.max(0, minTime - elapsed);
+
+      setTimeout(() => {
+        // Fade out loader
+        loader.style.opacity = '0';
+
+        // Remove loader from DOM
+        setTimeout(() => {
+          if (loader.parentNode) loader.parentNode.removeChild(loader);
+        }, 800);
+      }, delay);
+    }
+
+    function markLoaded() {
+      resourcesLoaded++;
+      if (resourcesLoaded >= requiredResources) hideLoader();
+    }
+
+    // Check DOM
+    if (document.readyState === 'complete') markLoaded();
+    else window.addEventListener('load', markLoaded, { once: true });
+
+    // Check Video
+    {% if mp4_url != blank or bg_video != blank %}
+      const video = document.getElementById('intro-video-{{ section.id }}');
+      if (video) {
+        if (video.readyState >= 3) markLoaded();
+        else {
+          video.addEventListener('canplaythrough', markLoaded, { once: true });
+          video.addEventListener('error', markLoaded, { once: true });
+        }
+      } else markLoaded();
+    {% endif %}
+
+    // Timeout failsafe (4s)
+    setTimeout(() => {
+      if (loader.style.opacity !== '0') hideLoader();
+    }, 4000);
+
+
+    // 2. REVEAL LOGIC (Your Original Animation)
+
 
     const reveal = () => {
       body.classList.add('intro-gate-revealing');
 
+      // Reset HTML background to allow scrolling again
+      document.documentElement.style.background = '';
+      document.body.style.background = '';
+      document.documentElement.style.overflow = 'initial';
+      document.body.style.overflow = 'initial';
+
       let cleaned = false;
       const cleanup = () => {
-        if (cleaned) return;
-        cleaned = true;
-        if (introGate.parentNode) introGate.parentNode.removeChild(introGate);
-        body.classList.remove('intro-gate-active', 'intro-gate-revealing');
-      };
+      if (cleaned) return;
+      cleaned = true;
+      const wrapper = introGate.closest('.intro-gate-wrapper');
+      if (wrapper) wrapper.remove();
+      else if (introGate.parentNode) introGate.remove();
+
+      body.classList.remove('intro-gate-active', 'intro-gate-revealing');
+    };
 
       introGate.addEventListener('transitionend', function handler(e) {
         if (e.target !== introGate) return;
@@ -239,19 +329,17 @@
       setTimeout(cleanup, 1400);
     };
 
-    // Make the entire intro gate clickable
     introGate.addEventListener('click', reveal);
 
-    // Keep button functionality (for keyboard users and clarity)
     if (enterButton) {
-      enterButton.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault();
+      enterButton.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
           reveal();
         }
       });
     }
-  });
+  })();
 </script>
 
 {% schema %}
@@ -262,7 +350,7 @@
       "type": "text",
       "id": "mp4_video_link",
       "label": "Direct MP4 Video Link",
-      "info": "Paste the direct link from Content > Files here for best mobile quality. This overrides the 'Background Video' setting below."
+      "info": "Paste the direct link from Content > Files here for best mobile quality."
     },
     {
       "type": "video",
@@ -279,8 +367,8 @@
     {
       "type": "image_picker",
       "id": "logo_image",
-      "label": "Logo Image",
-      "info": "Displayed at the bottom-center."
+      "label": "Logo Image (Optional)",
+      "info": "If left blank, automatically uses your Store Header Logo."
     },
     {
       "type": "text",
