@@ -98,6 +98,25 @@
         try {
           btn.style.removeProperty("text-decoration");
         } catch (e) {}
+        try {
+          try {
+            btn.style.removeProperty("background-color");
+          } catch (e) {}
+          try {
+            btn.style.removeProperty("background");
+          } catch (e) {}
+          try {
+            var _lbl = getLabelElement(btn);
+            if (_lbl) {
+              try {
+                _lbl.style.removeProperty("background-color");
+              } catch (e) {}
+              try {
+                _lbl.style.removeProperty("background");
+              } catch (e) {}
+            }
+          } catch (e) {}
+        } catch (e) {}
 
         try {
           if (btn.dataset && btn.dataset.originalLabel) {
@@ -846,6 +865,29 @@
 
           try {
             lbl.style.setProperty("text-decoration", "none", "important");
+          } catch (e) {}
+          try {
+            // Force transparent background on the loading label and button so mobile CSS can't add a blue panel
+            try {
+              lbl.style.setProperty(
+                "background-color",
+                "transparent",
+                "important"
+              );
+            } catch (e) {}
+            try {
+              lbl.style.setProperty("background", "transparent", "important");
+            } catch (e) {}
+            try {
+              btn.style.setProperty(
+                "background-color",
+                "transparent",
+                "important"
+              );
+            } catch (e) {}
+            try {
+              btn.style.setProperty("background", "transparent", "important");
+            } catch (e) {}
           } catch (e) {}
         }
       } catch (e) {}

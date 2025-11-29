@@ -17,7 +17,7 @@
         "sections-18060430639399_2c2ec774-3430-481f-b927-e9c035b9d24e-1679250655d32e639c-0": {
           "type": "text",
           "settings": {
-            "title": "KDMV"
+            "title": "KDMV BLACK FRIDAY SALE UP TO 50% OFF"
           }
         }
       },
@@ -27,13 +27,13 @@
       "settings": {
         "display_id": false,
         "visibility": "always-display",
-        "speed": 5,
+        "speed": 1,
         "direction": "normal",
         "stop_on_hover": false,
         "mobile_spacing": 60,
         "desktop_spacing": 100,
         "color_scheme": "custom",
-        "custom_colors_background": "#2e2a39",
+        "custom_colors_background": "#232325",
         "custom_gradient_background": "",
         "custom_colors_text": "#ffffff",
         "mobile_text_size": 16,
@@ -52,8 +52,8 @@
         "displayed_products": "",
         "mobile_padding_top": 12,
         "mobile_padding_bottom": 12,
-        "desktop_padding_top": 16,
-        "desktop_padding_bottom": 16
+        "desktop_padding_top": 12,
+        "desktop_padding_bottom": 12
       }
     },
     "fe1c8c67-b84c-4466-a515-70df3134c1c0": {

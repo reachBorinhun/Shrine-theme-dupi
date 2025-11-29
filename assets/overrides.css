@@ -15,9 +15,12 @@
   --collection-top-offset: 40px;
   /* Drawer z-index: very high so drawer sits above any other UI layer */
   --menu-drawer-z-index: 99999;
+  /* nav color */
+  --nav-ui: #c8c8cc;
+  --header-ui: #232325;
 }
 
-/* Product pages: force price color to black (targets the main product section and common product body class)
+/* Product pages: force price color to WHITE for dark mode (targets the main product section and common product body class)
    Uses high-specificity selectors and !important to override accent-color rules. */
 [id^="MainProduct-"] .price .price-item,
 body.template-product .price .price-item,
@@ -32,9 +35,52 @@ body.template-product .price .price-item.price-item--sale {
 .price-item.price-item--regular,
 .price .price-item.price-item--regular,
 [id^="MainProduct-"] .price .price-item.price-item--regular,
-body.template-product .price .price-item.price-item--regular {
+body.template-product .price .price-item.price-item--regular,
+.price-item.price-item--regular.main-price {
   color: #333 !important; /* new color */
   font-weight: 500 !important; /* new weight */
+  font-size: 1.3rem !important; /* custom size for main product page */
+  font-family: Helvetica, Arial, sans-serif !important;
+}
+
+/* ========================================
+   Add to Cart Button Redesign
+   Clean rectangular button design
+======================================== */
+.atc-button.product-form__submit.button,
+button.atc-button.main-product-atc,
+.main-product-atc.button,
+[id^="MainProduct-"] .product-form__submit.button {
+  /* Shape and borders */
+  border-radius: 0 !important; /* Sharp corners */
+  border: none !important;
+
+  /* Typography */
+  text-transform: uppercase !important;
+  letter-spacing: 0.12em !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  font-family: inherit !important;
+
+  /* Spacing */
+  padding: 14px 32px !important;
+  min-height: 48px !important;
+
+  /* Remove effects */
+  box-shadow: none !important;
+  background-image: none !important;
+
+  /* Smooth transitions */
+  transition: all 0.2s ease !important;
+}
+
+/* Ensure button text styling */
+.atc-button.product-form__submit.button span,
+button.atc-button.main-product-atc span,
+.main-product-atc.button span,
+[id^="MainProduct-"] .product-form__submit.button span {
+  text-transform: uppercase !important;
+  letter-spacing: 0.12em !important;
 }
 
 /* Ensure the menu drawer renders above the backdrop overlay we added earlier.
@@ -65,9 +111,12 @@ menu-drawer *,
   width: 100% !important;
   z-index: 2220 !important;
 }
+/*
+==============================================================
+HEADER COLOR
+==============================================================
+*/
 
-/* Allow multiple tickers to stack — each ticker's own height is handled by the measurement script
-   through the --horizontal-ticker-height total, header is placed below the tickers. */
 .header-wrapper,
 .header,
 .sticky-header,
@@ -79,9 +128,47 @@ sticky-header {
   z-index: 2210 !important;
   width: 100% !important;
   max-width: 100% !important;
-  background: var(--header-background, #ffffff) !important;
+  background: var(--header-ui);
   border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
 }
+
+/*
+==============================================================
+Icon color in header 
+==============================================================
+*/
+
+.header .icon,
+.header__icon,
+.header .header__icon,
+.header a,
+.header .header__menu-text,
+.header__icon--menu,
+.header__icon--search,
+.header .header__icon *,
+.header .icon * {
+  color: var(--nav-ui) !important;
+  /* icon bg */
+  /* fill: #ff0000 !important; */
+  stroke: var(--nav-ui) !important;
+}
+/*
+==============================================================
+Menu drawer 
+==============================================================
+*/
+.menu-drawer__navigation-container
+  .menu-drawer__menu-item.list-menu__item.link.link--text.focus-inset,
+.menu-drawer__navigation-container
+  .menu-drawer__menu-item.list-menu__item.link.link--text.focus-inset.menu-drawer__search-trigger
+  .menu-drawer__search-text {
+  color: var(--nav-ui) !important;
+}
+/*
+==============================================================
+END HEADER COLOR
+==============================================================
+*/
 
 /* Ensure header wrapper is full-bleed even if inner page containers exist */
 .header-wrapper,
@@ -210,7 +297,7 @@ body.home-has-gap {
 .product-grid > * {
   margin: 0 !important;
   /* keep 8px internal padding so content doesn't touch edges */
-  padding: 8px !important;
+  padding: 3px !important;
 }
 
 /* Ensure the media area fills the card and images cover the area for tighter look */
@@ -361,6 +448,27 @@ body.home-has-gap {
   max-width: none !important;
 }
 
+/* Make product option dropdowns that use the theme's select classes fill their container.
+   Targets selects with the class list reported by the store: 
+   "select no-background color-background-1 accent-color-accent-1 accent-2-color-text".
+   Uses high specificity and !important to override competing rules. */
+select.select.no-background.color-background-1.accent-color-accent-1.accent-2-color-text,
+.select.no-background.color-background-1.accent-color-accent-1.accent-2-color-text {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  border: 0 !important;
+}
+
+/* Cart drawer overlay - Backdrop filters only (colors removed) */
+#CartDrawer-Overlay,
+.cart-drawer__overlay {
+  background-color: transparent;
+  backdrop-filter: blur(12px) saturate(150%) !important; /* Strong blur for glass effect */
+  -webkit-backdrop-filter: blur(12px) saturate(150%) !important; /* For Safari */
+}
+
 /* Cart drawer mobile override: keep off-canvas slide-from-right but constrain panel width
    Put this in overrides.css so it loads after base.css and survives snippet edits. */
 @media screen and (max-width: 500px) {
@@ -395,10 +503,6 @@ body.home-has-gap {
   .drawer.active .cart-drawer--mobile-width-full .drawer__inner,
   .cart-drawer--mobile-width-full .drawer.active .drawer__inner {
     transform: translateX(0) !important;
-  }
-
-  .cart-drawer__overlay {
-    background: rgba(0, 0, 0, 0.5) !important;
   }
 }
 
@@ -497,6 +601,72 @@ body.home-has-gap {
   }
 }
 
+/* Tables: prefer inherited/text driven colors so content follows surrounding
+   context (e.g., same color as title on product pages). This removes the
+   previous hardcoded white rule and falls back to inherited color while still
+   using high specificity to avoid unexpected overrides. */
+.product__description.rte.quick-add-hidden table,
+.product__description.rte.quick-add-hidden table *,
+.product__description.rte.quick-add-hidden table tbody,
+.product__description.rte.quick-add-hidden table tbody tr,
+.product__description.rte.quick-add-hidden table tbody tr td,
+.product__description.rte.quick-add-hidden table tbody tr td div,
+.product__description.rte table,
+.product__description.rte table *,
+.product__description table *,
+.rte-table-wrapper table,
+.rte-table-wrapper table *,
+.rte table,
+.rte table * {
+  color: inherit !important;
+  -webkit-text-fill-color: inherit !important;
+}
+
+/* Table borders: use the theme foreground variable with low alpha so borders
+   remain visible but don't force a color. This restores editor control and
+   adapts to light/dark schemes. */
+.product__description.rte.quick-add-hidden table,
+.product__description.rte table,
+.product__description table,
+.rte-table-wrapper table,
+.rte table {
+  border: 1px solid rgba(var(--color-foreground), 0.12) !important;
+  border-collapse: collapse !important;
+}
+
+.product__description.rte.quick-add-hidden table tbody tr td,
+.product__description.rte.quick-add-hidden table tbody tr th,
+.product__description.rte table td,
+.product__description.rte table th,
+.product__description table td,
+.product__description table th,
+.rte-table-wrapper table td,
+.rte-table-wrapper table th,
+.rte table td,
+.rte table th {
+  border: 1px solid rgba(var(--color-foreground), 0.12) !important;
+}
+.slider__dots .slider-button,
+.slider__dots .dot {
+  background-color: #ffffff !important;
+}
+
+/* User-requested: force `.dot.color-inverse` inside the mobile overlay
+   slider container to be black. Narrow selector so other sliders aren't
+   affected. */
+.slider__dots.flex-center.desktop-hidden.slider-mobile-buttons-overlay
+  .dot.color-inverse,
+.slider__dots.flex-center.desktop-hidden.slider-mobile-buttons-overlay
+  .slider-button.color-inverse,
+.slider__dots.flex-center.desktop-hidden.slider-mobile-buttons-overlay
+  .dot.color-inverse::before,
+.slider__dots.flex-center.desktop-hidden.slider-mobile-buttons-overlay
+  .slider-button.color-inverse::before {
+  background-color: #000 !important;
+  border-color: #000 !important;
+  color: #fff !important;
+}
+
 /* Ensure product info top-padding only applies on tablet/desktop
    The base stylesheet applies these on mobile; we want padding-top
    only starting at min-width: 750px. Put overrides here so they load
@@ -517,6 +687,15 @@ body.home-has-gap {
 
   .product__info-wrapper--top-padding-small {
     padding-top: 0.5rem !important;
+  }
+}
+
+/* Specific increase for sticky product info column on larger screens
+   Target the full set of classes to avoid changing other instances. Increase
+   the top padding at >=750px so sticky column sits lower under the header. */
+@media screen and (min-width: 750px) {
+  .product__info-wrapper.grid__item.product__column-sticky.product__info-wrapper--top-padding {
+    padding-top: 26rem !important; /* increased from 14rem */
   }
 }
 
@@ -757,11 +936,7 @@ body.home-has-gap {
           var(--menu-drawer-offset, 8px)
       )
   ) !important;
-  /* ensure the drawer sits above the backdrop pseudo-element */
-  z-index: var(--menu-drawer-z-index) !important;
-  overflow: visible !important;
 }
-
 /* Ensure mobile facets button sits beneath the menu drawer. Some themes render
    the mobile facets button with a fixed position and its own z-index; to avoid
    it appearing above the drawer we force its z-index to sit just below the
@@ -782,6 +957,12 @@ body.home-has-gap {
   position: fixed !important;
   left: 0 !important;
   right: 0 !important;
+  /* Ensure the panel has a solid background and fills the viewport so the
+     page below doesn't show through when the drawer is open. */
+  background-color: var(--header-ui) !important;
+  background-image: none !important;
+  min-height: calc(100vh - var(--menu-drawer-offset, 0px)) !important;
+  box-sizing: border-box !important;
 }
 
 /* Bottom-left account block: keep it inset from the left, include safe-area inset,
@@ -805,6 +986,194 @@ body.home-has-gap {
   padding-bottom: calc(var(--account-bottom-left-height, 64px) + 1rem);
 }
 
+/* Ensure primary inner containers use the header background so scrolling
+   content can't reveal the page background. Keep this limited to background
+   properties to avoid changing text/icon colors. */
+.menu-drawer__inner-container,
+.menu-drawer__menu,
+.menu-drawer__navigation-container,
+.drawer__inner {
+  background-color: var(--header-ui) !important;
+  background-image: none !important;
+}
+
+/* Make descendants inherit the panel background where appropriate. This
+   prevents isolated transparent children from letting the page show through. */
+#menu-drawer *,
+.menu-drawer * {
+  background-color: inherit !important;
+}
+
+/* Drawer: panel background and menu/icon color (don't change button colors) */
+.drawer__inner {
+  background-color: var(--header-ui) !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+/* Empty drawer panel: match header background and nav text color (exclude buttons)
+   This styles the panel shown when a drawer (cart/menu) is empty so it doesn't
+   reveal the page background and it matches the rest of the drawer UI. */
+.drawer__inner-empty,
+.cart-drawer .drawer__inner-empty,
+#CartDrawer .drawer__inner-empty {
+  background-color: var(--header-ui) !important;
+  background-image: none !important;
+}
+.drawer__inner-empty,
+.drawer__inner-empty .drawer__empty-content,
+.cart-drawer .drawer__inner-empty,
+#CartDrawer .drawer__inner-empty {
+  color: var(--nav-ui) !important;
+}
+.drawer__inner-empty button,
+.drawer__inner-empty .button,
+.cart-drawer .drawer__inner-empty button,
+#CartDrawer .drawer__inner-empty .button {
+  color: inherit !important; /* keep CTA/button colors unchanged */
+}
+
+/* Apply nav color to menu labels and links, but explicitly exclude buttons */
+.drawer__inner .menu-drawer__menu-item,
+.drawer__inner .list-menu__item,
+.drawer__inner .menu-drawer__menu-item a:not(.button),
+.drawer__inner .menu-drawer__menu-item a:not([role="button"]),
+.drawer__inner a.link--text:not(.button),
+.drawer__inner .menu-drawer__search-text,
+.drawer__inner .menu-drawer__title-and-close-btn,
+.drawer__inner .header__menu-text {
+  color: var(--nav-ui) !important;
+}
+
+/* Icons inside the drawer should follow the nav color. Exclude buttons so
+   button icons keep their original treatment. */
+.drawer__inner .icon,
+.drawer__inner .icon * {
+  color: var(--nav-ui) !important;
+  fill: currentColor !important;
+  stroke: currentColor !important;
+}
+
+/* Keep actual button colors untouched: reset any accidental inheritance on
+   button elements or elements with .button inside the drawer. */
+.drawer__inner button,
+.drawer__inner .button,
+.drawer__inner .field__button,
+.drawer__inner .search__button,
+.drawer__inner .reset__button {
+  color: inherit !important;
+}
+
+/* Apply nav color to common text and headings inside the drawer, but
+   explicitly exclude buttons and price elements so those keep their own styling. */
+.drawer__inner,
+.drawer__inner p,
+.drawer__inner span,
+.drawer__inner a:not(.button),
+.drawer__inner li,
+.drawer__inner h1,
+.drawer__inner h2,
+.drawer__inner h3,
+.drawer__inner h4,
+.drawer__inner h5,
+.drawer__inner h6,
+.drawer__inner .cart-item__name,
+.drawer__inner .cart-item__details,
+.drawer__inner .cart-item__media,
+.drawer__inner .drawer__heading,
+.drawer__inner .cart-drawer__body,
+.drawer__inner .cart-drawer__header,
+.drawer__inner .cart-drawer__warnings,
+.drawer__inner .cart-drawer__collection {
+  color: var(--nav-ui) !important;
+}
+
+/* Icons inside the drawer should follow the nav color (still exclude button icons if needed) */
+.drawer__inner .icon,
+.drawer__inner .icon * {
+  color: var(--nav-ui) !important;
+  fill: currentColor !important;
+  stroke: currentColor !important;
+}
+
+/* Re-assert the cart-drawer price colors so they remain readable and don't
+   get overridden by the generic drawer text rule above. These match the
+   theme snippet defaults (dark gray / lighter gray). */
+.cart-drawer .cart-item__final-price,
+.cart-drawer .cart-item__price-wrapper .price--end,
+.cart-drawer .cart-item__totals .price--end,
+.cart-drawer .regular-price,
+.cart-drawer .price--end {
+  color: #333333 !important;
+}
+.cart-drawer .cart-item__old-price,
+.cart-drawer s.cart-item__old-price,
+.cart-drawer .cart-item__old-price.product-option {
+  color: #777777 !important;
+}
+
+/* Specific override: ensure spans with combined classes show nav color inside drawers */
+.drawer__inner .price--end.regular-price.accent-color-accent-1,
+.cart-drawer .price--end.regular-price.accent-color-accent-1,
+#CartDrawer .price--end.regular-price.accent-color-accent-1 {
+  color: var(--nav-ui) !important;
+}
+
+/* cart-timer color-inverse: only set the panel background here. Text and
+   icon color rules removed per request so the timer inherits normal theme
+   text coloring. */
+.cart-timer.color-inverse {
+  background-color: var(--header-ui) !important;
+  background-image: none !important;
+}
+
+/* Drawer header: use header background and nav color for header text/icons
+   Buttons are explicitly excluded so button colors remain as configured. */
+.drawer__header {
+  background-color: var(--header-ui) !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+.drawer__header,
+.drawer__header .drawer__heading,
+.drawer__header .drawer__heading *,
+.drawer__header .drawer__close,
+.drawer__header .drawer__close * {
+  color: var(--nav-ui) !important;
+  fill: currentColor !important;
+  stroke: currentColor !important;
+}
+.drawer__header button,
+.drawer__header .button {
+  color: inherit !important; /* keep button colors unchanged */
+}
+
+/* Cart totals (right): apply nav color to price text inside the totals area
+   while leaving price-specific classes elsewhere unchanged. */
+.cart-item__totals.right .price--end,
+.cart-item__totals.right .regular-price,
+.cart-item__totals.right .accent-color-accent-1,
+.cart-item__totals.right .cart-item__final-price {
+  color: var(--nav-ui) !important;
+}
+
+/* Drawer footer: same background as header and nav color for text/icons.
+   Exclude buttons so CTA styles remain intact. */
+.drawer__footer {
+  background-color: var(--header-ui) !important;
+  background-image: none !important;
+}
+.drawer__footer,
+.drawer__footer * {
+  color: var(--nav-ui) !important;
+  fill: currentColor !important;
+  stroke: currentColor !important;
+}
+.drawer__footer button,
+.drawer__footer .button {
+  color: inherit !important; /* keep footer button colors unchanged */
+}
+
 .header .header__icon--menu::after,
 .header .header__icon--menu::before,
 .header .header__icon--menu.summary::after,
@@ -813,10 +1182,9 @@ body.home-has-gap {
   content: none !important;
 }
 
-/* Restore the menu-drawer backdrop only when the menu is open (expanded state).
-   Earlier we hid all pseudo-elements which also removed the intended backdrop.
-   This rule re-enables the overlay for the expanded menu without reintroducing
-   other pseudo-elements site-wide. */
+/* ========================================
+  It's bg color is for backdrop menu 
+======================================== */
 .header .header__icon--menu[aria-expanded="true"]::before {
   content: "" !important;
   display: block !important;
@@ -883,7 +1251,6 @@ body.home-has-gap {
     font-size: 13px !important;
     text-transform: uppercase !important;
     letter-spacing: 0.9px !important;
-    color: #111 !important;
   }
 
   /* Hide the search icon so only the word appears, and make the word visually match 'COLLECTIONS' */
@@ -1027,66 +1394,22 @@ body.home-has-gap {
     height: 0 !important;
   }
 }
-
+/* Sold-out badge: dark background matching site theme */
+span.card__sale-badge.badge.badge--bottom-left.color-inverse,
+span.card__sale-badge.badge.badge--bottom-left.color-inverse * {
+  background: #232325 !important;
+  color: #ffffff !important;
+}
 /* Ensure product card titles render at medium weight (500) */
 .card__heading a.full-unstyled-link,
 .card__heading a {
   font-weight: 500 !important;
 }
 
-/* Ensure sale badge bottom-left inverse text is readable (force white text) */
-span.card__sale-badge.badge.badge--bottom-left.color-inverse,
-span.card__sale-badge.badge.badge--bottom-left.color-inverse * {
-  color: #ffffff !important;
-}
-
-/* Move sold-out / bottom-left badges into the top-left of the card image */
-.card__media .card__sale-badge.badge.badge--bottom-left,
-.card__media span.card__sale-badge.badge.badge--bottom-left,
-.card__media .card__sale-badge.badge.badge--bottom-left.color-inverse {
-  position: absolute !important;
-  top: 12px !important; /* distance from top of image */
-  left: 12px !important; /* align to left */
-  margin-top: 6px !important; /* extra visual offset as requested */
-  transform: none !important;
-  z-index: 1250 !important; /* above image + swatches */
-}
-
-@media (max-width: 749px) {
-  .card__media .card__sale-badge.badge.badge--bottom-left,
-  .card__media span.card__sale-badge.badge.badge--bottom-left {
-    top: 8px !important;
-    left: 8px !important;
-    margin-top: 4px !important;
-  }
-}
-
 /* Fallback: if the badge is rendered outside the media container, position it
    relative to the card so it visually appears at the top-left of the image. */
 .card-wrapper .card {
   position: relative; /* ensure card is the positioning context */
-}
-
-.card-wrapper .card .card__sale-badge.badge.badge--bottom-left,
-.card-wrapper .card span.card__sale-badge.badge.badge--bottom-left,
-.card-wrapper .card .badge.badge--bottom-left.card__sale-badge {
-  position: absolute !important;
-  top: 12px !important;
-  left: 12px !important;
-  bottom: auto !important;
-  right: auto !important;
-  margin-top: 6px !important;
-  transform: none !important;
-  z-index: 1350 !important; /* above image and swatches */
-}
-
-@media (max-width: 749px) {
-  .card-wrapper .card .card__sale-badge.badge.badge--bottom-left,
-  .card-wrapper .card span.card__sale-badge.badge.badge--bottom-left {
-    top: 8px !important;
-    left: 8px !important;
-    margin-top: 4px !important;
-  }
 }
 
 /* ==================================================
@@ -1636,9 +1959,470 @@ span.card__sale-badge.badge.badge--bottom-left.color-inverse * {
   color: #111827 !important;
 }
 
+/* Enforce a maximum of 3 columns for viewports smaller than 1440px
+   without changing the mobile (<=749px) 2-column behavior. This targets
+   desktop widths from 990px up to 1439px and ensures the grid never shows 4 cards. */
+@media screen and (min-width: 990px) and (max-width: 1439px) {
+  .product-grid {
+    --columns-desktop: 3 !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px !important;
+    column-gap: 8px !important;
+    row-gap: 8px !important;
+  }
+}
+
+/* For screens smaller than 1087px enforce a 2-column grid so rows show only
+   2 cards per row from 1086px down to mobile. This overrides larger desktop
+   rules and keeps mobile (<=749px) behavior consistent. */
+@media screen and (max-width: 1086px) {
+  .product-grid {
+    --columns-desktop: 2 !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 6px !important;
+    column-gap: 6px !important;
+    row-gap: 6px !important;
+  }
+
+  /* Keep inner padding small so cards fill the column */
+  .product-grid > * {
+    padding: 4px !important;
+  }
+}
+
 .card-size-swatches.is-visible .variant-swatch,
 .card__content .card-size-swatches.is-visible .variant-swatch,
 .card-size-swatches[data-__movedToCardContent="true"].is-visible
   .variant-swatch {
   color: #111827 !important;
+}
+
+/* ==================================================
+   Product Card Mobile Layout Fix - Screens < 560px
+   Forces proper card stacking and prevents content overlap
+================================================== */
+@media screen and (max-width: 559px) {
+  /* Force card to use flexbox column layout so media and content stack properly */
+  .card-wrapper .card,
+  .card {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+
+  /* Remove height: 100% from card__inner so it doesn't collapse */
+  .card__inner {
+    height: auto !important;
+    flex-shrink: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Remove height: 100% constraint from card__media and force auto height */
+  .card__media,
+  .card .media,
+  .card__media .media,
+  .card .card__media {
+    height: auto !important;
+    width: 100% !important;
+  }
+
+  /* Ensure the inner media container maintains proper minimum height */
+  .card__media .media,
+  .card .card__media .media {
+    min-height: 280px !important;
+    height: auto !important;
+    max-height: 350px !important;
+  }
+
+  /* Force card__content to stay below card__inner with proper spacing */
+  .card__content {
+    position: relative !important;
+    margin-top: 8px !important;
+    width: 100% !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Reduce the overall card width slightly on very small screens for better fit */
+  .product-grid > * {
+    max-width: 100% !important;
+  }
+
+  /* Ensure size swatches stay at bottom of image (not floating in middle) */
+  .card__media .card-size-swatches {
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+  }
+}
+
+/* Extra small screens - further reduce image height for better proportions */
+@media screen and (max-width: 400px) {
+  .card__media .media,
+  .card .card__media .media {
+    min-height: 240px !important;
+    max-height: 280px !important;
+  }
+}
+
+/* Ultra-small screens - aggressive height reduction and width management */
+@media screen and (max-width: 476px) {
+  /* Further reduce image height to prevent content floating */
+  .card__media .media,
+  .card .card__media .media {
+    min-height: 200px !important;
+    max-height: 240px !important;
+  }
+
+  /* Ensure card maintains flexbox structure */
+  .card-wrapper .card,
+  .card {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  /* Add more spacing between image and content */
+  .card__content {
+    margin-top: 5px !important;
+  }
+
+  /* Reduce card wrapper padding for tighter fit */
+  .product-grid > * {
+    padding: 2px !important;
+  }
+}
+
+/* Specific fix for 411px - 476px range: Fix image cropping/cutting issue */
+@media screen and (min-width: 411px) and (max-width: 476px) {
+  .card__media .media,
+  .card .card__media .media {
+    min-height: unset !important;
+    max-height: unset !important;
+    height: auto !important;
+    aspect-ratio: auto !important; /* Let image define its own ratio */
+    padding-bottom: 0 !important; /* Remove any padding hacks */
+  }
+
+  .card__media .media img,
+  .card .card__media .media img {
+    object-fit: contain !important; /* Ensure full image is visible, no cutting */
+    width: 100% !important;
+    height: auto !important;
+    position: relative !important; /* Reset absolute positioning if used */
+  }
+
+  /* CRITICAL: Force column layout to prevent content floating over image */
+  .card-wrapper .card,
+  .card {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+}
+
+/* Absolute minimum screen size - 320px (iPhone SE and similar devices) */
+@media screen and (max-width: 344px) {
+  /* Drastically reduce image height for smallest devices */
+  .card__media .media,
+  .card .card__media .media {
+    min-height: 180px !important;
+    max-height: 200px !important;
+  }
+
+  /* Force card structure with minimal spacing */
+  .card-wrapper .card,
+  .card {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  /* Minimal spacing between image and content */
+  .card__content {
+    margin-top: 4px !important;
+  }
+
+  /* Absolute minimum padding */
+  .product-grid > * {
+    padding: 1px !important;
+  }
+
+  /* Reduce grid gap for tighter layout */
+  .product-grid {
+    gap: 2px !important;
+    column-gap: 2px !important;
+    row-gap: 2px !important;
+  }
+
+  /* Slightly smaller font for title and price to fit better */
+  .card__heading {
+    font-size: 1.3rem !important;
+    line-height: 1.5 !important;
+  }
+
+  .price {
+    font-size: 1rem !important;
+  }
+}
+
+.size-btn.is-loading,
+.size-btn.is-loading .size-label-text,
+.size-btn.is-loading.is-selected,
+.size-btn.is-loading.is-selected .size-label-text,
+.size-btn[aria-busy="true"],
+.variant-swatch.is-loading,
+.variant-swatch.is-loading span,
+.variant-swatch.is-loading.is-selected,
+.variant-swatch.is-loading.is-selected span,
+.variant-swatch[aria-busy="true"],
+.card-size-swatches.is-loading,
+.card-size-swatches .variant-swatch.is-loading {
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  color: inherit !important;
+  border-color: transparent !important;
+}
+
+.size-btn.is-loading::before,
+.size-btn.is-loading::after,
+.variant-swatch.is-loading::before,
+.variant-swatch.is-loading::after,
+.card-size-swatches.is-loading::before,
+.card-size-swatches.is-loading::after {
+  background: transparent !important;
+  box-shadow: none !important;
+  content: none !important;
+}
+
+/* Extra selector: when the loading label is injected into a span inside the button */
+.size-btn.is-loading span,
+.variant-swatch.is-loading span {
+  background: transparent !important;
+}
+
+/* ==================================================
+   Product Card Click Navigation
+   - Make cards show pointer cursor to indicate they're clickable
+   - This works with the JS in size-toggle.js that handles navigation
+================================================== */
+.card-wrapper {
+  cursor: pointer !important;
+}
+
+/* Keep default cursor on interactive elements inside the card */
+.card-wrapper a,
+.card-wrapper button,
+.card-wrapper input,
+.card-wrapper select,
+.card-wrapper .size-toggle-btn,
+.card-wrapper .card-size-swatches,
+.card-wrapper .variant-swatch {
+  cursor: pointer !important; /* explicitly maintain pointer on these elements */
+}
+
+/* ==================================================
+   Header Logo Width Customization
+   - Desktop: 180px width for prominent branding
+   - Responsive: scales down on smaller screens
+================================================== */
+.header__heading-logo {
+  width: 180px !important;
+  max-width: 180px !important;
+  height: auto !important;
+  padding-bottom: 8px;
+}
+
+/* Tablet: slightly smaller but still prominent */
+@media screen and (max-width: 989px) and (min-width: 750px) {
+  .header__heading-logo {
+    width: 140px !important;
+    max-width: 140px !important;
+  }
+}
+
+/* Mobile: adapt to screen size */
+@media screen and (max-width: 749px) {
+  .header__heading-logo {
+    width: 100px !important;
+    max-width: 100px !important;
+  }
+}
+
+/* Very small screens: extra compact */
+@media screen and (max-width: 480px) {
+  .header__heading-logo {
+    width: 85px !important;
+    max-width: 85px !important;
+  }
+}
+
+/* ==================================================
+   Product Card Titles - Uppercase
+   Makes all product names on cards appear in capitals
+================================================== */
+.card__information h3,
+.card__information h3 a,
+.card__heading,
+.card__heading a {
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important; /* slight spacing for better readability */
+}
+
+/* ==================================================
+   Product Card Content - Remove Left Offset
+   Ensures content is perfectly centered without left padding/margin
+================================================== */
+.card__content {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* ==================================================
+   Product Card - Consistent Title & Price Size
+   Make product title and price same size (13px = 1.3rem)
+   Using high-specificity selectors to override defaults
+================================================== */
+.card__content .card__heading,
+.card__content .card__heading a,
+.card__information h3.card__heading,
+.card__information .card__heading a {
+  font-size: 1.2rem !important;
+  line-height: 1.8 !important;
+  font-family: Helvetica, Arial, sans-serif !important;
+}
+
+/* Price elements - need very specific selectors */
+.card .price .price-item,
+.card .price .price-item.price-item--regular,
+.card .price .price-item.price-item--sale,
+.card__content .price-item,
+.card__content .price-item.price-item--regular,
+.card__content .price-item.price-item--sale,
+.card__content .price span,
+.card__content .price__regular,
+.card__content .price__sale,
+.card-information .price .price-item,
+.card-information .price .price-item.price-item--regular,
+.card__information .price .price-item,
+.card__information .price .price-item.price-item--regular {
+  font-size: 1.1rem !important;
+  line-height: 1.3 !important;
+}
+
+/* ==================================================
+   Header Logo - Perfect Center Position
+   Centers the logo image itself in the header
+================================================== */
+.header__heading-logo,
+.header__heading-logo--main,
+.header__heading-logo--main-desktop {
+  position: relative !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+}
+
+/* ==================================================
+   Sold Out Badge Customization
+   - Transparent background & no border
+   - Red text, larger font
+   - Centered in the card media
+================================================== */
+.card__badge .badge,
+.card__sale-badge.badge,
+.badge--bottom-left.color-inverse,
+.card__badge .badge span,
+.card__sale-badge.badge span,
+span.card__sale-badge.badge.badge--bottom-left.color-inverse,
+span.card__sale-badge.badge.badge--bottom-left.color-inverse * {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  display: none;
+  box-shadow: none !important;
+  color: #ff0000 !important; /* Red text */
+  font-size: 3.5rem !important; /* Much larger text */
+  font-weight: 900 !important; /* Extra bold */
+  /* Stronger visual weight fallback when the 900 font file is not available.
+    Increase stroke + layered shadows and prefer bold-capable system fonts. */
+  -webkit-text-stroke: 1px rgba(0, 0, 0, 0.08) !important;
+  /* Prefer a bold-capable UI/system font if available for a genuine heavy weight */
+  font-family: "Arial Black", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+
+  /* Center positioning */
+  position: absolute !important;
+  top: 85% !important;
+  left: 50% !important;
+  bottom: auto !important;
+  right: auto !important;
+  transform: translate(-50%, -50%) !important;
+  width: max-content !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Responsive: reduce card sold-out badge font on small screens so it doesn't overflow */
+@media screen and (max-width: 749px) {
+  .card__badge .badge,
+  .card__sale-badge.badge,
+  .badge--bottom-left.color-inverse,
+  .card__badge .badge span,
+  .card__sale-badge.badge span,
+  span.card__sale-badge.badge.badge--bottom-left.color-inverse,
+  span.card__sale-badge.badge.badge--bottom-left.color-inverse * {
+    font-size: 2.5rem !important;
+    top: 85% !important;
+    padding: 0 !important;
+  }
+}
+
+/* Remove any background from pseudo-elements */
+.card__badge .badge::before,
+.card__badge .badge::after,
+.card__sale-badge.badge::before,
+.card__sale-badge.badge::after {
+  content: none !important;
+  display: none !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* ==================================================
+   Main Product Page - Title Styling
+   - Uppercase, Bold, Helvetica font
+================================================== */
+.product__title h1,
+.product__title {
+  text-transform: uppercase !important;
+  font-weight: bold !important;
+  font-family: Helvetica, Arial, sans-serif !important;
+  font-size: 3rem !important;
+}
+
+/* ==================================================
+   Product Description Styling
+   - Helvetica font, 1.5rem size, Uppercase
+================================================== */
+.product__description,
+.product__description p,
+.product__description li,
+.product__description * {
+  font-family: Helvetica, Arial, sans-serif !important;
+  font-size: 1.2rem !important;
+  text-transform: uppercase !important;
+}
+
+/* Custom Product Dropdown Styling (moved here as a safe override)
+   Appended per user request. This mirrors the requested rules that were
+   intended for assets/base.css but putting them in overrides.css is safer
+   and ensures the styles load after base.css. */
+.product-form__input .select__select {
+  border-radius: 0 !important;
+  border: 1px solid #000 !important;
+  background-color: transparent !important;
 }

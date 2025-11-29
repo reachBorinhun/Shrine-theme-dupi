@@ -1,0 +1,34 @@
+/* ==================================================
+   Header Logo Width Customization
+   - Desktop: 180px width for prominent branding
+   - Responsive: scales down on smaller screens
+================================================== */
+.header__heading-logo {
+  width: 180px !important;
+  max-width: 180px !important;
+  height: auto !important;
+}
+
+/* Tablet: slightly smaller but still prominent */
+@media screen and (max-width: 989px) and (min-width: 750px) {
+  .header__heading-logo {
+    width: 140px !important;
+    max-width: 140px !important;
+  }
+}
+
+/* Mobile: adapt to screen size */
+@media screen and (max-width: 749px) {
+  .header__heading-logo {
+    width: 100px !important;
+    max-width: 100px !important;
+  }
+}
+
+/* Very small screens: extra compact */
+@media screen and (max-width: 480px) {
+  .header__heading-logo {
+    width: 85px !important;
+    max-width: 85px !important;
+  }
+}

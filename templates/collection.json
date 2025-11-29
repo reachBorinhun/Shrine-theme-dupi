@@ -20,6 +20,7 @@
     },
     "main-collection-product-grid": {
       "type": "main-collection-product-grid",
+      "disabled": true,
       "custom_css": [],
       "settings": {
         "products_per_page": 20,
@@ -118,11 +119,105 @@
         "padding_top": 16,
         "padding_bottom": 64
       }
+    },
+    "rich_text_AqKfyJ": {
+      "type": "rich-text",
+      "blocks": {
+        "heading_j4i6eL": {
+          "type": "heading",
+          "settings": {
+            "title": "Coming Soon",
+            "title_highlight_1": "solid-color",
+            "title_highlight_1_gradient": "linear-gradient(57deg, rgba(249, 119, 255, 1) 8%, rgba(54, 212, 255, 1) 47%, rgba(43, 252, 135, 1) 83%)",
+            "title_highlight_1_bg-color": "#F9EFFF",
+            "title_highlight_1_color": "#6D388B",
+            "highlighted-1_border_radius": 8,
+            "highlighted-1_border_width": 0,
+            "highlighted-1_border": "solid",
+            "highlighted-1_border_color": "#6D388B",
+            "highlighted-1_padding-block": 0.3,
+            "highlighted-1_padding-inline": 0.3,
+            "title_highlight_1_underline-thickness": 2,
+            "title_highlight_1_underline-color": "#6D388B",
+            "title_highlight_1_underline-color--gradient": "linear-gradient(57deg, rgba(249, 119, 255, 1) 8%, rgba(54, 212, 255, 1) 47%, rgba(43, 252, 135, 1) 83%)",
+            "title_highlight_1_underline-color-position": 25,
+            "title_highlight_1_handwritten-color": "#6D388B",
+            "title_highlight_1_handwritten-stroke-width": 3,
+            "title_highlight_1_handwritten-position": 60,
+            "title_highlight_2": "none",
+            "title_highlight_2_gradient": "linear-gradient(57deg, rgba(249, 119, 255, 1) 8%, rgba(54, 212, 255, 1) 47%, rgba(43, 252, 135, 1) 83%)",
+            "title_highlight_2_bg-color": "#F9EFFF",
+            "title_highlight_2_color": "#6D388B",
+            "highlighted-2_border_radius": 8,
+            "highlighted-2_border_width": 0,
+            "highlighted-2_border": "solid",
+            "highlighted-2_border_color": "#6D388B",
+            "highlighted-2_padding-block": 0.3,
+            "highlighted-2_padding-inline": 0.3,
+            "title_highlight_2_underline-thickness": 2,
+            "title_highlight_2_underline-color": "#6D388B",
+            "title_highlight_2_underline-color--gradient": "linear-gradient(57deg, rgba(249, 119, 255, 1) 8%, rgba(54, 212, 255, 1) 47%, rgba(43, 252, 135, 1) 83%)",
+            "title_highlight_2_underline-color-position": 25,
+            "title_highlight_2_handwritten-color": "#6D388B",
+            "title_highlight_2_handwritten-stroke-width": 3,
+            "title_highlight_2_handwritten-position": 60,
+            "heading_size": "h2",
+            "custom_desktop_size": 39,
+            "custom_mobile_size": 28,
+            "alignment": "left",
+            "mobile_alignment": "mobile-left",
+            "enable_custom_color": true,
+            "custom_color": "#45434d",
+            "margin_top": 45,
+            "margin_bottom": 15
+          },
+          "blocks": {}
+        },
+        "text_UWMCg8": {
+          "type": "text",
+          "disabled": true,
+          "settings": {
+            "text": "<p>Use the flexible grid system to create any layout. Each block can be placed in any of the columns.</p>",
+            "alignment": "left",
+            "mobile_alignment": "mobile-center",
+            "text_size": 14,
+            "enable_custom_color": false,
+            "custom_text_color": "#FF0000",
+            "margin_top": 15,
+            "margin_bottom": 15
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "heading_j4i6eL",
+        "text_UWMCg8"
+      ],
+      "name": "Rich text",
+      "settings": {
+        "display_id": false,
+        "visibility": "always-display",
+        "desktop_content_position": "center",
+        "desktop_content_alignment": "center",
+        "mobile_content_alignment": "center",
+        "full_width": true,
+        "mobile_narrow_width": false,
+        "color_scheme": "background-1",
+        "custom_colors_background": "#FFFFFF",
+        "custom_gradient_background": "",
+        "custom_colors_text": "#2E2A39",
+        "custom_colors_solid_button_background": "#dd1d1d",
+        "custom_colors_solid_button_text": "#ffffff",
+        "custom_colors_outline_button": "#dd1d1d",
+        "padding_top": 100,
+        "padding_bottom": 52
+      }
     }
   },
   "order": [
     "main-collection-banner",
     "main-collection-product-grid",
-    "collage"
+    "collage",
+    "rich_text_AqKfyJ"
   ]
 }

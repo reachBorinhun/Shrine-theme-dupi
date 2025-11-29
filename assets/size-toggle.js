@@ -229,11 +229,6 @@ document.addEventListener("DOMContentLoaded", function () {
     target.appendChild(container);
     return true;
   }
-
-  // Detect whether the container (or its swatches) are blocked by another
-  // element at runtime. We test the center point of the container and a
-  // couple of its visible swatches; if elementFromPoint returns an element
-  // that's not the container or a descendant, we consider it blocked.
   function needsReparent(container, btn) {
     if (!container || !document.elementFromPoint) return false;
     try {
@@ -268,8 +263,6 @@ document.addEventListener("DOMContentLoaded", function () {
           // at this point this sample is not blocked
           continue;
         }
-        // If the topmost element is a child of the toggle button (we may
-        // click the + which is separate), treat as not blocked
         var toggleBtn =
           btn ||
           document.querySelector(
@@ -318,8 +311,6 @@ document.addEventListener("DOMContentLoaded", function () {
     _movedContainers.delete(container);
   }
 
-  // Restore containers moved into card__content as well (or any moved type)
-  // Note: this will restore based on saved.parent/nextSibling recorded earlier.
   function restoreMovedSizeContainer(container) {
     if (!container) return;
     var saved = _movedContainers.get(container);
@@ -410,14 +401,24 @@ document.addEventListener("DOMContentLoaded", function () {
     if (isVisible) {
       closeSizeContainer(sizeContainer);
     } else {
+      // Close any other open swatch containers so only one panel is visible
+      try {
+        document
+          .querySelectorAll(".card-size-swatches.is-visible")
+          .forEach(function (other) {
+            if (other === sizeContainer) return;
+            try {
+              closeSizeContainer(other);
+            } catch (e) {}
+          });
+      } catch (e) {}
+
       openSizeContainer(sizeContainer, btn);
     }
   });
 
   // Close size options when clicking outside a media card
   document.addEventListener("click", function (e) {
-    // If the click happened inside the card media, the swatches container,
-    // or on a swatch button itself, treat it as an inside-click and do nothing.
     if (
       e.target.closest(".card__media") ||
       e.target.closest(".card-size-swatches") ||
@@ -430,9 +431,6 @@ document.addEventListener("DOMContentLoaded", function () {
     document
       .querySelectorAll(".card-size-swatches.is-visible")
       .forEach((container) => {
-        // If we just opened this container from a capture-phase pointerdown,
-        // skip the immediate close (race with overlay mouseup). The pointerdown
-        // handler will set a timestamp on dataset.openedByPointerDown we can check.
         if (container.dataset.openedByPointerDown) {
           const openedAt = parseInt(container.dataset.openedByPointerDown, 10);
           if (Date.now() - openedAt < 400) {
@@ -446,13 +444,6 @@ document.addEventListener("DOMContentLoaded", function () {
       });
   });
 
-  // Capture-phase pointerdown fallback: some themes place invisible overlays
-  // above media which can prevent clicks from reaching the toggle. We listen
-  // in capture phase, detect pointerdowns inside the visual rect of a
-  // .size-toggle-btn and open the swatches directly. To avoid the earlier
-  // synthetic-click race, we do NOT call synthetic click(); instead we open
-  // the container and mark it briefly to prevent the immediate outside-click
-  // handler from closing it.
   document.addEventListener(
     "pointerdown",
     function (e) {
@@ -475,6 +466,18 @@ document.addEventListener("DOMContentLoaded", function () {
           if (!sizeContainer) return;
 
           if (!sizeContainer.classList.contains("is-visible")) {
+            // Close any other open swatch containers first (capture path)
+            try {
+              document
+                .querySelectorAll(".card-size-swatches.is-visible")
+                .forEach(function (other) {
+                  if (other === sizeContainer) return;
+                  try {
+                    closeSizeContainer(other);
+                  } catch (e) {}
+                });
+            } catch (e) {}
+
             openSizeContainer(sizeContainer, btn);
             // mark timestamp so outside-click handler can ignore the immediate click
             sizeContainer.dataset.openedByPointerDown = String(Date.now());
@@ -485,13 +488,98 @@ document.addEventListener("DOMContentLoaded", function () {
               }
             }, 500);
           }
-
-          // We don't preventDefault here; we only use this to open the UI when
-          // overlays intercept the pointer. Let other handlers proceed.
-          return; // only handle the first matching toggle
+          return;
         }
       }
     },
     true
   );
+
+  // Enforce transparent background on 'Adding...' labels even if other CSS/JS runs later.
+  // This MutationObserver watches for class/aria changes on size buttons and variant swatches
+  // and forces inline transparent background when they enter the loading/busy state.
+  try {
+    function enforceTransparentLoading(el) {
+      if (!el) return;
+      try {
+        el.style.setProperty("background-color", "transparent", "important");
+      } catch (e) {}
+      try {
+        el.style.setProperty("background", "transparent", "important");
+      } catch (e) {}
+      try {
+        var label =
+          el.querySelector &&
+          (el.querySelector(".size-label-text") || el.querySelector("span"));
+        if (label) {
+          try {
+            label.style.setProperty(
+              "background-color",
+              "transparent",
+              "important"
+            );
+          } catch (e) {}
+          try {
+            label.style.setProperty("background", "transparent", "important");
+          } catch (e) {}
+        }
+      } catch (e) {}
+    }
+
+    var mo = new MutationObserver(function (mutations) {
+      mutations.forEach(function (m) {
+        var t = m.target;
+        if (!t) return;
+        try {
+          if (
+            t.classList &&
+            (t.classList.contains("is-loading") ||
+              t.getAttribute("aria-busy") === "true")
+          ) {
+            enforceTransparentLoading(t);
+          }
+        } catch (e) {}
+      });
+    });
+
+    // Observe existing buttons
+    document
+      .querySelectorAll(".size-btn, .variant-swatch")
+      .forEach(function (b) {
+        try {
+          mo.observe(b, {
+            attributes: true,
+            attributeFilter: ["class", "aria-busy"],
+          });
+        } catch (e) {}
+      });
+
+    // Observe the document for new buttons being added so we can attach observer
+    try {
+      var bodyMo = new MutationObserver(function (mutations) {
+        mutations.forEach(function (m) {
+          if (!m.addedNodes) return;
+          m.addedNodes.forEach(function (n) {
+            if (!n || !n.querySelector) return;
+            var found =
+              n.matches &&
+              (n.matches(".size-btn") || n.matches(".variant-swatch"))
+                ? [n]
+                : Array.prototype.slice.call(
+                    n.querySelectorAll(".size-btn, .variant-swatch")
+                  );
+            found.forEach(function (b) {
+              try {
+                mo.observe(b, {
+                  attributes: true,
+                  attributeFilter: ["class", "aria-busy"],
+                });
+              } catch (e) {}
+            });
+          });
+        });
+      });
+      bodyMo.observe(document.body, { childList: true, subtree: true });
+    } catch (e) {}
+  } catch (e) {}
 });

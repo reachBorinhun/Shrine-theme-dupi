@@ -1,68 +1,120 @@
 {% comment %}
-  Section: Full Screen Intro Gate
-  - A full-screen, fixed position section that acts as an entry gate to the site.
-  - Features a dynamic background image, logo, and customizable button text.
-  - On click, it smoothly transitions away to reveal the main page content.
-  - Styled with Tailwind CSS utility classes.
+  Section: Full Screen Intro Gate (HIGH QUALITY DIRECT LINK VERSION)
+  - Features a dynamic background video (Direct MP4 Link for best mobile quality), logo, and button.
+  - Falls back to standard video picker or image if no link is provided.
 {% endcomment %}
 
 {%- liquid
   assign bg_image = section.settings.background_image
   assign logo_image = section.settings.logo_image
   assign button_text = section.settings.button_text | escape
+  assign bg_video = section.settings.background_video
+  assign mp4_url = section.settings.mp4_video_link
 -%}
 
 <style>
-  /* Scoped styles for the intro gate + reveal animation
-     - Use transitions (transform + opacity) for compositor-friendly animation
-     - Duration: 1.2s, Easing: cubic-bezier(0.76, 0, 0.24, 1) */
-
   #intro-gate-{{ section.id }} {
-    {% if bg_image != blank %}
+    overflow: hidden;
+
+    {% if mp4_url == blank and bg_video == blank and bg_image != blank %}
       background-image: url('{{ bg_image | image_url: width: 1920 }}');
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
-    {% else %}
+    {% elsif mp4_url == blank and bg_video == blank and bg_image == blank %}
       background-color: #000000;
     {% endif %}
-  will-change: transform;
-  transform: translate3d(0, 0, 0);
+
+    will-change: transform;
+    transform: translate3d(0, 0, 0);
   }
 
-  .intro-gate-content-{{ section.id }} { @apply text-white; text-shadow: 2px 2px 8px rgba(0,0,0,0.7); }
+  .intro-gate-content-{{ section.id }} {
+    position: relative;
+    z-index: 10;
+    color: white;
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
+    font-family: Helvetica, Arial, sans-serif;
+  }
 
-  .shine-button { position: relative; overflow: hidden; }
-  .shine-button::after { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.35) 50%, rgba(255,255,255,0) 100%); transform: translateX(-100%); animation: shine-effect 3.5s infinite linear; }
-  @keyframes shine-effect { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+  .intro-gate-video-{{ section.id }} {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: cover;
+    z-index: 0;
+  }
 
-  /* Slightly off-white enter button color (not pure #fff) */
+  /* Video overlay to darken if needed */
+  .intro-gate-overlay-{{ section.id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 1;
+  }
+
+  .shine-button {
+    position: relative;
+    background: linear-gradient(
+      110deg,
+      #444 0%,
+      #444 40%,
+      #fff 50%,
+      #444 60%,
+      #444 100%
+    );
+    background-size: 200% auto;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    animation: shine-text 3.5s infinite linear;
+  }
+
+  @keyframes shine-text {
+    0% {
+      background-position: 0% center;
+    }
+    100% {
+      background-position: 200% center;
+    }
+  }
+
   #enter-button-{{ section.id }} {
     color: #f7f7f7;
+    font-size: 1.7rem;
+    font-weight: 600;
+    font-family: Helvetica, Arial, sans-serif;
   }
+
   #enter-button-{{ section.id }}:hover,
   #enter-button-{{ section.id }}:focus {
     color: #ffffff;
   }
 
-  /* Prevent page scroll while intro gate exists */
-  body.intro-gate-active { overflow: hidden; }
+  body.intro-gate-active {
+    overflow: hidden;
+  }
 
-  /* Transitions applied to both gate and MainContent for synchronized reveal (transform only) */
   #intro-gate-{{ section.id }}, #MainContent {
     transition-property: transform;
     transition-duration: 1.2s;
     transition-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
   }
 
-  /* Initial MainContent state: start offscreen below the viewport so it can slide in */
   body.intro-gate-active #MainContent {
     transform: translate3d(0, 100vh, 0);
     pointer-events: none;
   }
 
-  /* Revealing state: gate slides up; main content follows immediately (no opacity changes) */
-  /* Use viewport units so the movement matches a full-page scroll/push */
   body.intro-gate-revealing #intro-gate-{{ section.id }} {
     transform: translate3d(0, -100vh, 0);
   }
@@ -70,15 +122,61 @@
   body.intro-gate-revealing #MainContent {
     transform: translate3d(0, 0, 0);
     pointer-events: auto;
-    transition-delay: 0s; /* ensure no delay: content follows immediately */
+    transition-delay: 0s;
+  }
+
+  @media (min-width: 1090px) {
+    .intro-gate-content-{{ section.id }} img {
+      width: 180px !important;
+      max-width: none;
+    }
   }
 </style>
 
 <div
   id="intro-gate-{{ section.id }}"
-  class="fixed top-0 left-0 w-screen h-screen bg-cover bg-center z-[100] flex justify-center items-end transition-transform duration-[800ms] ease-[cubic-bezier(0.76,0,0.24,1)]"
+  class="fixed top-0 left-0 w-screen h-screen bg-cover bg-center z-[100] flex justify-center items-end"
 >
-  <div class="intro-gate-content-{{ section.id }} text-center text-white pb-[8vh]">
+  {%- comment -%}
+    VIDEO LOGIC:
+    1. Check for Direct MP4 Link (Highest Quality)
+    2. Fallback to Standard Video Picker
+  {%- endcomment -%}
+
+  {%- if mp4_url != blank -%}
+    <video
+      class="intro-gate-video-{{ section.id }}"
+      src="{{ mp4_url }}"
+      autoplay
+      loop
+      muted
+      playsinline
+      {% if bg_image != blank %}
+        poster="{{ bg_image | image_url: width: 1920 }}"
+      {% endif %}
+    ></video>
+    <div class="intro-gate-overlay-{{ section.id }}"></div>
+
+  {%- elsif bg_video != blank -%}
+    <video
+      class="intro-gate-video-{{ section.id }}"
+      autoplay
+      loop
+      muted
+      playsinline
+      {% if bg_image != blank %}
+        poster="{{ bg_image | image_url: width: 1920 }}"
+      {% endif %}
+    >
+      {%- for source in bg_video.sources -%}
+        <source src="{{ source.url }}" type="{{ source.mime_type }}">
+      {%- endfor -%}
+      Your browser does not support the video tag.
+    </video>
+    <div class="intro-gate-overlay-{{ section.id }}"></div>
+  {%- endif -%}
+
+  <div class="intro-gate-content-{{ section.id }} text-center pb-[8vh]">
     {% if logo_image != blank %}
       {{
         logo_image
@@ -116,16 +214,14 @@
     const enterButton = document.getElementById('enter-button-{{ section.id }}');
     const body = document.body;
 
-    if (!introGate || !enterButton) return;
+    if (!introGate) return;
 
     // Prevent scrolling while gate is present
     body.classList.add('intro-gate-active');
 
     const reveal = () => {
-      // Trigger CSS transitions by toggling a class
       body.classList.add('intro-gate-revealing');
 
-      // Remove gate from DOM after transition completes (clean exit)
       let cleaned = false;
       const cleanup = () => {
         if (cleaned) return;
@@ -140,17 +236,21 @@
         cleanup();
       });
 
-      // Fallback: ensure cleanup happens even if transitionend doesn't fire
       setTimeout(cleanup, 1400);
     };
 
-    enterButton.addEventListener('click', reveal);
-    enterButton.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault();
-        reveal();
-      }
-    });
+    // Make the entire intro gate clickable
+    introGate.addEventListener('click', reveal);
+
+    // Keep button functionality (for keyboard users and clarity)
+    if (enterButton) {
+      enterButton.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          reveal();
+        }
+      });
+    }
   });
 </script>
 
@@ -159,21 +259,33 @@
   "name": "Full Screen Intro Gate",
   "settings": [
     {
+      "type": "text",
+      "id": "mp4_video_link",
+      "label": "Direct MP4 Video Link",
+      "info": "Paste the direct link from Content > Files here for best mobile quality. This overrides the 'Background Video' setting below."
+    },
+    {
+      "type": "video",
+      "id": "background_video",
+      "label": "Background Video (Fallback)",
+      "info": "Standard Shopify upload. Will be used if no Direct Link is provided."
+    },
+    {
       "type": "image_picker",
       "id": "background_image",
-      "label": "Background Image",
-      "info": "Choose a high-resolution background image for the intro gate."
+      "label": "Background Image (Poster)",
+      "info": "Shows while video loads."
     },
     {
       "type": "image_picker",
       "id": "logo_image",
       "label": "Logo Image",
-      "info": "This logo will be displayed at the bottom-center of the screen."
+      "info": "Displayed at the bottom-center."
     },
     {
       "type": "text",
       "id": "button_text",
-      "label": "\"Click to Start\" Text",
+      "label": "Button Text",
       "default": "Click to Start"
     }
   ],
