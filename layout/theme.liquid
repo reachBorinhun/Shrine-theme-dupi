@@ -1,18 +1,54 @@
 <!doctype html>
 <html class="no-js" lang="{{ request.locale.iso_code }}">
   <head>
+    <script>
+      try {
+        if (sessionStorage.getItem('intro_seen')) document.documentElement.classList.add('intro-seen');
+      } catch (e) {}
+    </script>
     <style>
-      html,
-      body {
-        background: #232325 !important;
+      {% if template == 'index' %}
+        html,
+        body {
+          background: #232325 !important;
+        }
+      {% endif %}
+
+      /* Lock scroll ONLY if intro not seen */
+      html:not(.intro-seen),
+      html:not(.intro-seen) body {
         overflow: hidden;
       }
 
       /* Critical Intro Gate Styles: Hide EVERYTHING except the gate */
-      body.intro-gate-active > *:not(.intro-gate-wrapper):not(script):not(style) {
+      html:not(.intro-seen) body.intro-gate-active > *:not(.intro-gate-wrapper):not(script):not(style) {
         visibility: hidden !important;
         opacity: 0 !important;
         pointer-events: none !important;
+      }
+
+      /* OVERRIDE: Explicitly keep header AND TICKERS visible but behind the gate with very high specificity */
+      html:not(.intro-seen) body.intro-gate-active > shopify-section[id*="header"],
+      html:not(.intro-seen) body.intro-gate-active > shopify-section:first-of-type,
+      html:not(.intro-seen) body.intro-gate-active > #shopify-section-header-group,
+      html:not(.intro-seen) body.intro-gate-active > [id*="shopify-section-sections"][id*="header"],
+      html:not(.intro-seen) body.intro-gate-active > a.skip-to-content-link ~ shopify-section:nth-of-type(1),
+      html:not(.intro-seen) body.intro-gate-active > .intro-gate-wrapper ~ shopify-section:nth-of-type(1),
+      html:not(.intro-seen) body.intro-gate-active shopify-section[id*="header"] .header-wrapper,
+      html:not(.intro-seen) body.intro-gate-active shopify-section[id*="header"] .header,
+      html:not(.intro-seen) body.intro-gate-active shopify-section[id*="header"] sticky-header,
+      html:not(.intro-seen) body.intro-gate-active shopify-section[id*="header"] .sticky-header,
+      html:not(.intro-seen) body.intro-gate-active shopify-section[id*="header"] *,
+      html:not(.intro-seen) body.intro-gate-active > shopify-section:first-of-type *,
+      html:not(.intro-seen) body.intro-gate-active .horizontal-ticker,
+      html:not(.intro-seen) body.intro-gate-active .horizontal-ticker-and-content,
+      html:not(.intro-seen) body.intro-gate-active .horizontal-ticker *,
+      html:not(.intro-seen) body.intro-gate-active .horizontal-ticker-and-content *,
+      html:not(.intro-seen) body.intro-gate-active > shopify-section[id*="ticker"],
+      html:not(.intro-seen) body.intro-gate-active > shopify-section[id*="ticker"] * {
+        visibility: visible !important;
+        opacity: 1 !important;
+        z-index: 1 !important; /* Below the intro gate which has z-index 2147483647 */
       }
 
       /* Ensure the wrapper is visible and on top */
@@ -29,6 +65,11 @@
         opacity: 1 !important;
       }
 
+      /* If seen, hide the wrapper immediately */
+      html.intro-seen .intro-gate-wrapper {
+        display: none !important;
+      }
+
       /* REVEAL STATE: Show content behind the gate */
       body.intro-gate-active.intro-gate-revealing > *:not(.intro-gate-wrapper):not(script):not(style) {
         visibility: visible !important;
@@ -37,6 +78,17 @@
       /* Make wrapper transparent during reveal so inner animation is visible */
       body.intro-gate-active.intro-gate-revealing .intro-gate-wrapper {
         background: transparent !important;
+      }
+      /* Ensure header/navbar appears immediately and smoothly during reveal */
+      body.intro-gate-active.intro-gate-revealing .header-wrapper,
+      body.intro-gate-active.intro-gate-revealing .header,
+      body.intro-gate-active.intro-gate-revealing sticky-header,
+      body.intro-gate-active.intro-gate-revealing .sticky-header,
+      body.intro-gate-active.intro-gate-revealing shopify-section[id*="shopify-section-header"],
+      body.intro-gate-active.intro-gate-revealing #shopify-section-sections--18697127190848__header {
+        visibility: visible !important;
+        opacity: 1 !important;
+        transition: opacity 0.3s ease !important;
       }
     </style>
     <meta charset="utf-8">

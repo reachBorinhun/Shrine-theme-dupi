@@ -242,7 +242,16 @@
 
 <script>
   (function() {
-    const loader = document.getElementById('intro-gate-loader-{{ section.id }}');
+  // 0. CHECK IF SEEN
+  try {
+    if (sessionStorage.getItem('intro_seen')) {
+      const wrapper = document.querySelector('.intro-gate-wrapper');
+      if (wrapper) wrapper.remove();
+      return;
+    }
+  } catch(e) {}
+
+  const loader = document.getElementById('intro-gate-loader-{{ section.id }}');
     const introGate = document.getElementById('intro-gate-{{ section.id }}');
     const enterButton = document.getElementById('enter-button-{{ section.id }}');
     const body = document.body;
@@ -303,7 +312,9 @@
     const reveal = () => {
       body.classList.add('intro-gate-revealing');
 
-      // Reset HTML background to allow scrolling again
+    try { sessionStorage.setItem('intro_seen', 'true'); } catch(e) {}
+
+    // Reset HTML background to allow scrolling again
       document.documentElement.style.background = '';
       document.body.style.background = '';
       document.documentElement.style.overflow = 'initial';

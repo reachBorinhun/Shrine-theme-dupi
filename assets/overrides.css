@@ -550,6 +550,16 @@ select.select.no-background.color-background-1.accent-color-accent-1.accent-2-co
   border-color: transparent !important;
 }
 
+/* Lower opacity of product  images when sold out */
+.card-wrapper:has(.badge.color-inverse) .card__media img,
+.card-wrapper:has([class*="sold-out"]) .card__media img,
+.card:has(.badge.color-inverse) .card__media img,
+.card:has([class*="sold-out"]) .card__media img {
+  opacity: 0.5 !important;
+  transition: opacity 0.3s ease;
+}
+
+
 /* Tables in rich text (product descriptions, blog posts) should render
    responsively without forcing a horizontal scrollbar. Instead we allow
    the table to use auto layout and let cells wrap/break words on small
