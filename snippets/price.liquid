@@ -64,7 +64,9 @@
     {%- if product.price_varies == false and product.compare_at_price_varies %} price--no-compare{% endif -%}
     {%- if show_badges %} price--show-badge{% endif -%}
   "
-  {% if main_price %}id="main-price-{{ block.id }}"{% endif %}
+  {% if main_price %}
+    id="main-price-{{ block.id }}"
+  {% endif %}
 >
   <div class="price__container">
     {%- comment -%}
@@ -75,7 +77,11 @@
     <div class="price__regular">
       <span class="visually-hidden visually-hidden--inline">{{ 'products.product.price.regular_price' | t }}</span>
       <span class="price-item price-item--regular{% if main_price %} main-price accent-color-{{ block.settings.price_color }}{% endif %}">
-        {{ money_price }}
+        {% if available == false and request.page_type == 'index' %}
+          <span style="color: #ef4444 !important;">{{ 'products.product.sold_out' | t }}</span>
+        {% else %}
+          {{ money_price }}
+        {% endif %}
       </span>
     </div>
     <div class="price__sale {% if price_second %} price__sale--price-second{% endif %}">
@@ -83,17 +89,23 @@
         {{- 'products.product.price.regular_price' | t -}}
       </span>
       <span class="price-item price-item--sale price-item--last{% if main_price %} main-price accent-color-{{ block.settings.price_color }}{% endif %}">
-        {{ money_price }}
+        {% if available == false and request.page_type == 'index' %}
+          <span style="color: #ef4444 !important;">{{ 'products.product.sold_out' | t }}</span>
+        {% else %}
+          {{ money_price }}
+        {% endif %}
       </span>
       {%- unless product.price_varies == false and product.compare_at_price_varies %}
-        <span class="visually-hidden visually-hidden--inline regular-price-label">
-          {{- 'products.product.price.sale_price' | t -}}
-        </span>
-        <span class="price__compare-price">
-          <s class="price-item price-item--regular{% if main_price %} main-comapre-price accent-color-{{ block.settings.compare_price_color }}{% endif %}">
-            {{ money_compare_at_price }}
-          </s>
-        </span>
+        {% unless available == false and request.page_type == 'index' %}
+          <span class="visually-hidden visually-hidden--inline regular-price-label">
+            {{- 'products.product.price.sale_price' | t -}}
+          </span>
+          <span class="price__compare-price">
+            <s class="price-item price-item--regular{% if main_price %} main-comapre-price accent-color-{{ block.settings.compare_price_color }}{% endif %}">
+              {{ money_compare_at_price }}
+            </s>
+          </span>
+        {% endunless %}
       {%- endunless -%}
     </div>
     <small class="unit-price caption{% if product.selected_or_first_available_variant.unit_price_measurement == nil %} hidden{% endif %}">
@@ -120,7 +132,14 @@
     {% endcapture %}
     {% if main_price != true or block.settings.displayed_badge == 'sale' %}
       <span class="badge price__badge-sale color-{{ sale_badge_color_scheme }}">
-        {% if settings.sale_basge_discount_icon %}{% render 'icon-discount' %}{% endif %}<span class='nowrap'>{{ settings.sale_badge_text | replace: '[percentage]', percentage_saved | replace: '[amount]', money_saved }}</span>
+        {% if settings.sale_basge_discount_icon %}{% render 'icon-discount' %}{% endif -%}
+        <span class="nowrap">
+          {{-
+            settings.sale_badge_text
+            | replace: '[percentage]', percentage_saved
+            | replace: '[amount]', money_saved
+          -}}
+        </span>
       </span>
     {% elsif block.settings.displayed_badge == 'custom' %}
       {% capture icon_1 %}
@@ -149,8 +168,17 @@
           {% render 'material-icon', icon: block.settings.icon_2, filled: block.settings.filled_icon_2 %}
         {% endif %}
       {% endcapture %}
-      <span class="badge price__badge-custom color-{{ sale_badge_color_scheme }} nowrap" style="--icon-size: {{ block.settings.icon_scale | divided_by: 100.0 }}em;">
-        {{ block.settings.custom_badge_text | replace: '[percentage]', percentage_saved | replace: '[amount]', money_saved | replace: '[icon_1]', icon_1 | replace: '[icon_2]', icon_2 }}
+      <span
+        class="badge price__badge-custom color-{{ sale_badge_color_scheme }} nowrap"
+        style="--icon-size: {{ block.settings.icon_scale | divided_by: 100.0 }}em;"
+      >
+        {{
+          block.settings.custom_badge_text
+          | replace: '[percentage]', percentage_saved
+          | replace: '[amount]', money_saved
+          | replace: '[icon_1]', icon_1
+          | replace: '[icon_2]', icon_2
+        }}
       </span>
     {% endif %}
     <span class="badge price__badge-sold-out color-{{ settings.sold_out_badge_color_scheme }}">
